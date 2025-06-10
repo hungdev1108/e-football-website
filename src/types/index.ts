@@ -1,14 +1,15 @@
 // User & Authentication Types
 export interface User {
-  id: string;
-  email: string;
+  _id: string;
   username: string;
-  displayName?: string;
-  avatar?: string;
-  role: 'USER' | 'ADMIN';
-  isEmailVerified: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  email: string;
+  fullName?: string;
+  role: 'user' | 'seller' | 'admin';
+  balance?: number;
+  emailVerified?: boolean;
+  phone?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface AuthState {
@@ -17,7 +18,41 @@ export interface AuthState {
   isAuthenticated: boolean;
 }
 
-// Game Account Types
+// Game Account Types from API
+export interface ApiGameAccount {
+  _id: string;
+  title: string;
+  accountCode: string;
+  description: string;
+  price: number;
+  category: {
+    _id: string;
+    name: string;
+  };
+  seller: {
+    _id: string;
+    username: string;
+    fullName: string;
+  };
+  images: Array<{
+    url: string;
+    alt: string;
+  }>;
+  collectiveStrength: number;
+  accountDetails: {
+    platform: 'steam' | 'mobile' | 'ps4' | 'ps5' | 'xbox';
+    level: number;
+    coins: number;
+    gp: number;
+  };
+  status: 'available' | 'sold' | 'pending';
+  featured: boolean;
+  views: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Legacy GameAccount type for compatibility
 export interface GameAccount {
   id: string;
   title: string;
@@ -59,6 +94,17 @@ export interface AccountSpecification {
   type: 'text' | 'number' | 'boolean' | 'list';
 }
 
+// Category from API
+export interface ApiCategory {
+  _id: string;
+  name: string;
+  description?: string;
+  status: 'active' | 'inactive';
+  icon?: string;
+  accountCount?: number;
+}
+
+// Legacy category type
 export interface GameAccountCategory {
   id: string;
   name: string;
@@ -67,19 +113,54 @@ export interface GameAccountCategory {
   imageUrl?: string;
 }
 
-// Shopping Cart Types
-export interface CartItem {
-  id: string;
-  accountId: string;
-  account: GameAccount;
-  quantity: number;
-  addedAt: Date;
+// News Types from API
+export interface ApiNews {
+  _id: string;
+  title: string;
+  content: string;
+  author: {
+    _id: string;
+    username: string;
+    fullName: string;
+  };
+  featuredImage: {
+    url: string;
+    alt: string;
+  };
+  status: 'published' | 'draft';
+  featured: boolean;
+  views: number;
+  publishedAt?: string;
+  createdAt: string;
+  updatedAt?: string;
 }
 
-export interface CartState {
-  items: CartItem[];
-  total: number;
-  itemCount: number;
+// System Types from API
+export interface ApiBanner {
+  _id: string;
+  title: string;
+  image: string;
+  link: string;
+  isActive: boolean;
+  order: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ApiLogo {
+  url: string;
+  alt: string;
+}
+
+// Direct Purchase Types (replacing cart functionality)
+export interface PurchaseRequest {
+  accountId: string;
+  buyerInfo: {
+    name: string;
+    email: string;
+    phone: string;
+  };
+  paymentMethod: PaymentMethod;
 }
 
 // Order Types
@@ -178,12 +259,27 @@ export interface SearchResults {
   filters: SearchFilters;
 }
 
-// API Response Types
+// API Response Types matching backend
 export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
   message?: string;
   errors?: Record<string, string[]>;
+}
+
+// Pagination response from API
+export interface ApiPaginatedResponse<T = unknown> {
+  success: boolean;
+  data: {
+    accounts?: T[];
+    news?: T[];
+    pagination: {
+      currentPage: number;
+      totalPages: number;
+      totalItems: number;
+      itemsPerPage: number;
+    };
+  };
 }
 
 export interface PaginatedResponse<T = unknown> {

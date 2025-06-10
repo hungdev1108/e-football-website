@@ -3,7 +3,7 @@ import { ApiResponse, PaginatedResponse } from '@/types';
 
 // Create axios instance
 export const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || '/api',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5002/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -55,6 +55,96 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+// Account API Services
+export const accountService = {
+  // Get all accounts with filters
+  getAccounts: async (params?: {
+    page?: number;
+    limit?: number;
+    category?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    platform?: string;
+    sort?: string;
+    search?: string;
+  }) => {
+    const response = await api.get('/accounts', { params });
+    return response.data;
+  },
+
+  // Get featured accounts
+  getFeaturedAccounts: async (limit = 8) => {
+    const response = await api.get('/accounts/featured', { params: { limit } });
+    return response.data;
+  },
+
+  // Get account by ID
+  getAccountById: async (id: string) => {
+    const response = await api.get(`/accounts/${id}`);
+    return response.data;
+  },
+
+  // Get categories
+  getCategories: async () => {
+    const response = await api.get('/accounts/categories');
+    return response.data;
+  },
+
+  // Get accounts by price range
+  getAccountsByPriceRange: async (minPrice: number, maxPrice: number, limit = 12) => {
+    const response = await api.get('/accounts/price-range', {
+      params: { minPrice, maxPrice, limit }
+    });
+    return response.data;
+  },
+};
+
+// News API Services
+export const newsService = {
+  // Get all news with pagination
+  getNews: async (params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+  }) => {
+    const response = await api.get('/news', { params });
+    return response.data;
+  },
+
+  // Get featured news
+  getFeaturedNews: async (limit = 5) => {
+    const response = await api.get('/news/featured', { params: { limit } });
+    return response.data;
+  },
+
+  // Get latest news
+  getLatestNews: async (limit = 5) => {
+    const response = await api.get('/news/latest', { params: { limit } });
+    return response.data;
+  },
+
+  // Get news by ID
+  getNewsById: async (id: string) => {
+    const response = await api.get(`/news/${id}`);
+    return response.data;
+  },
+};
+
+// System API Services
+export const systemService = {
+  // Get logo
+  getLogo: async () => {
+    const response = await api.get('/system/logo');
+    return response.data;
+  },
+
+  // Get banners
+  getBanners: async () => {
+    const response = await api.get('/system/banners');
+    return response.data;
+  },
+};
 
 // Generic API methods
 export const apiService = {

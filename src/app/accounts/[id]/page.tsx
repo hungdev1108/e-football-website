@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { useParams } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -11,95 +11,35 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Star,
-  Trophy,
-  Users,
-  Shield,
-  Gamepad2,
   ArrowLeft,
+  Star,
+  Users,
+  Calendar,
   ShoppingCart,
   Heart,
   Share2,
+  Trophy,
+  Gamepad2,
+  LoaderIcon,
+  Eye,
 } from "lucide-react";
 import { toast } from "react-hot-toast";
-
-// Mock account detail data
-const mockAccountDetail = {
-  id: "1",
-  title: "Tài khoản EFOOTBALL Premium - Messi & Ronaldo",
-  description:
-    "Tài khoản với đội hình khủng, có Messi, Ronaldo và nhiều siêu sao khác. Đã đầu tư hơn 50 triệu VND để xây dựng đội hình hoàn hảo.",
-  fullDescription:
-    "Đây là tài khoản EFOOTBALL được đầu tư kỹ lưỡng với đội hình siêu khủng. Tài khoản có đầy đủ các cầu thủ legendary như Messi, Ronaldo, Neymar, Mbappé và nhiều siêu sao khác. Tất cả cầu thủ đều đã được nâng cấp tối đa và có chemistry hoàn hảo. Đặc biệt, tài khoản đã unlock được nhiều formation độc quyền và có nhiều kit đặc biệt.",
-  price: 2500000,
-  originalPrice: 3000000,
-  images: [
-    "/api/placeholder/600/400",
-    "/api/placeholder/600/400",
-    "/api/placeholder/600/400",
-    "/api/placeholder/600/400",
-  ],
-  platform: "PC",
-  rating: 95,
-  level: 87,
-  players: [
-    {
-      name: "Lionel Messi",
-      position: "RWF",
-      rating: 95,
-      nationality: "Argentina",
-    },
-    {
-      name: "Cristiano Ronaldo",
-      position: "CF",
-      rating: 94,
-      nationality: "Portugal",
-    },
-    { name: "Neymar Jr", position: "LWF", rating: 91, nationality: "Brazil" },
-    {
-      name: "Kylian Mbappé",
-      position: "CF",
-      rating: 93,
-      nationality: "France",
-    },
-    {
-      name: "Kevin De Bruyne",
-      position: "AMF",
-      rating: 92,
-      nationality: "Belgium",
-    },
-    {
-      name: "Virgil van Dijk",
-      position: "CB",
-      rating: 92,
-      nationality: "Netherlands",
-    },
-  ],
-  formation: "4-3-3",
-  isAvailable: true,
-  seller: {
-    username: "ProGamer123",
-    rating: 4.8,
-    totalSales: 150,
-    joinDate: "2023-01-15T00:00:00Z",
-    verified: true,
-  },
-  specifications: [
-    { key: "GP (Coins)", value: "150,000", type: "number" },
-    { key: "Team Strength", value: "5,200", type: "number" },
-    { key: "Manager", value: "Pep Guardiola", type: "text" },
-    { key: "Stadium", value: "Camp Nou", type: "text" },
-    { key: "Legends", value: "15", type: "number" },
-    { key: "Featured Players", value: "8", type: "number" },
-    { key: "Special Kits", value: "12", type: "number" },
-  ],
-  createdAt: "2024-01-15T10:30:00Z",
-};
+import { useAccount } from "@/hooks/useAccounts";
+import { ApiGameAccount } from "@/types";
+import { getImageUrl, getPlaceholderUrl } from "@/utils/image";
 
 export default function AccountDetailPage() {
-  const [selectedImage, setSelectedImage] = useState(0);
-  const [isWishlisted, setIsWishlisted] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [isLiked, setIsLiked] = useState(false);
+  const params = useParams();
+  const accountId = params.id as string;
+
+  const { data: accountData, isLoading, error } = useAccount(accountId);
+  const account = accountData?.data as ApiGameAccount;
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("vi-VN", {
@@ -108,310 +48,478 @@ export default function AccountDetailPage() {
     }).format(price);
   };
 
-  const addToCart = () => {
-    // TODO: Implement add to cart when API is ready
-    toast.success("Đã thêm vào giỏ hàng!");
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("vi-VN", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
   };
 
-  const toggleWishlist = () => {
-    setIsWishlisted(!isWishlisted);
-    toast.success(
-      isWishlisted ? "Đã xóa khỏi yêu thích" : "Đã thêm vào yêu thích"
+  const getPlatformIcon = (platform: string) => {
+    switch (platform) {
+      case "steam":
+        return "💻";
+      case "mobile":
+        return "📱";
+      case "ps4":
+      case "ps5":
+        return "🎮";
+      case "xbox":
+        return "🎮";
+      default:
+        return "🎮";
+    }
+  };
+
+  const getPlatformLabel = (platform: string) => {
+    switch (platform) {
+      case "steam":
+        return "Steam PC";
+      case "mobile":
+        return "Mobile";
+      case "ps4":
+        return "PlayStation 4";
+      case "ps5":
+        return "PlayStation 5";
+      case "xbox":
+        return "Xbox";
+      default:
+        return platform;
+    }
+  };
+
+  const handlePurchase = () => {
+    if (account.status !== "available") {
+      toast.error("Tài khoản này không còn khả dụng!");
+      return;
+    }
+    // TODO: Implement direct purchase when API is ready
+    toast.success("Chuyển đến trang thanh toán!");
+    // Redirect to payment/checkout page
+    // router.push(`/checkout/${account._id}`);
+  };
+
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: account.title,
+        text: account.description,
+        url: window.location.href,
+      });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      toast.success("Link đã được copy vào clipboard!");
+    }
+  };
+
+  const handleLike = () => {
+    setIsLiked(!isLiked);
+    toast.success(isLiked ? "Đã xóa khỏi yêu thích" : "Đã thêm vào yêu thích");
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <LoaderIcon className="w-8 h-8 animate-spin mx-auto mb-4" />
+          <p>Đang tải thông tin tài khoản...</p>
+        </div>
+      </div>
     );
-  };
+  }
 
-  const shareAccount = () => {
-    navigator.clipboard.writeText(window.location.href);
-    toast.success("Đã copy link tài khoản!");
-  };
+  if (error || !account) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-6xl mb-4">😞</div>
+          <h2 className="text-2xl font-bold mb-2">Không tìm thấy tài khoản</h2>
+          <p className="text-gray-600 mb-4">
+            Tài khoản bạn đang tìm không tồn tại hoặc đã bị xóa.
+          </p>
+          <Link href="/accounts">
+            <Button>Quay lại danh sách tài khoản</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="border-b bg-white sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">⚽</span>
-              </div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                EFOOTBALL Store
-              </h1>
-            </div>
-            <nav className="hidden md:flex items-center space-x-6">
-              <Link
-                href="/"
-                className="text-gray-600 hover:text-blue-600 transition-colors"
-              >
-                Trang chủ
-              </Link>
-              <Link
-                href="/accounts"
-                className="text-gray-600 hover:text-blue-600 transition-colors"
-              >
-                Tài khoản game
-              </Link>
-              <Link
-                href="/news"
-                className="text-gray-600 hover:text-blue-600 transition-colors"
-              >
-                Tin tức
-              </Link>
-              <Link
-                href="/cart"
-                className="text-gray-600 hover:text-blue-600 transition-colors"
-              >
-                Giỏ hàng
-              </Link>
-            </nav>
-            <div className="flex items-center space-x-2">
-              <Link href="/auth/login">
-                <Button variant="outline">Đăng nhập</Button>
-              </Link>
-              <Link href="/auth/register">
-                <Button>Đăng ký</Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
-
       <div className="container mx-auto px-4 py-8">
-        {/* Breadcrumb */}
-        <div className="flex items-center gap-2 mb-6">
+        {/* Back Button */}
+        <div className="mb-6">
           <Link href="/accounts">
-            <Button variant="outline" size="sm">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Quay lại
+            <Button variant="ghost" className="flex items-center gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Quay lại danh sách
             </Button>
           </Link>
-          <span className="text-gray-500">/</span>
-          <span className="text-gray-600">Chi tiết tài khoản</span>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-8">
-          {/* Images Section */}
-          <div className="space-y-4">
-            <div className="relative">
-              <img
-                src={mockAccountDetail.images[selectedImage]}
-                alt={mockAccountDetail.title}
-                className="w-full h-96 object-cover rounded-lg"
-              />
-              <Badge className="absolute top-4 right-4" variant="secondary">
-                {mockAccountDetail.platform}
-              </Badge>
-              {mockAccountDetail.originalPrice && (
-                <Badge className="absolute top-4 left-4" variant="destructive">
-                  GIẢM GIÁ
-                </Badge>
-              )}
-            </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Image Gallery */}
+          <div className="lg:col-span-2">
+            <Card className="mb-6">
+              <CardContent className="p-0">
+                <div className="relative">
+                  <img
+                    src={
+                      account.images[selectedImageIndex]?.url
+                        ? getImageUrl(account.images[selectedImageIndex].url)
+                        : getPlaceholderUrl(600, 400)
+                    }
+                    alt={
+                      account.images[selectedImageIndex]?.alt || account.title
+                    }
+                    className="w-full h-96 object-cover rounded-t-lg"
+                  />
 
-            <div className="grid grid-cols-4 gap-2">
-              {mockAccountDetail.images.map((image, index) => (
-                <img
-                  key={index}
-                  src={image}
-                  alt={`${mockAccountDetail.title} ${index + 1}`}
-                  className={`h-20 object-cover rounded cursor-pointer border-2 transition-all ${
-                    selectedImage === index
-                      ? "border-blue-500"
-                      : "border-gray-200 hover:border-gray-300"
-                  }`}
-                  onClick={() => setSelectedImage(index)}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Info Section */}
-          <div className="space-y-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                {mockAccountDetail.title}
-              </h1>
-              <p className="text-gray-600 mb-4">
-                {mockAccountDetail.description}
-              </p>
-
-              <div className="flex items-center gap-4 mb-4">
-                <div className="flex items-center gap-2">
-                  <Star className="h-5 w-5 text-yellow-500 fill-current" />
-                  <span className="font-medium">
-                    {mockAccountDetail.rating}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Trophy className="h-5 w-5 text-blue-500" />
-                  <span>Level {mockAccountDetail.level}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Gamepad2 className="h-5 w-5 text-green-500" />
-                  <span>{mockAccountDetail.formation}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Price */}
-            <div className="bg-white p-6 rounded-lg border">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <div className="text-3xl font-bold text-blue-600">
-                    {formatPrice(mockAccountDetail.price)}
-                  </div>
-                  {mockAccountDetail.originalPrice && (
-                    <div className="text-lg text-gray-500 line-through">
-                      {formatPrice(mockAccountDetail.originalPrice)}
+                  {/* Status Badge */}
+                  {account.status === "sold" && (
+                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                      <Badge
+                        variant="destructive"
+                        className="text-2xl px-6 py-3"
+                      >
+                        ĐÃ BÁN
+                      </Badge>
                     </div>
                   )}
+
+                  {/* Platform Badge */}
+                  <Badge className="absolute top-4 left-4" variant="secondary">
+                    {getPlatformIcon(account.accountDetails.platform)}{" "}
+                    {getPlatformLabel(account.accountDetails.platform)}
+                  </Badge>
+
+                  {/* Account Code Badge */}
+                  <Badge className="absolute top-4 right-4">
+                    {account.accountCode}
+                  </Badge>
+
+                  {/* Featured Badge */}
+                  {account.featured && (
+                    <Badge className="absolute bottom-4 left-4 bg-yellow-500">
+                      ⭐ Nổi bật
+                    </Badge>
+                  )}
                 </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={toggleWishlist}
-                    className={
-                      isWishlisted ? "text-red-500 border-red-500" : ""
-                    }
-                  >
-                    <Heart
-                      className={`h-4 w-4 ${
-                        isWishlisted ? "fill-current" : ""
-                      }`}
-                    />
-                  </Button>
-                  <Button variant="outline" size="icon" onClick={shareAccount}>
-                    <Share2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
 
-              <Button className="w-full mb-3" size="lg" onClick={addToCart}>
-                <ShoppingCart className="h-5 w-5 mr-2" />
-                Thêm vào giỏ hàng
-              </Button>
+                {/* Image Thumbnails */}
+                {account.images.length > 1 && (
+                  <div className="p-4">
+                    <div className="flex gap-2 overflow-x-auto">
+                      {account.images.map((image, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setSelectedImageIndex(index)}
+                          className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${
+                            selectedImageIndex === index
+                              ? "border-blue-500"
+                              : "border-gray-200"
+                          }`}
+                        >
+                          <img
+                            src={getImageUrl(image.url)}
+                            alt={image.alt}
+                            className="w-full h-full object-cover"
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
-              <div className="text-center text-sm text-gray-500">
-                <p>✓ Giao hàng ngay lập tức</p>
-                <p>✓ Bảo hành tài khoản 30 ngày</p>
-                <p>✓ Hỗ trợ 24/7</p>
-              </div>
-            </div>
-
-            {/* Seller Info */}
+            {/* Account Details Tabs */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Shield className="h-5 w-5" />
-                  Thông tin người bán
-                </CardTitle>
+                <CardTitle>Chi tiết tài khoản</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">
-                        {mockAccountDetail.seller.username}
-                      </span>
-                      {mockAccountDetail.seller.verified && (
-                        <Badge variant="secondary">Đã xác minh</Badge>
-                      )}
+                <Tabs defaultValue="overview">
+                  <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="overview">Tổng quan</TabsTrigger>
+                    <TabsTrigger value="stats">Thống kê</TabsTrigger>
+                    <TabsTrigger value="seller">Người bán</TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="overview" className="space-y-4">
+                    <div>
+                      <h4 className="font-semibold mb-2">Mô tả chi tiết</h4>
+                      <p className="text-gray-600 leading-relaxed">
+                        {account.description}
+                      </p>
                     </div>
-                    <div className="flex items-center gap-1 mt-1">
+
+                    <Separator />
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <span className="text-sm font-medium text-gray-500">
+                          Nền tảng
+                        </span>
+                        <p className="font-semibold">
+                          {getPlatformIcon(account.accountDetails.platform)}{" "}
+                          {getPlatformLabel(account.accountDetails.platform)}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-sm font-medium text-gray-500">
+                          Level
+                        </span>
+                        <p className="font-semibold">
+                          {account.accountDetails.level}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-sm font-medium text-gray-500">
+                          GP
+                        </span>
+                        <p className="font-semibold">
+                          {account.accountDetails.gp.toLocaleString()}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-sm font-medium text-gray-500">
+                          Coins
+                        </span>
+                        <p className="font-semibold">
+                          {account.accountDetails.coins.toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="stats" className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <Card>
+                        <CardContent className="p-4 text-center">
+                          <Star className="h-8 w-8 text-yellow-500 mx-auto mb-2" />
+                          <p className="text-2xl font-bold">
+                            {account.collectiveStrength}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            Collective Strength
+                          </p>
+                        </CardContent>
+                      </Card>
+
+                      <Card>
+                        <CardContent className="p-4 text-center">
+                          <Eye className="h-8 w-8 text-blue-500 mx-auto mb-2" />
+                          <p className="text-2xl font-bold">{account.views}</p>
+                          <p className="text-sm text-gray-600">Lượt xem</p>
+                        </CardContent>
+                      </Card>
+
+                      <Card>
+                        <CardContent className="p-4 text-center">
+                          <Trophy className="h-8 w-8 text-green-500 mx-auto mb-2" />
+                          <p className="text-2xl font-bold">
+                            {account.accountDetails.level}
+                          </p>
+                          <p className="text-sm text-gray-600">Level</p>
+                        </CardContent>
+                      </Card>
+
+                      <Card>
+                        <CardContent className="p-4 text-center">
+                          <Gamepad2 className="h-8 w-8 text-purple-500 mx-auto mb-2" />
+                          <p className="text-2xl font-bold">
+                            {account.category.name}
+                          </p>
+                          <p className="text-sm text-gray-600">Danh mục</p>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="seller" className="space-y-4">
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-xl font-bold">
+                        {account.seller.username.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-lg">
+                          {account.seller.fullName || account.seller.username}
+                        </h4>
+                        <p className="text-gray-600">
+                          @{account.seller.username}
+                        </p>
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    <div>
+                      <h5 className="font-semibold mb-2">
+                        Thông tin người bán
+                      </h5>
+                      <p className="text-gray-600">
+                        Người bán uy tín với nhiều tài khoản chất lượng. Cam kết
+                        giao hàng nhanh chóng và hỗ trợ tận tình.
+                      </p>
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Purchase Panel */}
+          <div className="lg:col-span-1">
+            <Card className="sticky top-24">
+              <CardHeader>
+                <CardTitle className="line-clamp-2">{account.title}</CardTitle>
+                <CardDescription className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  Đăng ngày {formatDate(account.createdAt)}
+                </CardDescription>
+              </CardHeader>
+
+              <CardContent className="space-y-6">
+                {/* Price */}
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-blue-600 mb-2">
+                    {formatPrice(account.price)}
+                  </div>
+                  <Badge variant="secondary" className="text-sm">
+                    Giá cố định
+                  </Badge>
+                </div>
+
+                <Separator />
+
+                {/* Key Features */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">
+                      Collective Strength
+                    </span>
+                    <div className="flex items-center gap-1">
                       <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                      <span className="text-sm">
-                        {mockAccountDetail.seller.rating}
-                      </span>
-                      <span className="text-sm text-gray-500">
-                        ({mockAccountDetail.seller.totalSales} đánh giá)
+                      <span className="font-semibold">
+                        {account.collectiveStrength}
                       </span>
                     </div>
                   </div>
-                  <Button variant="outline" size="sm">
-                    Xem profile
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">Level</span>
+                    <div className="flex items-center gap-1">
+                      <Users className="h-4 w-4 text-blue-500" />
+                      <span className="font-semibold">
+                        {account.accountDetails.level}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">Lượt xem</span>
+                    <div className="flex items-center gap-1">
+                      <Eye className="h-4 w-4 text-gray-500" />
+                      <span className="font-semibold">{account.views}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">Trạng thái</span>
+                    <Badge
+                      variant={
+                        account.status === "available"
+                          ? "default"
+                          : "destructive"
+                      }
+                    >
+                      {account.status === "available"
+                        ? "Có sẵn"
+                        : account.status === "sold"
+                        ? "Đã bán"
+                        : "Pending"}
+                    </Badge>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Action Buttons */}
+                <div className="space-y-3">
+                  <Button
+                    className="w-full"
+                    size="lg"
+                    onClick={handlePurchase}
+                    disabled={account.status !== "available"}
+                  >
+                    <ShoppingCart className="h-5 w-5 mr-2" />
+                    {account.status === "available"
+                      ? "Mua ngay"
+                      : "Không khả dụng"}
                   </Button>
+
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1"
+                      onClick={handleLike}
+                    >
+                      <Heart
+                        className={`h-4 w-4 mr-2 ${
+                          isLiked ? "fill-red-500 text-red-500" : ""
+                        }`}
+                      />
+                      {isLiked ? "Đã thích" : "Yêu thích"}
+                    </Button>
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1"
+                      onClick={handleShare}
+                    >
+                      <Share2 className="h-4 w-4 mr-2" />
+                      Chia sẻ
+                    </Button>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Guarantee */}
+                <div className="bg-green-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-green-800 mb-2">Bảo đảm</h4>
+                  <ul className="text-sm text-green-700 space-y-1">
+                    <li>• Tài khoản chính chủ 100%</li>
+                    <li>• Bảo hành 30 ngày</li>
+                    <li>• Hỗ trợ 24/7</li>
+                    <li>• Hoàn tiền nếu không đúng mô tả</li>
+                  </ul>
+                </div>
+
+                {/* Contact Info */}
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-blue-800 mb-2">
+                    Liên hệ hỗ trợ
+                  </h4>
+                  <div className="text-sm text-blue-700 space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span>📱</span>
+                      <span>Zalo: 0395860670</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span>⏰</span>
+                      <span>Online 8:00 - 22:00 hàng ngày</span>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
           </div>
-        </div>
-
-        {/* Detailed Info Tabs */}
-        <div className="mt-12 space-y-8">
-          {/* Account Specifications */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Thông số tài khoản</CardTitle>
-              <CardDescription>
-                Chi tiết về tài khoản game và các thông số quan trọng
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid md:grid-cols-2 gap-4">
-                {mockAccountDetail.specifications.map((spec, index) => (
-                  <div
-                    key={index}
-                    className="flex justify-between items-center p-3 bg-gray-50 rounded"
-                  >
-                    <span className="font-medium">{spec.key}</span>
-                    <span className="text-blue-600 font-semibold">
-                      {spec.value}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Players List */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5" />
-                Cầu thủ nổi bật
-              </CardTitle>
-              <CardDescription>
-                Danh sách các cầu thủ quan trọng trong đội hình
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid md:grid-cols-2 gap-4">
-                {mockAccountDetail.players.map((player, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between p-4 border rounded-lg"
-                  >
-                    <div>
-                      <div className="font-medium">{player.name}</div>
-                      <div className="text-sm text-gray-600">
-                        {player.position} • {player.nationality}
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-bold text-blue-600">
-                        {player.rating}
-                      </div>
-                      <div className="text-xs text-gray-500">Rating</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Description */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Mô tả chi tiết</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-700 leading-relaxed">
-                {mockAccountDetail.fullDescription}
-              </p>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </div>

@@ -164,7 +164,6 @@ export const VALIDATION = {
 // Cache Keys
 export const CACHE_KEYS = {
   auth: 'auth-storage',
-  cart: 'cart-storage',
   theme: 'theme-storage',
   language: 'language-storage',
   recentSearch: 'recent-search-storage',

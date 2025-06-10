@@ -10,316 +10,87 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import {
-  Search,
   Star,
   Shield,
   Zap,
   Users,
-  Menu,
-  X,
   ArrowRight,
   TrendingUp,
   Clock,
+  LoaderIcon,
 } from "lucide-react";
-import { useState } from "react";
+import { Header } from "@/components/layout/Header";
+import { useFeaturedAccounts, useCategories } from "@/hooks/useAccounts";
+import { useFeaturedNews } from "@/hooks/useNews";
+import { useBanners } from "@/hooks/useSystem";
+import { ApiGameAccount, ApiCategory, ApiNews, ApiBanner } from "@/types";
 
 export default function HomePage() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { data: featuredAccountsData, isLoading: loadingAccounts } =
+    useFeaturedAccounts(6);
+  const { data: categoriesData, isLoading: loadingCategories } =
+    useCategories();
+  const { data: featuredNewsData, isLoading: loadingNews } = useFeaturedNews(3);
+  const { data: bannersData, isLoading: loadingBanners } = useBanners();
 
-  const vipAccounts = [
-    {
-      id: 1,
-      title: "Tài khoản VIP Messi",
-      price: "15,000,000",
-      rating: 95,
-      players: 35,
-      image: "/images/acc1.jpg",
-      category: "Huyền thoại",
-      discount: 10,
-    },
-    {
-      id: 2,
-      title: "Tài khoản VIP Ronaldo",
-      price: "14,500,000",
-      rating: 94,
-      players: 33,
-      image: "/images/acc2.jpg",
-      category: "Huyền thoại",
-      discount: 15,
-    },
-    {
-      id: 3,
-      title: "Tài khoản VIP Neymar",
-      price: "12,000,000",
-      rating: 91,
-      players: 30,
-      image: "/images/acc3.jpg",
-      category: "Premium",
-      discount: 8,
-    },
-    {
-      id: 4,
-      title: "Tài khoản VIP Mbappe",
-      price: "13,500,000",
-      rating: 92,
-      players: 32,
-      image: "/images/acc4.jpg",
-      category: "Premium",
-      discount: 12,
-    },
-    {
-      id: 5,
-      title: "Tài khoản VIP Haaland",
-      price: "11,800,000",
-      rating: 90,
-      players: 29,
-      image: "/images/acc5.jpg",
-      category: "Premium",
-      discount: 5,
-    },
-    {
-      id: 6,
-      title: "Tài khoản VIP Benzema",
-      price: "10,500,000",
-      rating: 89,
-      players: 28,
-      image: "/images/acc6.jpg",
-      category: "Cao cấp",
-      discount: 20,
-    },
-  ];
+  const featuredAccounts = featuredAccountsData?.data || [];
+  const categories = categoriesData?.data || [];
+  const hotNews = featuredNewsData?.data || [];
+  const banners =
+    bannersData?.data?.filter((banner: ApiBanner) => banner.isActive) || [];
 
-  const categories = [
-    {
-      name: "Starter",
-      count: 245,
-      price: "100K - 500K",
-      gradient: "from-emerald-400 to-emerald-600",
-      icon: "🌱",
-      bgColor: "bg-emerald-50",
-      textColor: "text-emerald-700",
-    },
-    {
-      name: "Trung cấp",
-      count: 186,
-      price: "500K - 1M",
-      gradient: "from-blue-400 to-blue-600",
-      icon: "⚽",
-      bgColor: "bg-blue-50",
-      textColor: "text-blue-700",
-    },
-    {
-      name: "Cao cấp",
-      count: 127,
-      price: "1M - 5M",
-      gradient: "from-purple-400 to-purple-600",
-      icon: "🏆",
-      bgColor: "bg-purple-50",
-      textColor: "text-purple-700",
-    },
-    {
-      name: "Premium",
-      count: 89,
-      price: "5M - 10M",
-      gradient: "from-amber-400 to-orange-500",
-      icon: "👑",
-      bgColor: "bg-amber-50",
-      textColor: "text-amber-700",
-    },
-    {
-      name: "Huyền thoại",
-      count: 45,
-      price: "10M+",
-      gradient: "from-red-400 to-pink-600",
-      icon: "🔥",
-      bgColor: "bg-red-50",
-      textColor: "text-red-700",
-    },
-  ];
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(price);
+  };
 
-  const hotNews = [
-    {
-      id: 1,
-      title: "EFOOTBALL 2025 ra mắt với nhiều tính năng mới",
-      excerpt:
-        "Konami công bố phiên bản mới với graphics được cải thiện và gameplay mượt mà hơn...",
-      date: "2024-01-15",
-      image: "/images/news1.jpg",
-      category: "Cập nhật",
-      readTime: "3 phút đọc",
-    },
-    {
-      id: 2,
-      title: "Messi trở thành POTW với rating 98",
-      excerpt:
-        "Lionel Messi được nâng cấp lên rating 98 trong sự kiện Player of the Week này...",
-      date: "2024-01-14",
-      image: "/images/news2.jpg",
-      category: "Sự kiện",
-      readTime: "2 phút đọc",
-    },
-    {
-      id: 3,
-      title: "Tips chơi EFOOTBALL hiệu quả cho người mới",
-      excerpt:
-        "Hướng dẫn chi tiết cách chơi EFOOTBALL từ cơ bản đến nâng cao cho game thủ mới...",
-      date: "2024-01-13",
-      image: "/images/news3.jpg",
-      category: "Hướng dẫn",
-      readTime: "5 phút đọc",
-    },
-  ];
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("vi-VN");
+  };
+
+  const getPlatformIcon = (platform: string) => {
+    switch (platform) {
+      case "steam":
+        return "💻";
+      case "mobile":
+        return "📱";
+      case "ps4":
+      case "ps5":
+        return "🎮";
+      case "xbox":
+        return "🎮";
+      default:
+        return "🎮";
+    }
+  };
+
+  const getPlatformLabel = (platform: string) => {
+    switch (platform) {
+      case "steam":
+        return "Steam PC";
+      case "mobile":
+        return "Mobile";
+      case "ps4":
+        return "PlayStation 4";
+      case "ps5":
+        return "PlayStation 5";
+      case "xbox":
+        return "Xbox";
+      default:
+        return platform;
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40">
       {/* Header */}
-      <header className="bg-white/95 backdrop-blur-md border-b border-slate-200/60 sticky top-0 z-50 shadow-sm">
-        <div className="container mx-auto px-4 lg:px-6">
-          <div className="flex items-center justify-between h-20">
-            {/* Logo */}
-            <div className="flex items-center space-x-3">
-              <div className="relative">
-                <div className="w-12 h-12 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
-                  <span className="text-white font-bold text-2xl">⚽</span>
-                </div>
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full animate-pulse"></div>
-              </div>
-              <div className="hidden sm:block">
-                <h1 className="text-2xl md:text-3xl font-black bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                  EFOOTBALL
-                </h1>
-                <p className="text-xs font-medium text-slate-500 -mt-1">
-                  Premium Store
-                </p>
-              </div>
-            </div>
-
-            {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center space-x-8">
-              <Link
-                href="/"
-                className="relative text-blue-600 font-semibold py-2"
-              >
-                Trang chủ
-                <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full"></div>
-              </Link>
-              <Link
-                href="/accounts"
-                className="text-slate-600 hover:text-blue-600 transition-all duration-300 font-medium py-2 hover:scale-105"
-              >
-                Tài khoản game
-              </Link>
-              <Link
-                href="/news"
-                className="text-slate-600 hover:text-blue-600 transition-all duration-300 font-medium py-2 hover:scale-105"
-              >
-                Tin tức
-              </Link>
-              <Link
-                href="/cart"
-                className="text-slate-600 hover:text-blue-600 transition-all duration-300 font-medium py-2 hover:scale-105"
-              >
-                Giỏ hàng
-              </Link>
-              <Link
-                href="/profile"
-                className="text-slate-600 hover:text-blue-600 transition-all duration-300 font-medium py-2 hover:scale-105"
-              >
-                Hồ sơ
-              </Link>
-            </nav>
-
-            {/* Auth Buttons */}
-            <div className="hidden md:flex items-center space-x-3">
-              <Button
-                variant="ghost"
-                className="font-medium hover:bg-slate-100 transition-all duration-300"
-                asChild
-              >
-                <Link href="/auth/login">Đăng nhập</Link>
-              </Button>
-              <Button
-                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-                asChild
-              >
-                <Link href="/auth/register">Đăng ký</Link>
-              </Button>
-            </div>
-
-            {/* Mobile Menu Button */}
-            <button
-              className="lg:hidden p-3 rounded-xl hover:bg-slate-100 transition-colors"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-              {isMenuOpen ? (
-                <X size={24} className="text-slate-600" />
-              ) : (
-                <Menu size={24} className="text-slate-600" />
-              )}
-            </button>
-          </div>
-
-          {/* Mobile Menu */}
-          {isMenuOpen && (
-            <div className="lg:hidden border-t border-slate-200 bg-white/95 backdrop-blur-md py-6">
-              <nav className="flex flex-col space-y-4">
-                <Link
-                  href="/"
-                  className="text-blue-600 font-semibold px-4 py-2 rounded-lg bg-blue-50"
-                >
-                  Trang chủ
-                </Link>
-                <Link
-                  href="/accounts"
-                  className="text-slate-600 hover:text-blue-600 transition-colors px-4 py-2 rounded-lg hover:bg-slate-50"
-                >
-                  Tài khoản game
-                </Link>
-                <Link
-                  href="/news"
-                  className="text-slate-600 hover:text-blue-600 transition-colors px-4 py-2 rounded-lg hover:bg-slate-50"
-                >
-                  Tin tức
-                </Link>
-                <Link
-                  href="/cart"
-                  className="text-slate-600 hover:text-blue-600 transition-colors px-4 py-2 rounded-lg hover:bg-slate-50"
-                >
-                  Giỏ hàng
-                </Link>
-                <Link
-                  href="/profile"
-                  className="text-slate-600 hover:text-blue-600 transition-colors px-4 py-2 rounded-lg hover:bg-slate-50"
-                >
-                  Hồ sơ
-                </Link>
-                <div className="flex flex-col space-y-3 px-4 pt-4 border-t border-slate-200">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full"
-                    asChild
-                  >
-                    <Link href="/auth/login">Đăng nhập</Link>
-                  </Button>
-                  <Button
-                    size="sm"
-                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600"
-                    asChild
-                  >
-                    <Link href="/auth/register">Đăng ký</Link>
-                  </Button>
-                </div>
-              </nav>
-            </div>
-          )}
-        </div>
-      </header>
+      <Header />
 
       {/* Banner */}
-      <section className="relative h-[500px] md:h-[600px] overflow-hidden">
+      <section className="relative h-[650px] md:h-[700px] overflow-hidden">
         {/* Background */}
         <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
@@ -331,376 +102,446 @@ export default function HomePage() {
           <div className="absolute -bottom-32 left-20 w-80 h-80 bg-indigo-500 rounded-full mix-blend-multiply filter blur-xl animate-pulse delay-1000"></div>
         </div>
 
-        <div className="relative container mx-auto px-4 lg:px-6 h-full flex items-center">
-          <div className="text-white max-w-3xl">
-            <div className="inline-flex items-center px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 mb-6">
-              <TrendingUp className="w-4 h-4 mr-2 text-yellow-400" />
-              <span className="text-sm font-medium">
-                Trending #1 eFootball Store Việt Nam
-              </span>
-            </div>
+        <div className="relative container mx-auto px-4 lg:px-6 h-full">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 h-full items-center">
+            {/* Left Content */}
+            <div className="text-white space-y-8">
+              <div className="inline-flex items-center px-6 py-3 bg-white/10 backdrop-blur-sm rounded-full border border-white/20">
+                <TrendingUp className="w-5 h-5 mr-3 text-yellow-400" />
+                <span className="text-base font-bold">
+                  UY TÍN - CHẤT LƯỢNG - GIÁ RẺ
+                </span>
+              </div>
 
-            <h2 className="text-4xl md:text-6xl lg:text-7xl font-black mb-6 leading-tight">
-              Tài khoản{" "}
-              <span className="bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 bg-clip-text text-transparent">
-                EFOOTBALL
-              </span>
-              <br />
-              <span className="text-2xl md:text-4xl lg:text-5xl font-bold text-slate-300">
-                chất lượng cao
-              </span>
-            </h2>
+              <h2 className="text-4xl md:text-6xl lg:text-7xl font-black leading-tight">
+                <span className="bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 bg-clip-text text-transparent">
+                  SHOP ACC EFOOTBALL
+                </span>
+                <br />
+                <span className="text-2xl md:text-4xl lg:text-5xl font-bold text-slate-300 mt-4 block">
+                  MUA BÁN ACC - NẠP COIN
+                </span>
+              </h2>
 
-            <p className="text-lg md:text-xl mb-8 text-slate-200 leading-relaxed max-w-2xl">
-              Hàng nghìn tài khoản game với{" "}
-              <span className="text-yellow-400 font-semibold">rating cao</span>,
-              cầu thủ star, formation mạnh. Giao dịch an toàn, uy tín,
-              <span className="text-green-400 font-semibold">
-                {" "}
-                giao hàng tức thì
-              </span>
-              .
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button
-                size="lg"
-                className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black font-bold text-lg px-8 py-4 shadow-2xl hover:shadow-yellow-500/25 transition-all duration-300 hover:scale-105"
-                asChild
-              >
-                <Link href="/accounts" className="flex items-center">
-                  Khám phá ngay
-                  <ArrowRight className="ml-2 w-5 h-5" />
-                </Link>
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="text-white border-white/30 hover:bg-white hover:text-slate-900 font-semibold text-lg px-8 py-4 backdrop-blur-sm bg-white/10 transition-all duration-300 hover:scale-105"
-                asChild
-              >
-                <Link href="/news">Xem tin tức</Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Search Bar */}
-      <section className="py-12 px-4 lg:px-6 bg-white border-b border-slate-200">
-        <div className="container mx-auto">
-          <div className="max-w-4xl mx-auto">
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl blur opacity-20"></div>
-              <div className="relative bg-white rounded-2xl border border-slate-200 shadow-xl p-2">
-                <div className="flex">
-                  <div className="relative flex-1">
-                    <Search
-                      className="absolute left-6 top-1/2 transform -translate-y-1/2 text-slate-400"
-                      size={24}
-                    />
-                    <Input
-                      type="text"
-                      placeholder="Tìm kiếm tài khoản theo cầu thủ, rating, giá cả..."
-                      className="pl-16 pr-6 py-6 text-lg border-0 focus:ring-0 bg-transparent placeholder:text-slate-400 font-medium"
-                    />
-                  </div>
-                  <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 font-bold text-lg px-8 py-6 shadow-lg transition-all duration-300 hover:scale-105">
-                    Tìm kiếm
-                  </Button>
+              <div className="space-y-4 text-lg md:text-xl leading-relaxed">
+                <div className="flex items-center space-x-3">
+                  <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
+                  <span className="text-yellow-400 font-bold">
+                    UY TÍN - CHẤT LƯỢNG - GIÁ RẺ
+                  </span>
                 </div>
+                <div className="flex items-center space-x-3">
+                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                  <span className="text-green-400 font-bold">
+                    Số điện thoại - Zalo: 0395860670
+                  </span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <div className="w-2 h-2 bg-blue-300 rounded-full"></div>
+                  <span className="text-blue-300 font-bold">
+                    Số tài khoản ngân hàng: 196666196666
+                  </span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <div className="w-2 h-2 bg-orange-300 rounded-full"></div>
+                  <span className="text-orange-300 font-bold">
+                    TRAN DINH HIEP - MB BANK
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-6 pt-4">
+                <Button
+                  size="lg"
+                  className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black font-bold text-lg px-10 py-5 shadow-2xl hover:shadow-yellow-500/25 transition-all duration-300 hover:scale-105"
+                  asChild
+                >
+                  <Link href="/accounts" className="flex items-center">
+                    Khám phá ngay
+                    <ArrowRight className="ml-3 w-6 h-6" />
+                  </Link>
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-2 border-white/30 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white font-bold text-lg px-10 py-5 hover:scale-105 transition-all duration-300"
+                  asChild
+                >
+                  <Link href="/contact">Liên hệ ngay</Link>
+                </Button>
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-3 mt-6 justify-center">
-              {[
-                "Messi",
-                "Ronaldo",
-                "Rating 90+",
-                "Dưới 5M",
-                "Premium",
-                "Huyền thoại",
-              ].map((tag) => (
-                <Badge
-                  key={tag}
-                  variant="secondary"
-                  className="cursor-pointer hover:bg-blue-100 hover:text-blue-700 transition-all duration-300 hover:scale-105 px-4 py-2 text-sm font-medium rounded-full"
-                >
-                  {tag}
-                </Badge>
-              ))}
+            {/* Right Content - Display banners if available */}
+            <div className="hidden lg:block">
+              {loadingBanners ? (
+                <div className="flex items-center justify-center h-96">
+                  <LoaderIcon className="w-8 h-8 animate-spin text-white" />
+                </div>
+              ) : banners.length > 0 ? (
+                <div className="relative">
+                  <img
+                    src={banners[0].image}
+                    alt={banners[0].title}
+                    className="w-full h-96 object-cover rounded-2xl shadow-2xl"
+                  />
+                  <div className="absolute bottom-4 left-4 right-4 bg-black/70 backdrop-blur-sm rounded-xl p-4">
+                    <h3 className="text-white font-bold text-lg">
+                      {banners[0].title}
+                    </h3>
+                  </div>
+                </div>
+              ) : (
+                <div className="relative">
+                  <div className="w-full h-96 bg-gradient-to-br from-blue-600/20 to-purple-600/20 rounded-2xl border border-white/20 backdrop-blur-sm flex items-center justify-center">
+                    <div className="text-center text-white">
+                      <div className="text-6xl mb-4">⚽</div>
+                      <div className="text-xl font-bold">eFootball Store</div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* VIP Accounts Section */}
-      <section className="py-16 px-4 lg:px-6 bg-gradient-to-br from-slate-50 to-blue-50/50">
-        <div className="container mx-auto">
-          <div className="flex items-center justify-between mb-12">
-            <div>
-              <h3 className="text-3xl md:text-4xl font-black text-slate-900 mb-3 flex items-center">
-                Tài khoản VIP
-                <span className="ml-3 text-2xl">⭐</span>
-              </h3>
-              <p className="text-lg text-slate-600 font-medium">
-                Những tài khoản chất lượng cao nhất của chúng tôi
-              </p>
-            </div>
-            <Button
-              variant="outline"
-              className="hidden sm:flex items-center group hover:bg-blue-50 hover:border-blue-300 transition-all duration-300"
-              asChild
-            >
-              <Link href="/accounts?category=vip">
-                Xem tất cả
-                <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </Link>
-            </Button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
-            {vipAccounts.map((account) => (
-              <Card
-                key={account.id}
-                className="group hover:shadow-2xl transition-all duration-500 cursor-pointer bg-white border-0 shadow-lg hover:-translate-y-2 overflow-hidden"
-              >
-                <CardHeader className="p-0 relative">
-                  <div className="relative h-56 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
-                    <div className="flex items-center justify-center h-full text-white text-8xl">
-                      ⚽
-                    </div>
-
-                    {/* Category Badge */}
-                    <Badge className="absolute top-4 left-4 bg-gradient-to-r from-yellow-400 to-orange-400 text-black font-bold px-3 py-1">
-                      {account.category}
-                    </Badge>
-
-                    {/* Discount Badge */}
-                    <div className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold">
-                      -{account.discount}%
-                    </div>
-
-                    {/* Rating */}
-                    <div className="absolute bottom-4 right-4 bg-black/50 backdrop-blur-sm text-white px-3 py-2 rounded-xl flex items-center gap-2">
-                      <Star
-                        size={16}
-                        className="fill-yellow-400 text-yellow-400"
-                      />
-                      <span className="font-bold">{account.rating}</span>
-                    </div>
-                  </div>
-                </CardHeader>
-
-                <CardContent className="p-6">
-                  <CardTitle className="text-xl mb-4 group-hover:text-blue-600 transition-colors font-bold">
-                    {account.title}
-                  </CardTitle>
-
-                  <div className="flex items-center justify-between text-sm text-slate-600 mb-4">
-                    <span className="flex items-center gap-2 bg-slate-100 px-3 py-2 rounded-lg">
-                      <Users size={16} />
-                      <span className="font-medium">
-                        {account.players} cầu thủ
-                      </span>
-                    </span>
-                    <span className="flex items-center gap-2 bg-green-100 text-green-700 px-3 py-2 rounded-lg">
-                      <Shield size={16} />
-                      <span className="font-medium">Bảo hành 30 ngày</span>
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="text-2xl font-black text-blue-600">
-                        {account.price.toLocaleString()}
-                      </span>
-                      <span className="text-sm text-slate-500 ml-1">VND</span>
-                    </div>
-                    <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 font-bold shadow-lg group-hover:shadow-xl transition-all duration-300 hover:scale-105">
-                      Mua ngay
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          <div className="text-center sm:hidden">
-            <Button variant="outline" className="w-full" asChild>
-              <Link href="/accounts?category=vip">Xem tất cả VIP</Link>
-            </Button>
           </div>
         </div>
       </section>
 
       {/* Categories Section */}
-      <section className="py-16 px-4 lg:px-6 bg-white">
+      <section className="py-20 px-4 lg:px-6">
         <div className="container mx-auto">
-          <div className="text-center mb-12">
-            <h3 className="text-3xl md:text-4xl font-black text-slate-900 mb-4">
-              Tài khoản theo phân loại
+          <div className="text-center mb-16">
+            <h3 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent mb-6">
+              Danh mục tài khoản
             </h3>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto font-medium">
-              Chọn tài khoản phù hợp với ngân sách của bạn. Mỗi phân loại đều
-              được kiểm duyệt kỹ lưỡng về chất lượng.
+            <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
+              Khám phá các loại tài khoản game đa dạng với mức giá phù hợp cho
+              mọi nhu cầu của bạn
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
-            {categories.map((category) => (
-              <Card
-                key={category.name}
-                className="group hover:shadow-xl transition-all duration-500 cursor-pointer border-0 shadow-lg hover:-translate-y-2 overflow-hidden"
-              >
-                <CardHeader className="text-center pb-4 relative">
-                  <div
-                    className={`w-20 h-20 bg-gradient-to-r ${category.gradient} rounded-3xl flex items-center justify-center mx-auto mb-4 text-3xl text-white group-hover:scale-110 transition-transform duration-300 shadow-lg`}
-                  >
-                    {category.icon}
-                  </div>
-                  <CardTitle className="text-xl group-hover:text-blue-600 transition-colors font-bold">
-                    {category.name}
-                  </CardTitle>
-                  <CardDescription className="text-sm font-medium text-slate-500">
-                    {category.price}
-                  </CardDescription>
-                </CardHeader>
+          {loadingCategories ? (
+            <div className="flex items-center justify-center h-64">
+              <LoaderIcon className="w-8 h-8 animate-spin" />
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+              {categories.map((category: ApiCategory) => (
+                <Link
+                  key={category._id}
+                  href={`/accounts?category=${category._id}`}
+                >
+                  <Card className="group hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500 hover:scale-105 cursor-pointer border-0 bg-gradient-to-br from-white to-slate-50/80 backdrop-blur-sm">
+                    <CardContent className="p-8 text-center">
+                      <div className="text-5xl mb-6 group-hover:scale-110 transition-transform duration-300">
+                        {category.icon || "🎮"}
+                      </div>
+                      <h4 className="font-bold text-xl mb-3 text-slate-800">
+                        {category.name}
+                      </h4>
+                      {category.description && (
+                        <p className="text-sm text-slate-600 mb-4">
+                          {category.description}
+                        </p>
+                      )}
+                      {category.accountCount !== undefined && (
+                        <div className="text-xs text-slate-500">
+                          {category.accountCount} tài khoản
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
 
-                <CardContent className="text-center pt-0">
-                  <div className={`${category.bgColor} rounded-2xl p-4 mb-4`}>
-                    <div
-                      className={`text-3xl font-black ${category.textColor} mb-1`}
-                    >
-                      {category.count}
+      {/* Featured Accounts Section */}
+      <section className="py-20 px-4 lg:px-6 bg-gradient-to-br from-slate-100/50 to-blue-50/30">
+        <div className="container mx-auto">
+          <div className="text-center mb-16">
+            <h3 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent mb-6">
+              Tài khoản nổi bật
+            </h3>
+            <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
+              Những tài khoản game chất lượng cao được chọn lọc kỹ càng
+            </p>
+          </div>
+
+          {loadingAccounts ? (
+            <div className="flex items-center justify-center h-64">
+              <LoaderIcon className="w-8 h-8 animate-spin" />
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {featuredAccounts.map((account: ApiGameAccount) => (
+                <Link key={account._id} href={`/accounts/${account._id}`}>
+                  <Card className="group hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-500 hover:scale-[1.02] cursor-pointer overflow-hidden border-0 bg-white/80 backdrop-blur-sm">
+                    <div className="relative overflow-hidden">
+                      <img
+                        src={
+                          account.images[0]?.url || "/api/placeholder/300/200"
+                        }
+                        alt={account.images[0]?.alt || account.title}
+                        className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                      <div className="absolute top-4 left-4">
+                        <Badge
+                          variant="secondary"
+                          className="bg-white/90 text-slate-700"
+                        >
+                          {getPlatformIcon(account.accountDetails.platform)}{" "}
+                          {getPlatformLabel(account.accountDetails.platform)}
+                        </Badge>
+                      </div>
+                      <div className="absolute top-4 right-4">
+                        <Badge className="bg-blue-600">
+                          {account.accountCode}
+                        </Badge>
+                      </div>
+                      {account.status === "sold" && (
+                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                          <Badge
+                            variant="destructive"
+                            className="text-lg px-4 py-2"
+                          >
+                            ĐÃ BÁN
+                          </Badge>
+                        </div>
+                      )}
                     </div>
-                    <div className="text-sm text-slate-600 font-medium">
-                      tài khoản có sẵn
-                    </div>
-                  </div>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="w-full group-hover:bg-blue-50 group-hover:border-blue-300 transition-all duration-300 font-semibold"
-                  >
-                    Xem ngay
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
+
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-lg line-clamp-2 group-hover:text-blue-600 transition-colors">
+                        {account.title}
+                      </CardTitle>
+                      <CardDescription className="line-clamp-2">
+                        {account.description}
+                      </CardDescription>
+                    </CardHeader>
+
+                    <CardContent className="pt-0">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                          <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                          <span className="text-sm font-medium">
+                            {account.collectiveStrength}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Users className="h-4 w-4 text-blue-500" />
+                          <span className="text-sm">
+                            Level {account.accountDetails.level}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="text-2xl font-bold text-blue-600">
+                            {formatPrice(account.price)}
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-sm text-gray-600">
+                            {account.seller.username}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {account.views} lượt xem
+                          </div>
+                        </div>
+                      </div>
+
+                      <Button
+                        className="w-full mt-4 group-hover:bg-blue-700 transition-colors"
+                        disabled={account.status !== "available"}
+                      >
+                        {account.status === "available"
+                          ? "Xem chi tiết"
+                          : "Không khả dụng"}
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          )}
+
+          <div className="text-center mt-12">
+            <Button
+              size="lg"
+              variant="outline"
+              className="bg-white/80 backdrop-blur-sm hover:bg-white border-2 text-lg px-8 py-6"
+              asChild
+            >
+              <Link href="/accounts">
+                Xem tất cả tài khoản
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Link>
+            </Button>
           </div>
         </div>
       </section>
 
-      {/* Hot News Section */}
-      <section className="py-16 px-4 lg:px-6 bg-gradient-to-br from-slate-50 to-blue-50/50">
+      {/* News Section */}
+      <section className="py-20 px-4 lg:px-6">
         <div className="container mx-auto">
-          <div className="flex items-center justify-between mb-12">
-            <div>
-              <h3 className="text-3xl md:text-4xl font-black text-slate-900 mb-3 flex items-center">
-                Tin tức hot
-                <span className="ml-3 text-2xl">🔥</span>
-              </h3>
-              <p className="text-lg text-slate-600 font-medium">
-                Cập nhật những thông tin mới nhất về EFOOTBALL
-              </p>
+          <div className="text-center mb-16">
+            <h3 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent mb-6">
+              Tin tức hot
+            </h3>
+            <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
+              Cập nhật những thông tin mới nhất về eFootball và cộng đồng game
+              thủ
+            </p>
+          </div>
+
+          {loadingNews ? (
+            <div className="flex items-center justify-center h-64">
+              <LoaderIcon className="w-8 h-8 animate-spin" />
             </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {hotNews.map((news: ApiNews) => (
+                <Link key={news._id} href={`/news/${news._id}`}>
+                  <Card className="group hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500 hover:scale-[1.02] cursor-pointer overflow-hidden border-0 bg-white/80 backdrop-blur-sm h-full">
+                    <div className="relative overflow-hidden">
+                      <img
+                        src={news.featuredImage.url}
+                        alt={news.featuredImage.alt}
+                        className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                      <div className="absolute top-4 right-4">
+                        <Badge className="bg-red-600">Hot</Badge>
+                      </div>
+                    </div>
+
+                    <CardHeader className="pb-2">
+                      <div className="flex items-center gap-2 text-sm text-slate-500 mb-2">
+                        <Clock className="w-4 h-4" />
+                        <span>
+                          {news.publishedAt
+                            ? formatDate(news.publishedAt)
+                            : formatDate(news.createdAt)}
+                        </span>
+                        <span>•</span>
+                        <span>{news.views} lượt xem</span>
+                      </div>
+                      <CardTitle className="text-lg line-clamp-2 group-hover:text-blue-600 transition-colors">
+                        {news.title}
+                      </CardTitle>
+                    </CardHeader>
+
+                    <CardContent className="pt-0">
+                      <p className="text-slate-600 line-clamp-3 mb-4">
+                        {news.content.substring(0, 150)}...
+                      </p>
+                      <div className="flex items-center justify-between">
+                        <div className="text-sm text-slate-500">
+                          Tác giả:{" "}
+                          {news.author.fullName || news.author.username}
+                        </div>
+                        <ArrowRight className="w-4 h-4 text-blue-500 group-hover:translate-x-1 transition-transform" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          )}
+
+          <div className="text-center mt-12">
             <Button
+              size="lg"
               variant="outline"
-              className="hidden sm:flex items-center group hover:bg-blue-50 hover:border-blue-300 transition-all duration-300"
+              className="bg-white/80 backdrop-blur-sm hover:bg-white border-2 text-lg px-8 py-6"
               asChild
             >
               <Link href="/news">
-                Xem tất cả
-                <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                Xem tất cả tin tức
+                <ArrowRight className="ml-2 w-5 h-5" />
               </Link>
             </Button>
           </div>
+        </div>
+      </section>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {hotNews.map((news) => (
-              <Card
-                key={news.id}
-                className="group hover:shadow-2xl transition-all duration-500 cursor-pointer bg-white border-0 shadow-lg hover:-translate-y-2 overflow-hidden"
-              >
-                <CardHeader className="p-0 relative">
-                  <div className="relative h-52 bg-gradient-to-br from-slate-200 via-blue-100 to-indigo-200 overflow-hidden">
-                    <div className="flex items-center justify-center h-full text-slate-400 text-6xl">
-                      📰
-                    </div>
-                    <Badge className="absolute top-4 left-4 bg-gradient-to-r from-red-500 to-pink-500 text-white font-bold">
-                      {news.category}
-                    </Badge>
-                    <div className="absolute bottom-4 right-4 bg-black/50 backdrop-blur-sm text-white px-3 py-2 rounded-xl flex items-center gap-2 text-sm">
-                      <Clock size={14} />
-                      {news.readTime}
-                    </div>
-                  </div>
-                </CardHeader>
-
-                <CardContent className="p-6">
-                  <div className="text-sm text-slate-500 mb-3 font-medium">
-                    {news.date}
-                  </div>
-                  <CardTitle className="text-xl mb-4 group-hover:text-blue-600 transition-colors font-bold leading-tight line-clamp-2">
-                    {news.title}
-                  </CardTitle>
-                  <CardDescription className="text-slate-600 line-clamp-3 mb-6 leading-relaxed">
-                    {news.excerpt}
-                  </CardDescription>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full group-hover:bg-blue-50 group-hover:border-blue-300 transition-all duration-300 font-semibold flex items-center justify-center"
-                  >
-                    Đọc thêm
-                    <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
+      {/* Features Section */}
+      <section className="py-20 px-4 lg:px-6 bg-gradient-to-br from-blue-900 to-indigo-900 text-white">
+        <div className="container mx-auto">
+          <div className="text-center mb-16">
+            <h3 className="text-4xl md:text-5xl font-bold mb-6">
+              Tại sao chọn chúng tôi?
+            </h3>
+            <p className="text-xl text-blue-100 max-w-3xl mx-auto leading-relaxed">
+              Chúng tôi cam kết mang đến cho bạn trải nghiệm mua bán tài khoản
+              game tốt nhất
+            </p>
           </div>
 
-          <div className="text-center mt-10 sm:hidden">
-            <Button variant="outline" className="w-full" asChild>
-              <Link href="/news">Xem tất cả tin tức</Link>
-            </Button>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white">
+              <CardContent className="p-8 text-center">
+                <Shield className="w-16 h-16 mx-auto mb-6 text-green-400" />
+                <h4 className="text-2xl font-bold mb-4">An toàn & Uy tín</h4>
+                <p className="text-blue-100 leading-relaxed">
+                  Tất cả tài khoản đều được kiểm tra kỹ lưỡng trước khi bán. Bảo
+                  hành 30 ngày cho mọi giao dịch.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white">
+              <CardContent className="p-8 text-center">
+                <Zap className="w-16 h-16 mx-auto mb-6 text-yellow-400" />
+                <h4 className="text-2xl font-bold mb-4">Giao hàng nhanh</h4>
+                <p className="text-blue-100 leading-relaxed">
+                  Nhận tài khoản ngay lập tức sau khi thanh toán thành công. Hỗ
+                  trợ 24/7 mọi lúc mọi nơi.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white">
+              <CardContent className="p-8 text-center">
+                <Users className="w-16 h-16 mx-auto mb-6 text-blue-400" />
+                <h4 className="text-2xl font-bold mb-4">Cộng đồng lớn</h4>
+                <p className="text-blue-100 leading-relaxed">
+                  Hơn 10,000 game thủ tin tưởng và sử dụng dịch vụ của chúng tôi
+                  mỗi tháng.
+                </p>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-slate-900 text-white py-16 px-4 lg:px-6">
+      <footer className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white py-16 px-4 lg:px-6">
         <div className="container mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
             {/* Company Info */}
-            <div className="lg:col-span-1">
+            <div>
               <div className="flex items-center space-x-3 mb-6">
-                <div className="w-12 h-12 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center">
                   <span className="text-white font-bold text-2xl">⚽</span>
                 </div>
                 <div>
-                  <h4 className="text-2xl font-black">EFOOTBALL</h4>
-                  <p className="text-sm text-slate-400 font-medium">
-                    Premium Store
-                  </p>
+                  <h4 className="text-2xl font-black bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
+                    EFOOTBALL
+                  </h4>
+                  <p className="text-sm text-slate-400">Premium Store</p>
                 </div>
               </div>
-              <p className="text-slate-300 mb-6 leading-relaxed">
-                Chuyên bán tài khoản game EFOOTBALL chất lượng cao, uy tín hàng
-                đầu Việt Nam. Hơn 10,000+ khách hàng tin tưởng.
+              <p className="text-slate-300 leading-relaxed mb-6">
+                Nền tảng mua bán tài khoản eFootball uy tín và chất lượng nhất
+                Việt Nam. Chúng tôi cam kết mang đến trải nghiệm tốt nhất cho
+                game thủ.
               </p>
-              <div className="flex items-center space-x-3 bg-slate-800 rounded-xl p-4">
-                <Zap className="text-yellow-400" size={24} />
-                <div>
-                  <div className="font-bold text-yellow-400">
-                    Giao hàng tức thì
-                  </div>
-                  <div className="text-sm text-slate-400">
-                    24/7 hỗ trợ khách hàng
-                  </div>
-                </div>
+              <div className="flex items-center space-x-4 text-slate-400">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <span className="text-sm">Online 24/7</span>
               </div>
             </div>
 
@@ -743,12 +584,12 @@ export default function HomePage() {
                 </li>
                 <li>
                   <Link
-                    href="/cart"
+                    href="/contact"
                     className="hover:text-white transition-colors flex items-center group"
                   >
-                    <span className="mr-3 text-lg">🛒</span>
+                    <span className="mr-3 text-lg">📧</span>
                     <span className="group-hover:translate-x-1 transition-transform">
-                      Giỏ hàng
+                      Liên hệ
                     </span>
                   </Link>
                 </li>
@@ -783,12 +624,12 @@ export default function HomePage() {
                 </li>
                 <li>
                   <Link
-                    href="/profile"
+                    href="/contact"
                     className="hover:text-white transition-colors flex items-center group"
                   >
-                    <span className="mr-3 text-lg">👤</span>
+                    <span className="mr-3 text-lg">❓</span>
                     <span className="group-hover:translate-x-1 transition-transform">
-                      Hồ sơ của tôi
+                      Câu hỏi thường gặp
                     </span>
                   </Link>
                 </li>
@@ -819,17 +660,26 @@ export default function HomePage() {
                 <li className="flex items-center">
                   <span className="mr-3 text-lg">📱</span>
                   <div>
-                    <div className="font-medium">+84 xxx xxx xxx</div>
+                    <div className="font-medium">0395860670</div>
                     <div className="text-sm text-slate-400">
-                      Hotline bán hàng
+                      Hotline bán hàng - Zalo
                     </div>
                   </div>
                 </li>
                 <li className="flex items-center">
                   <span className="mr-3 text-lg">💬</span>
                   <div>
-                    <div className="font-medium">Facebook/Zalo</div>
+                    <div className="font-medium">Zalo: 0395860670</div>
                     <div className="text-sm text-slate-400">Chat trực tiếp</div>
+                  </div>
+                </li>
+                <li className="flex items-center">
+                  <span className="mr-3 text-lg">🏦</span>
+                  <div>
+                    <div className="font-medium">196666196666</div>
+                    <div className="text-sm text-slate-400">
+                      TRAN DINH HIEP - MB BANK
+                    </div>
                   </div>
                 </li>
                 <li className="flex items-center">

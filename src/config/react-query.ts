@@ -79,11 +79,7 @@ export const queryKeys = {
     userOrders: (userId: string) => ['orders', 'user', userId] as const,
   },
   
-  // Cart
-  cart: {
-    all: () => ['cart'] as const,
-    items: () => [...queryKeys.cart.all(), 'items'] as const,
-  },
+
   
   // Notifications
   notifications: {

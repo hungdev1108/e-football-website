@@ -3,8 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Card,
   CardContent,
@@ -13,6 +11,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -21,65 +21,46 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import { Search, Filter, Grid, List, Star, Users, Trophy } from "lucide-react";
-
-// Mock data for demonstration
-const mockAccounts = [
-  {
-    id: "1",
-    title: "Tài khoản EFOOTBALL Premium - Messi & Ronaldo",
-    description:
-      "Tài khoản với đội hình khủng, có Messi, Ronaldo và nhiều siêu sao khác",
-    price: 2500000,
-    originalPrice: 3000000,
-    images: ["/api/placeholder/300/200"],
-    platform: "PC",
-    rating: 95,
-    level: 87,
-    players: ["Messi", "Ronaldo", "Neymar", "Mbappé"],
-    formation: "4-3-3",
-    isAvailable: true,
-    seller: {
-      username: "ProGamer123",
-      rating: 4.8,
-      totalSales: 150,
-    },
-    createdAt: "2024-01-15T10:30:00Z",
-  },
-  {
-    id: "2",
-    title: "Tài khoản EFOOTBALL Starter - Real Madrid",
-    description:
-      "Tài khoản Real Madrid với đội hình mạnh cho người mới bắt đầu",
-    price: 800000,
-    images: ["/api/placeholder/300/200"],
-    platform: "MOBILE",
-    rating: 87,
-    level: 65,
-    players: ["Benzema", "Modrić", "Vinicius"],
-    formation: "4-3-3",
-    isAvailable: true,
-    seller: {
-      username: "RealMadridFan",
-      rating: 4.5,
-      totalSales: 89,
-    },
-    createdAt: "2024-01-10T14:20:00Z",
-  },
-  // Add more mock accounts...
-];
+import {
+  Filter,
+  Search,
+  Grid,
+  List,
+  Star,
+  Users,
+  Trophy,
+  LoaderIcon,
+} from "lucide-react";
+import { Header } from "@/components/layout/Header";
+import { useAccounts, useCategories } from "@/hooks/useAccounts";
+import { ApiGameAccount, ApiCategory } from "@/types";
 
 export default function AccountsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState({
     category: "",
     platform: "",
-    priceRange: [0, 10000000] as [number, number],
-    ratingRange: [0, 100] as [number, number],
-    sortBy: "price",
-    sortOrder: "asc" as "asc" | "desc",
+    minPrice: 0,
+    maxPrice: 10000000,
+    sort: "-createdAt",
   });
+
+  // Fetch data using hooks
+  const { data: accountsData, isLoading: loadingAccounts } = useAccounts({
+    page: currentPage,
+    limit: 12,
+    ...filters,
+    search: searchQuery || undefined,
+  });
+
+  const { data: categoriesData, isLoading: loadingCategories } =
+    useCategories();
+
+  const accounts = accountsData?.data?.accounts || [];
+  const pagination = accountsData?.data?.pagination;
+  const categories = categoriesData?.data || [];
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("vi-VN", {
@@ -88,66 +69,116 @@ export default function AccountsPage() {
     }).format(price);
   };
 
+  const getPlatformIcon = (platform: string) => {
+    switch (platform) {
+      case "steam":
+        return "💻";
+      case "mobile":
+        return "📱";
+      case "ps4":
+      case "ps5":
+        return "🎮";
+      case "xbox":
+        return "🎮";
+      default:
+        return "🎮";
+    }
+  };
+
+  const getPlatformLabel = (platform: string) => {
+    switch (platform) {
+      case "steam":
+        return "Steam PC";
+      case "mobile":
+        return "Mobile";
+      case "ps4":
+        return "PlayStation 4";
+      case "ps5":
+        return "PlayStation 5";
+      case "xbox":
+        return "Xbox";
+      default:
+        return platform;
+    }
+  };
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement actual search when API is ready
-    console.log("Searching for:", searchQuery, filters);
+    setCurrentPage(1); // Reset to first page when searching
+  };
+
+  const handleFilterChange = (key: string, value: string | number) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+    setCurrentPage(1); // Reset to first page when filtering
+  };
+
+  const handlePriceRangeChange = (values: number[]) => {
+    setFilters((prev) => ({
+      ...prev,
+      minPrice: values[0],
+      maxPrice: values[1],
+    }));
+    setCurrentPage(1);
+  };
+
+  const renderPagination = () => {
+    if (!pagination || pagination.totalPages <= 1) return null;
+
+    const pageNumbers = [];
+    const maxVisiblePages = 5;
+    const startPage = Math.max(
+      1,
+      currentPage - Math.floor(maxVisiblePages / 2)
+    );
+    const endPage = Math.min(
+      pagination.totalPages,
+      startPage + maxVisiblePages - 1
+    );
+
+    for (let i = startPage; i <= endPage; i++) {
+      pageNumbers.push(i);
+    }
+
+    return (
+      <div className="flex justify-center items-center gap-2 mt-8">
+        <Button
+          variant="outline"
+          disabled={currentPage === 1}
+          onClick={() => setCurrentPage(currentPage - 1)}
+        >
+          Trước
+        </Button>
+
+        {pageNumbers.map((page) => (
+          <Button
+            key={page}
+            variant={currentPage === page ? "default" : "outline"}
+            onClick={() => setCurrentPage(page)}
+          >
+            {page}
+          </Button>
+        ))}
+
+        <Button
+          variant="outline"
+          disabled={currentPage === pagination.totalPages}
+          onClick={() => setCurrentPage(currentPage + 1)}
+        >
+          Sau
+        </Button>
+      </div>
+    );
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="border-b bg-white sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">⚽</span>
-              </div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                EFOOTBALL Store
-              </h1>
-            </div>
-            <nav className="hidden md:flex items-center space-x-6">
-              <Link
-                href="/"
-                className="text-gray-600 hover:text-blue-600 transition-colors"
-              >
-                Trang chủ
-              </Link>
-              <Link href="/accounts" className="text-blue-600 font-medium">
-                Tài khoản game
-              </Link>
-              <Link
-                href="/news"
-                className="text-gray-600 hover:text-blue-600 transition-colors"
-              >
-                Tin tức
-              </Link>
-              <Link
-                href="/cart"
-                className="text-gray-600 hover:text-blue-600 transition-colors"
-              >
-                Giỏ hàng
-              </Link>
-            </nav>
-            <div className="flex items-center space-x-2">
-              <Link href="/auth/login">
-                <Button variant="outline">Đăng nhập</Button>
-              </Link>
-              <Link href="/auth/register">
-                <Button>Đăng ký</Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar Filters */}
           <div className="lg:w-1/4">
-            <Card>
+            <Card className="sticky top-24">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Filter className="h-5 w-5" />
@@ -158,39 +189,74 @@ export default function AccountsPage() {
                 {/* Category Filter */}
                 <div>
                   <Label>Danh mục</Label>
-                  <Select
-                    onValueChange={(value: string) =>
-                      setFilters((prev) => ({ ...prev, category: value }))
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Chọn danh mục" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="starter">Starter</SelectItem>
-                      <SelectItem value="intermediate">Trung cấp</SelectItem>
-                      <SelectItem value="advanced">Cao cấp</SelectItem>
-                      <SelectItem value="premium">Premium</SelectItem>
-                      <SelectItem value="legendary">Huyền thoại</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  {loadingCategories ? (
+                    <div className="flex items-center justify-center h-10">
+                      <LoaderIcon className="w-4 h-4 animate-spin" />
+                    </div>
+                  ) : (
+                    <Select
+                      value={filters.category}
+                      onValueChange={(value) =>
+                        handleFilterChange("category", value)
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Chọn danh mục" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">Tất cả danh mục</SelectItem>
+                        {categories.map((category: ApiCategory) => (
+                          <SelectItem key={category._id} value={category._id}>
+                            {category.icon} {category.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
                 </div>
 
                 {/* Platform Filter */}
                 <div>
                   <Label>Nền tảng</Label>
                   <Select
-                    onValueChange={(value: string) =>
-                      setFilters((prev) => ({ ...prev, platform: value }))
+                    value={filters.platform}
+                    onValueChange={(value) =>
+                      handleFilterChange("platform", value)
                     }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Chọn nền tảng" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="PC">PC</SelectItem>
-                      <SelectItem value="MOBILE">Mobile</SelectItem>
-                      <SelectItem value="CONSOLE">Console</SelectItem>
+                      <SelectItem value="">Tất cả nền tảng</SelectItem>
+                      <SelectItem value="steam">💻 Steam PC</SelectItem>
+                      <SelectItem value="mobile">📱 Mobile</SelectItem>
+                      <SelectItem value="ps4">🎮 PlayStation 4</SelectItem>
+                      <SelectItem value="ps5">🎮 PlayStation 5</SelectItem>
+                      <SelectItem value="xbox">🎮 Xbox</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Sort Filter */}
+                <div>
+                  <Label>Sắp xếp</Label>
+                  <Select
+                    value={filters.sort}
+                    onValueChange={(value) => handleFilterChange("sort", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Sắp xếp theo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="-createdAt">Mới nhất</SelectItem>
+                      <SelectItem value="createdAt">Cũ nhất</SelectItem>
+                      <SelectItem value="price">Giá thấp đến cao</SelectItem>
+                      <SelectItem value="-price">Giá cao đến thấp</SelectItem>
+                      <SelectItem value="-collectiveStrength">
+                        Rating cao nhất
+                      </SelectItem>
+                      <SelectItem value="-views">Phổ biến nhất</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -200,52 +266,35 @@ export default function AccountsPage() {
                   <Label>Khoảng giá</Label>
                   <div className="mt-2">
                     <Slider
-                      value={filters.priceRange}
-                      onValueChange={(value: number[]) =>
-                        setFilters((prev) => ({
-                          ...prev,
-                          priceRange: value as [number, number],
-                        }))
-                      }
+                      value={[filters.minPrice, filters.maxPrice]}
+                      onValueChange={handlePriceRangeChange}
                       max={10000000}
                       step={100000}
                       className="w-full"
                     />
                     <div className="flex justify-between text-sm text-gray-500 mt-1">
-                      <span>{formatPrice(filters.priceRange[0])}</span>
-                      <span>{formatPrice(filters.priceRange[1])}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Rating Range */}
-                <div>
-                  <Label>Rating</Label>
-                  <div className="mt-2">
-                    <Slider
-                      value={filters.ratingRange}
-                      onValueChange={(value: number[]) =>
-                        setFilters((prev) => ({
-                          ...prev,
-                          ratingRange: value as [number, number],
-                        }))
-                      }
-                      max={100}
-                      step={1}
-                      className="w-full"
-                    />
-                    <div className="flex justify-between text-sm text-gray-500 mt-1">
-                      <span>{filters.ratingRange[0]}</span>
-                      <span>{filters.ratingRange[1]}</span>
+                      <span>{formatPrice(filters.minPrice)}</span>
+                      <span>{formatPrice(filters.maxPrice)}</span>
                     </div>
                   </div>
                 </div>
 
                 <Button
                   className="w-full"
-                  onClick={() => console.log("Apply filters")}
+                  onClick={() => {
+                    setFilters({
+                      category: "",
+                      platform: "",
+                      minPrice: 0,
+                      maxPrice: 10000000,
+                      sort: "-createdAt",
+                    });
+                    setSearchQuery("");
+                    setCurrentPage(1);
+                  }}
+                  variant="outline"
                 >
-                  Áp dụng bộ lọc
+                  Xóa bộ lọc
                 </Button>
               </CardContent>
             </Card>
@@ -258,9 +307,10 @@ export default function AccountsPage() {
               <CardContent className="p-4">
                 <form onSubmit={handleSearch} className="flex gap-4">
                   <div className="flex-1 relative">
-                    <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                     <Input
-                      placeholder="Tìm kiếm tài khoản game..."
+                      type="text"
+                      placeholder="Tìm kiếm tài khoản theo tên, mã code..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="pl-10"
@@ -271,43 +321,17 @@ export default function AccountsPage() {
               </CardContent>
             </Card>
 
-            {/* Sort and View Options */}
+            {/* Toolbar */}
             <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-4">
-                <Select
-                  onValueChange={(value: string) =>
-                    setFilters((prev) => ({ ...prev, sortBy: value }))
-                  }
-                >
-                  <SelectTrigger className="w-40">
-                    <SelectValue placeholder="Sắp xếp theo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="price">Giá</SelectItem>
-                    <SelectItem value="rating">Rating</SelectItem>
-                    <SelectItem value="level">Level</SelectItem>
-                    <SelectItem value="createdAt">Mới nhất</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                <Select
-                  onValueChange={(value: string) =>
-                    setFilters((prev) => ({
-                      ...prev,
-                      sortOrder: value as "asc" | "desc",
-                    }))
-                  }
-                >
-                  <SelectTrigger className="w-32">
-                    <SelectValue placeholder="Thứ tự" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="asc">Tăng dần</SelectItem>
-                    <SelectItem value="desc">Giảm dần</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="text-sm text-gray-600">
+                {pagination && (
+                  <>
+                    Hiển thị {accounts.length} trong {pagination.totalItems} tài
+                    khoản (Trang {pagination.currentPage}/
+                    {pagination.totalPages})
+                  </>
+                )}
               </div>
-
               <div className="flex items-center gap-2">
                 <Button
                   variant={viewMode === "grid" ? "default" : "outline"}
@@ -326,122 +350,153 @@ export default function AccountsPage() {
               </div>
             </div>
 
-            {/* Results Count */}
-            <p className="text-gray-600 mb-4">
-              Tìm thấy {mockAccounts.length} tài khoản
-            </p>
+            {/* Loading State */}
+            {loadingAccounts && (
+              <div className="flex items-center justify-center h-64">
+                <LoaderIcon className="w-8 h-8 animate-spin" />
+                <span className="ml-2">Đang tải tài khoản...</span>
+              </div>
+            )}
 
-            {/* Account Cards */}
-            <div
-              className={
-                viewMode === "grid"
-                  ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
-                  : "space-y-4"
-              }
-            >
-              {mockAccounts.map((account) => (
-                <Card
-                  key={account.id}
-                  className="hover:shadow-lg transition-shadow cursor-pointer"
+            {/* No Results */}
+            {!loadingAccounts && accounts.length === 0 && (
+              <div className="text-center py-16">
+                <div className="text-6xl mb-4">🔍</div>
+                <h3 className="text-xl font-bold mb-2">
+                  Không tìm thấy tài khoản nào
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm
+                </p>
+                <Button
+                  onClick={() => {
+                    setFilters({
+                      category: "",
+                      platform: "",
+                      minPrice: 0,
+                      maxPrice: 10000000,
+                      sort: "-createdAt",
+                    });
+                    setSearchQuery("");
+                    setCurrentPage(1);
+                  }}
                 >
-                  <div className="relative">
-                    <img
-                      src="/api/placeholder/300/200"
-                      alt={account.title}
-                      className="w-full h-48 object-cover rounded-t-lg"
-                    />
-                    <Badge
-                      className="absolute top-2 right-2"
-                      variant="secondary"
-                    >
-                      {account.platform}
-                    </Badge>
-                    {account.originalPrice && (
-                      <Badge
-                        className="absolute top-2 left-2"
-                        variant="destructive"
-                      >
-                        GIẢM GIÁ
-                      </Badge>
-                    )}
-                  </div>
+                  Xóa bộ lọc
+                </Button>
+              </div>
+            )}
 
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg line-clamp-2">
-                      {account.title}
-                    </CardTitle>
-                    <CardDescription className="line-clamp-2">
-                      {account.description}
-                    </CardDescription>
-                  </CardHeader>
-
-                  <CardContent className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                        <span className="font-medium">{account.rating}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Trophy className="h-4 w-4 text-blue-500" />
-                        <span>Level {account.level}</span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <Users className="h-4 w-4 text-gray-500" />
-                      <span className="text-sm text-gray-600">
-                        {account.players.slice(0, 3).join(", ")}
-                        {account.players.length > 3 && "..."}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="text-2xl font-bold text-blue-600">
-                          {formatPrice(account.price)}
-                        </div>
-                        {account.originalPrice && (
-                          <div className="text-sm text-gray-500 line-through">
-                            {formatPrice(account.originalPrice)}
+            {/* Accounts Grid/List */}
+            {!loadingAccounts && accounts.length > 0 && (
+              <div
+                className={
+                  viewMode === "grid"
+                    ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
+                    : "space-y-4"
+                }
+              >
+                {accounts.map((account: ApiGameAccount) => (
+                  <Link key={account._id} href={`/accounts/${account._id}`}>
+                    <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
+                      <div className="relative">
+                        <img
+                          src={
+                            account.images[0]?.url || "/api/placeholder/300/200"
+                          }
+                          alt={account.images[0]?.alt || account.title}
+                          className="w-full h-48 object-cover rounded-t-lg group-hover:scale-105 transition-transform duration-300"
+                        />
+                        <Badge
+                          className="absolute top-2 left-2"
+                          variant="secondary"
+                        >
+                          {getPlatformIcon(account.accountDetails.platform)}{" "}
+                          {getPlatformLabel(account.accountDetails.platform)}
+                        </Badge>
+                        <Badge className="absolute top-2 right-2">
+                          {account.accountCode}
+                        </Badge>
+                        {account.status === "sold" && (
+                          <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-t-lg">
+                            <Badge
+                              variant="destructive"
+                              className="text-lg px-4 py-2"
+                            >
+                              ĐÃ BÁN
+                            </Badge>
                           </div>
                         )}
+                        {account.featured && (
+                          <Badge className="absolute bottom-2 left-2 bg-yellow-500">
+                            ⭐ Nổi bật
+                          </Badge>
+                        )}
                       </div>
-                      <div className="text-right">
-                        <div className="text-sm text-gray-600">
-                          {account.seller.username}
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Star className="h-3 w-3 text-yellow-500 fill-current" />
-                          <span className="text-xs">
-                            {account.seller.rating}
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            ({account.seller.totalSales})
-                          </span>
-                        </div>
-                      </div>
-                    </div>
 
-                    <Link href={`/accounts/${account.id}`}>
-                      <Button className="w-full">Xem chi tiết</Button>
-                    </Link>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-lg line-clamp-2 group-hover:text-blue-600 transition-colors">
+                          {account.title}
+                        </CardTitle>
+                        <CardDescription className="line-clamp-2">
+                          {account.description}
+                        </CardDescription>
+                      </CardHeader>
+
+                      <CardContent className="pt-0">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-2">
+                            <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                            <span className="text-sm font-medium">
+                              {account.collectiveStrength}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Users className="h-4 w-4 text-blue-500" />
+                            <span className="text-sm">
+                              Level {account.accountDetails.level}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Trophy className="h-4 w-4 text-green-500" />
+                            <span className="text-sm">
+                              {account.views} views
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="text-2xl font-bold text-blue-600">
+                              {formatPrice(account.price)}
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-sm text-gray-600">
+                              {account.seller.username}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {account.category.name}
+                            </div>
+                          </div>
+                        </div>
+
+                        <Button
+                          className="w-full mt-4 group-hover:bg-blue-700 transition-colors"
+                          disabled={account.status !== "available"}
+                        >
+                          {account.status === "available"
+                            ? "Xem chi tiết"
+                            : "Không khả dụng"}
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+            )}
 
             {/* Pagination */}
-            <div className="flex justify-center mt-8">
-              <div className="flex items-center gap-2">
-                <Button variant="outline" disabled>
-                  Trước
-                </Button>
-                <Button>1</Button>
-                <Button variant="outline">2</Button>
-                <Button variant="outline">3</Button>
-                <Button variant="outline">Sau</Button>
-              </div>
-            </div>
+            {renderPagination()}
           </div>
         </div>
       </div>

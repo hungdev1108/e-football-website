@@ -30,11 +30,9 @@ src/
 │   │   ├── login/         # Login page ✅
 │   │   └── register/      # Register page ✅
 │   ├── admin/             # Admin dashboard (TODO)
-│   ├── search/            # Search functionality ✅
-│   ├── account/           # Account details (TODO)
-│   ├── cart/              # Shopping cart ✅
-│   ├── checkout/          # Checkout process (TODO)
-│   ├── profile/           # User profile (TODO)
+│   ├── accounts/          # Account details ✅
+│   ├── checkout/          # Direct checkout process (TODO)
+│   ├── news/              # News pages ✅
 │   └── contact/           # Contact page ✅
 ├── components/            # React Components
 │   ├── ui/                # shadcn/ui components ✅
@@ -43,7 +41,6 @@ src/
 │   ├── auth/              # Authentication components (TODO)
 │   ├── account/           # Account-related components (TODO)
 │   ├── search/            # Search components (TODO)
-│   ├── cart/              # Cart components (TODO)
 │   ├── admin/             # Admin components (TODO)
 │   └── forms/             # Form components (TODO)
 ├── hooks/                 # Custom React hooks (TODO)
@@ -61,16 +58,16 @@ src/
 ### UI/UX
 - ✅ **Trang chủ** - Landing page với hero section, features, categories
 - ✅ **Authentication** - Login/Register pages với form validation
-- ✅ **Tìm kiếm** - Search page với filters, sorting, pagination
-- ✅ **Giỏ hàng** - Cart page với item management, pricing
+- ✅ **Tài khoản game** - Account listing và detail pages với filters, sorting
 - ✅ **Liên hệ** - Contact page với form và FAQ
+- ✅ **Tin tức** - News pages
 - ✅ **Responsive Design** - Mobile-first approach
 - ✅ **Dark/Light Mode Support** - Tailwind CSS theming
 
 ### Technical
 - ✅ **TypeScript Setup** - Strict typing cho toàn bộ project
 - ✅ **shadcn/ui Components** - Button, Card, Input, Select, etc.
-- ✅ **State Management** - Zustand stores cho auth và cart
+- ✅ **State Management** - Zustand stores cho authentication
 - ✅ **API Layer** - Axios với interceptors và error handling
 - ✅ **Form Handling** - React Hook Form integration
 - ✅ **Notifications** - React Hot Toast
@@ -145,10 +142,11 @@ SMTP_PASS=your-password
 
 ### Cho người dùng:
 - 🔍 **Tìm kiếm và lọc** tài khoản game theo nhiều tiêu chí
-- 🛒 **Giỏ hàng** với quản lý số lượng và tính toán giá
+- 💳 **Mua trực tiếp** không cần giỏ hàng (streamlined UX)
 - 📱 **Responsive** tối ưu cho mobile
 - 🔐 **Authentication UI** sẵn sàng tích hợp API
 - 📧 **Contact form** với validation
+- 📰 **Tin tức** về game và cập nhật
 - ⭐ **Modern UI** với shadcn/ui components
 
 ### Cho admin (TODO):
@@ -215,15 +213,16 @@ API endpoints sẽ được document đầy đủ tại `/api-docs` khi backend 
 ### Phase 1 (Hiện tại - UI Complete)
 - [x] Project setup và cấu trúc cơ bản
 - [x] Authentication UI (Login/Register)
-- [x] Search page với filters
-- [x] Shopping cart UI
+- [x] Account listing và detail pages
+- [x] Direct purchase flow (no cart)
 - [x] Contact page
+- [x] News pages
 
 ### Phase 2 (Tiếp theo - Backend Integration)
 - [ ] API endpoints implementation
 - [ ] Database schema và models
 - [ ] Authentication system
-- [ ] Payment integration
+- [ ] Direct payment integration (no cart)
 - [ ] Order management
 
 ### Phase 3 (Advanced Features)
@@ -231,7 +230,7 @@ API endpoints sẽ được document đầy đủ tại `/api-docs` khi backend 
 - [ ] Email notifications
 - [ ] Advanced search
 - [ ] User reviews và ratings
-- [ ] Wishlist functionality
+- [ ] Favorites/Wishlist functionality
 
 ### Phase 4 (Optimization)
 - [ ] Performance optimization
