@@ -13,7 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
+// import { Checkbox } from "@/components/ui/checkbox";
 import {
   Eye,
   EyeOff,
@@ -38,7 +38,7 @@ export default function RegisterPage() {
     username: "",
     password: "",
     confirmPassword: "",
-    acceptTerms: false,
+    // acceptTerms: false,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -52,10 +52,10 @@ export default function RegisterPage() {
         return;
       }
 
-      if (!formData.acceptTerms) {
-        toast.error("Vui lòng đồng ý với điều khoản sử dụng!");
-        return;
-      }
+      // if (!formData.acceptTerms) {
+      //   toast.error("Vui lòng đồng ý với điều khoản sử dụng!");
+      //   return;
+      // }
 
       // TODO: Integrate with actual API when backend is ready
       // Simulate API call
@@ -317,7 +317,7 @@ export default function RegisterPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-start space-x-3 pt-2">
+                  {/* <div className="flex items-start space-x-3 pt-2">
                     <Checkbox
                       id="acceptTerms"
                       checked={formData.acceptTerms}
@@ -348,7 +348,7 @@ export default function RegisterPage() {
                         chính sách bảo mật
                       </Link>
                     </Label>
-                  </div>
+                  </div> */}
 
                   <Button
                     type="submit"

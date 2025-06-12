@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -162,9 +163,11 @@ export default function NewsPage() {
                     }`}
                   >
                     <div className="relative overflow-hidden">
-                      <img
+                      <Image
                         src={article.featuredImage.url}
                         alt={article.featuredImage.alt}
+                        width={index === 0 ? 600 : 400}
+                        height={index === 0 ? 320 : 192}
                         className={`w-full object-cover group-hover:scale-105 transition-transform duration-300 ${
                           index === 0 ? "h-64 lg:h-80" : "h-48"
                         }`}
@@ -295,9 +298,11 @@ export default function NewsPage() {
                 <Link key={article._id} href={`/news/${article._id}`}>
                   <Card className="hover:shadow-lg transition-all cursor-pointer group h-full">
                     <div className="relative overflow-hidden">
-                      <img
+                      <Image
                         src={article.featuredImage.url}
                         alt={article.featuredImage.alt}
+                        width={400}
+                        height={192}
                         className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                       {article.featured && (

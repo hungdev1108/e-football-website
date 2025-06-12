@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useParams } from "next/navigation";
 import {
   Card,
@@ -164,8 +165,8 @@ export default function AccountDetailPage() {
           <div className="lg:col-span-2">
             <Card className="mb-6">
               <CardContent className="p-0">
-                <div className="relative">
-                  <img
+                <div className="relative overflow-hidden group">
+                  <Image
                     src={
                       account.images[selectedImageIndex]?.url
                         ? getImageUrl(account.images[selectedImageIndex].url)
@@ -174,7 +175,10 @@ export default function AccountDetailPage() {
                     alt={
                       account.images[selectedImageIndex]?.alt || account.title
                     }
-                    className="w-full h-96 object-cover rounded-t-lg"
+                    width={600}
+                    height={384}
+                    className="w-full h-96 object-cover rounded-t-lg image-scale-smooth"
+                    priority
                   />
 
                   {/* Status Badge */}
@@ -216,16 +220,18 @@ export default function AccountDetailPage() {
                         <button
                           key={index}
                           onClick={() => setSelectedImageIndex(index)}
-                          className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${
+                          className={`group flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${
                             selectedImageIndex === index
                               ? "border-blue-500"
                               : "border-gray-200"
                           }`}
                         >
-                          <img
+                          <Image
                             src={getImageUrl(image.url)}
                             alt={image.alt}
-                            className="w-full h-full object-cover"
+                            width={80}
+                            height={80}
+                            className="w-full h-full object-cover image-scale-smooth"
                           />
                         </button>
                       ))}

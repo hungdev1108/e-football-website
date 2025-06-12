@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -108,7 +109,9 @@ export default function AccountsPage() {
   };
 
   const handleFilterChange = (key: string, value: string | number) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
+    // Convert "all" to empty string for API compatibility
+    const processedValue = value === "all" ? "" : value;
+    setFilters((prev) => ({ ...prev, [key]: processedValue }));
     setCurrentPage(1); // Reset to first page when filtering
   };
 
@@ -195,7 +198,7 @@ export default function AccountsPage() {
                     </div>
                   ) : (
                     <Select
-                      value={filters.category}
+                      value={filters.category || "all"}
                       onValueChange={(value) =>
                         handleFilterChange("category", value)
                       }
@@ -204,7 +207,7 @@ export default function AccountsPage() {
                         <SelectValue placeholder="Chọn danh mục" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Tất cả danh mục</SelectItem>
+                        <SelectItem value="all">Tất cả danh mục</SelectItem>
                         {categories.map((category: ApiCategory) => (
                           <SelectItem key={category._id} value={category._id}>
                             {category.icon} {category.name}
@@ -219,7 +222,7 @@ export default function AccountsPage() {
                 <div>
                   <Label>Nền tảng</Label>
                   <Select
-                    value={filters.platform}
+                    value={filters.platform || "all"}
                     onValueChange={(value) =>
                       handleFilterChange("platform", value)
                     }
@@ -228,7 +231,7 @@ export default function AccountsPage() {
                       <SelectValue placeholder="Chọn nền tảng" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Tất cả nền tảng</SelectItem>
+                      <SelectItem value="all">Tất cả nền tảng</SelectItem>
                       <SelectItem value="steam">💻 Steam PC</SelectItem>
                       <SelectItem value="mobile">📱 Mobile</SelectItem>
                       <SelectItem value="ps4">🎮 PlayStation 4</SelectItem>
@@ -397,14 +400,16 @@ export default function AccountsPage() {
               >
                 {accounts.map((account: ApiGameAccount) => (
                   <Link key={account._id} href={`/accounts/${account._id}`}>
-                    <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
-                      <div className="relative">
-                        <img
+                    <Card className="hover:shadow-lg transition-shadow cursor-pointer group overflow-hidden">
+                      <div className="relative overflow-hidden">
+                        <Image
                           src={
                             account.images[0]?.url || "/api/placeholder/300/200"
                           }
                           alt={account.images[0]?.alt || account.title}
-                          className="w-full h-48 object-cover rounded-t-lg group-hover:scale-105 transition-transform duration-300"
+                          width={300}
+                          height={192}
+                          className="w-full h-48 object-cover rounded-t-lg image-scale-smooth"
                         />
                         <Badge
                           className="absolute top-2 left-2"
