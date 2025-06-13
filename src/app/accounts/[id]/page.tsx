@@ -10,6 +10,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardImage,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -31,7 +32,7 @@ import {
 import { toast } from "react-hot-toast";
 import { useAccount } from "@/hooks/useAccounts";
 import { ApiGameAccount } from "@/types";
-import { getImageUrl, getPlaceholderUrl } from "@/utils/image";
+import { getImageUrl, getPlaceholderUrl } from "@/utils/imageUtils";
 
 export default function AccountDetailPage() {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -163,7 +164,7 @@ export default function AccountDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Image Gallery */}
           <div className="lg:col-span-2">
-            <Card className="mb-6">
+            <CardImage className="mb-6">
               <CardContent className="p-0">
                 <div className="relative overflow-hidden group">
                   <Image
@@ -239,7 +240,7 @@ export default function AccountDetailPage() {
                   </div>
                 )}
               </CardContent>
-            </Card>
+            </CardImage>
 
             {/* Account Details Tabs */}
             <Card>

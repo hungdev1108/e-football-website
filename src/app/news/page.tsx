@@ -10,6 +10,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardImage,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -32,6 +33,7 @@ import {
 import { Header } from "@/components/layout/Header";
 import { useNews, useFeaturedNews } from "@/hooks/useNews";
 import { ApiNews } from "@/types";
+import { getImageUrl, getPlaceholderUrl } from "@/utils/imageUtils";
 
 export default function NewsPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -157,14 +159,18 @@ export default function NewsPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {featuredNews.map((article: ApiNews, index: number) => (
                 <Link key={article._id} href={`/news/${article._id}`}>
-                  <Card
+                  <CardImage
                     className={`hover:shadow-lg transition-all cursor-pointer group h-full ${
                       index === 0 ? "lg:col-span-2 lg:row-span-2" : ""
                     }`}
                   >
                     <div className="relative overflow-hidden">
                       <Image
-                        src={article.featuredImage.url}
+                        src={
+                          article.featuredImage.url
+                            ? getImageUrl(article.featuredImage.url)
+                            : getPlaceholderUrl(400, 192)
+                        }
                         alt={article.featuredImage.alt}
                         width={index === 0 ? 600 : 400}
                         height={index === 0 ? 320 : 192}
@@ -210,7 +216,7 @@ export default function NewsPage() {
                         {article.author.fullName || article.author.username}
                       </div>
                     </CardContent>
-                  </Card>
+                  </CardImage>
                 </Link>
               ))}
             </div>
@@ -299,7 +305,11 @@ export default function NewsPage() {
                   <Card className="hover:shadow-lg transition-all cursor-pointer group h-full">
                     <div className="relative overflow-hidden">
                       <Image
-                        src={article.featuredImage.url}
+                        src={
+                          article.featuredImage.url
+                            ? getImageUrl(article.featuredImage.url)
+                            : getPlaceholderUrl(400, 192)
+                        }
                         alt={article.featuredImage.alt}
                         width={400}
                         height={192}

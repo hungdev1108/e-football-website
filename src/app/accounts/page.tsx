@@ -22,19 +22,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import {
-  Filter,
-  Search,
-  Grid,
-  List,
-  Star,
-  Users,
-  Trophy,
-  LoaderIcon,
-} from "lucide-react";
+import { Filter, Search, Grid, List, Star, LoaderIcon } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { useAccounts, useCategories } from "@/hooks/useAccounts";
 import { ApiGameAccount, ApiCategory } from "@/types";
+import { getImageUrl, getPlaceholderUrl } from "@/utils/imageUtils";
 
 export default function AccountsPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -182,16 +174,16 @@ export default function AccountsPage() {
           {/* Sidebar Filters */}
           <div className="lg:w-1/4">
             <Card className="sticky top-24">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2 text-xl">
                   <Filter className="h-5 w-5" />
                   Bộ lọc
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-8">
                 {/* Category Filter */}
-                <div>
-                  <Label>Danh mục</Label>
+                <div className="space-y-3">
+                  <Label className="text-base font-medium">Danh mục</Label>
                   {loadingCategories ? (
                     <div className="flex items-center justify-center h-10">
                       <LoaderIcon className="w-4 h-4 animate-spin" />
@@ -203,7 +195,7 @@ export default function AccountsPage() {
                         handleFilterChange("category", value)
                       }
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Chọn danh mục" />
                       </SelectTrigger>
                       <SelectContent>
@@ -219,15 +211,15 @@ export default function AccountsPage() {
                 </div>
 
                 {/* Platform Filter */}
-                <div>
-                  <Label>Nền tảng</Label>
+                <div className="space-y-3">
+                  <Label className="text-base font-medium">Nền tảng</Label>
                   <Select
                     value={filters.platform || "all"}
                     onValueChange={(value) =>
                       handleFilterChange("platform", value)
                     }
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Chọn nền tảng" />
                     </SelectTrigger>
                     <SelectContent>
@@ -242,13 +234,13 @@ export default function AccountsPage() {
                 </div>
 
                 {/* Sort Filter */}
-                <div>
-                  <Label>Sắp xếp</Label>
+                <div className="space-y-3">
+                  <Label className="text-base font-medium">Sắp xếp</Label>
                   <Select
                     value={filters.sort}
                     onValueChange={(value) => handleFilterChange("sort", value)}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Sắp xếp theo" />
                     </SelectTrigger>
                     <SelectContent>
@@ -265,9 +257,9 @@ export default function AccountsPage() {
                 </div>
 
                 {/* Price Range */}
-                <div>
-                  <Label>Khoảng giá</Label>
-                  <div className="mt-2">
+                <div className="space-y-3">
+                  <Label className="text-base font-medium">Khoảng giá</Label>
+                  <div className="space-y-4">
                     <Slider
                       value={[filters.minPrice, filters.maxPrice]}
                       onValueChange={handlePriceRangeChange}
@@ -275,7 +267,7 @@ export default function AccountsPage() {
                       step={100000}
                       className="w-full"
                     />
-                    <div className="flex justify-between text-sm text-gray-500 mt-1">
+                    <div className="flex justify-between text-sm text-gray-500">
                       <span>{formatPrice(filters.minPrice)}</span>
                       <span>{formatPrice(filters.maxPrice)}</span>
                     </div>
@@ -283,7 +275,7 @@ export default function AccountsPage() {
                 </div>
 
                 <Button
-                  className="w-full"
+                  className="w-full mt-4"
                   onClick={() => {
                     setFilters({
                       category: "",
@@ -400,11 +392,12 @@ export default function AccountsPage() {
               >
                 {accounts.map((account: ApiGameAccount) => (
                   <Link key={account._id} href={`/accounts/${account._id}`}>
-                    <Card className="hover:shadow-lg transition-shadow cursor-pointer group overflow-hidden">
-                      <div className="relative overflow-hidden">
+                    <Card className="hover:shadow-lg transition-shadow cursor-pointer group overflow-hidden pt-0 rounded-t-lg">
+                      <div className="relative overflow-hidden rounded-t-lg">
                         <Image
                           src={
-                            account.images[0]?.url || "/api/placeholder/300/200"
+                            getImageUrl(account.images[0]?.url) ||
+                            getPlaceholderUrl(300, 200)
                           }
                           alt={account.images[0]?.alt || account.title}
                           width={300}
@@ -448,40 +441,15 @@ export default function AccountsPage() {
                       </CardHeader>
 
                       <CardContent className="pt-0">
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="flex items-center gap-2">
+                        <div className="flex items-center justify-between mb-4 flex-nowrap">
+                          <div className="flex items-center gap-2 min-w-0">
                             <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                            <span className="text-sm font-medium">
+                            <span className="text-sm font-medium whitespace-nowrap">
                               {account.collectiveStrength}
                             </span>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Users className="h-4 w-4 text-blue-500" />
-                            <span className="text-sm">
-                              Level {account.accountDetails.level}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Trophy className="h-4 w-4 text-green-500" />
-                            <span className="text-sm">
-                              {account.views} views
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <div className="text-2xl font-bold text-blue-600">
-                              {formatPrice(account.price)}
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-sm text-gray-600">
-                              {account.seller.username}
-                            </div>
-                            <div className="text-xs text-gray-500">
-                              {account.category.name}
-                            </div>
+                          <div className="text-xl font-bold text-blue-600 whitespace-nowrap">
+                            {formatPrice(account.price)}
                           </div>
                         </div>
 

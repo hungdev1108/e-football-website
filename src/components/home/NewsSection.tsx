@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Clock, ArrowRight, LoaderIcon } from "lucide-react";
 import { useFeaturedNews } from "@/hooks/useNews";
 import { ApiNews } from "@/types";
+import { getImageUrl, getPlaceholderUrl } from "@/utils/imageUtils";
 
 interface NewsSectionProps {
   className?: string;
@@ -30,8 +31,8 @@ export const NewsSection = memo(function NewsSection({
   return (
     <section className={`py-20 px-4 lg:px-6 ${className || ""}`}>
       <div className="container mx-auto">
-        <div className="text-center mb-16">
-          <h3 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent mb-6">
+        <div className="text-center mb-8">
+          <h3 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent mb-2">
             Tin tức hot
           </h3>
           <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
@@ -44,7 +45,7 @@ export const NewsSection = memo(function NewsSection({
             <LoaderIcon className="w-8 h-8 animate-spin" />
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {hotNews.map((news: ApiNews) => (
               <NewsCard key={news._id} news={news} />
             ))}
@@ -57,12 +58,17 @@ export const NewsSection = memo(function NewsSection({
 
 // Separate memoized component for news card
 const NewsCard = memo(function NewsCard({ news }: { news: ApiNews }) {
+  console.log(news.featuredImage.url);
   return (
     <Link href={`/news/${news._id}`}>
-      <Card className="group cursor-pointer overflow-hidden border-0 bg-white/80 backdrop-blur-sm h-full card-hover-smooth perf-layer">
+      <Card className="group cursor-pointer overflow-hidden border-0 bg-white/80 backdrop-blur-sm h-full card-hover-smooth perf-layer pt-0">
         <div className="relative overflow-hidden">
           <Image
-            src={news.featuredImage.url}
+            src={
+              news.featuredImage.url
+                ? getImageUrl(news.featuredImage.url)
+                : getPlaceholderUrl(400, 192)
+            }
             alt={news.featuredImage.alt}
             width={400}
             height={192}

@@ -12,9 +12,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Star, Users, ArrowRight, LoaderIcon } from "lucide-react";
+import { Star, ArrowRight, LoaderIcon } from "lucide-react";
 import { useFeaturedAccounts } from "@/hooks/useAccounts";
 import { ApiGameAccount } from "@/types";
+import { getImageUrl, getPlaceholderUrl } from "@/utils/imageUtils";
 
 interface FeaturedAccountsSectionProps {
   className?: string;
@@ -79,8 +80,13 @@ export const FeaturedAccountsSection = memo(function FeaturedAccountsSection({
       }`}
     >
       <div className="container mx-auto">
-        <div className="text-center mb-16">
-          <h3 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent mb-6">
+        <div className="text-center mb-8">
+          <h3
+            className="text-4xl md:text-5xl font-bold leading-tight py-2 bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent mb-2"
+            style={{
+              fontFamily: "Inter, Roboto, Noto Sans, Arial, sans-serif",
+            }}
+          >
             Tài khoản nổi bật
           </h3>
           <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
@@ -93,7 +99,7 @@ export const FeaturedAccountsSection = memo(function FeaturedAccountsSection({
             <LoaderIcon className="w-8 h-8 animate-spin" />
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {featuredAccounts.map((account: ApiGameAccount) => (
               <AccountCard key={account._id} account={account} />
             ))}
@@ -126,10 +132,12 @@ const AccountCard = memo(function AccountCard({
 }) {
   return (
     <Link href={`/accounts/${account._id}`}>
-      <Card className="group cursor-pointer overflow-hidden border-0 bg-white/80 backdrop-blur-sm card-hover-smooth perf-layer">
+      <Card className="group cursor-pointer overflow-hidden border-0 bg-white/80 backdrop-blur-sm card-hover-smooth perf-layer pt-0">
         <div className="relative overflow-hidden">
           <Image
-            src={account.images[0]?.url || "/api/placeholder/300/200"}
+            src={
+              getImageUrl(account.images[0]?.url) || getPlaceholderUrl(300, 200)
+            }
             alt={account.images[0]?.alt || account.title}
             width={300}
             height={192}
@@ -170,27 +178,8 @@ const AccountCard = memo(function AccountCard({
                 {account.collectiveStrength}
               </span>
             </div>
-            <div className="flex items-center gap-2">
-              <Users className="h-4 w-4 text-blue-500" />
-              <span className="text-sm">
-                Level {account.accountDetails.level}
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-2xl font-bold text-blue-600">
-                {formatPrice(account.price)}
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-sm text-gray-600">
-                {account.seller.username}
-              </div>
-              <div className="text-xs text-gray-500">
-                {account.views} lượt xem
-              </div>
+            <div className="text-xl font-bold text-blue-600">
+              {formatPrice(account.price)}
             </div>
           </div>
 

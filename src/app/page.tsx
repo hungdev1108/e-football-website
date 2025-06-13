@@ -54,11 +54,11 @@ export default function HomePage() {
 
       {/* Lazy load các sections khác */}
       <Suspense fallback={<SectionSkeleton />}>
-        <CategoriesSection />
+        <FeaturedAccountsSection />
       </Suspense>
 
       <Suspense fallback={<SectionSkeleton />}>
-        <FeaturedAccountsSection />
+        <CategoriesSection />
       </Suspense>
 
       <Suspense fallback={<SectionSkeleton />}>

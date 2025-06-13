@@ -39,12 +39,17 @@ export const Header = memo(function Header() {
 
   const logoInfo = logoData?.data;
 
+  const logofit = {
+    url: "/efootball-logo.png",
+    alt: "eFootball Logo",
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
       <div className="container mx-auto px-4 lg:px-6">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <LogoSection logoInfo={logoInfo} loadingLogo={loadingLogo} />
+          <LogoSection logoInfo={logofit} loadingLogo={loadingLogo} />
 
           {/* Desktop Navigation */}
           <DesktopNavigation />
@@ -109,8 +114,8 @@ const LogoSection = memo(function LogoSection({
         <Image
           src={logoInfo.url}
           alt={logoInfo.alt}
-          width={32}
-          height={32}
+          width={40}
+          height={40}
           className="h-8 w-8 object-contain"
         />
       ) : (

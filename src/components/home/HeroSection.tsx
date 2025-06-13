@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { TrendingUp, ArrowRight, LoaderIcon } from "lucide-react";
 import { useBanners } from "@/hooks/useSystem";
 import { ApiBanner } from "@/types";
+import { getImageUrl, getPlaceholderUrl } from "@/utils/imageUtils";
 
 interface HeroSectionProps {
   className?: string;
@@ -22,7 +23,7 @@ export const HeroSection = memo(function HeroSection({
 
   return (
     <section
-      className={`relative h-[650px] md:h-[700px] overflow-hidden ${
+      className={`relative h-[550px] md:h-[800px] overflow-hidden ${
         className || ""
       }`}
     >
@@ -116,7 +117,11 @@ export const HeroSection = memo(function HeroSection({
             ) : banners.length > 0 ? (
               <div className="relative">
                 <Image
-                  src={banners[0].image}
+                  src={
+                    banners[0].image
+                      ? getImageUrl(banners[0].image)
+                      : getPlaceholderUrl(500, 384)
+                  }
                   alt={banners[0].title}
                   width={500}
                   height={384}
