@@ -81,101 +81,117 @@ export default function AdminHomePage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">
-            Quản lý trang chủ
-          </h1>
-          <p className="text-gray-600">
-            Quản lý banner, nội dung nổi bật và thống kê tổng quan
-          </p>
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+              Dashboard Admin
+            </h1>
+            <p className="text-gray-600">
+              Quản lý banner, nội dung nổi bật và thống kê tổng quan
+            </p>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-gray-500">
+            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+            Đang hoạt động
+          </div>
         </div>
       </div>
 
       <Tabs
         value={activeTab}
         onValueChange={setActiveTab}
-        className="space-y-4"
+        className="space-y-6"
       >
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview">
-            <BarChart3 className="h-4 w-4 mr-2" />
-            Tổng quan
-          </TabsTrigger>
-          <TabsTrigger value="banners">
-            <ImageIcon className="h-4 w-4 mr-2" />
-            Banner
-          </TabsTrigger>
-          <TabsTrigger value="featured">
-            <TrendingUp className="h-4 w-4 mr-2" />
-            Nội dung nổi bật
-          </TabsTrigger>
-          <TabsTrigger value="stats">
-            <BarChart3 className="h-4 w-4 mr-2" />
-            Thống kê
-          </TabsTrigger>
-        </TabsList>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-2">
+          <TabsList className="grid w-full grid-cols-4 bg-gray-50 rounded-lg p-1">
+            <TabsTrigger value="overview" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+              <BarChart3 className="h-4 w-4 mr-2" />
+              Tổng quan
+            </TabsTrigger>
+            <TabsTrigger value="banners" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+              <ImageIcon className="h-4 w-4 mr-2" />
+              Banner
+            </TabsTrigger>
+            <TabsTrigger value="featured" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+              <TrendingUp className="h-4 w-4 mr-2" />
+              Nội dung nổi bật
+            </TabsTrigger>
+            <TabsTrigger value="stats" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+              <BarChart3 className="h-4 w-4 mr-2" />
+              Thống kê
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         {/* Overview Tab */}
-        <TabsContent value="overview" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
+        <TabsContent value="overview" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100 hover:shadow-xl transition-all duration-300">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                <CardTitle className="text-sm font-semibold text-blue-700">
                   Tổng tài khoản
                 </CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
+                <div className="p-2 bg-blue-500 rounded-lg">
+                  <Users className="h-4 w-4 text-white" />
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
+                <div className="text-3xl font-bold text-blue-900 mb-1">
                   {featuredAccounts.length}
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-sm text-blue-600">
                   Tài khoản nổi bật hiện tại
                 </p>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Tin tức</CardTitle>
-                <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+            <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-green-100 hover:shadow-xl transition-all duration-300">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                <CardTitle className="text-sm font-semibold text-green-700">Tin tức</CardTitle>
+                <div className="p-2 bg-green-500 rounded-lg">
+                  <ShoppingCart className="h-4 w-4 text-white" />
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{featuredNews.length}</div>
-                <p className="text-xs text-muted-foreground">Tin tức nổi bật</p>
+                <div className="text-3xl font-bold text-green-900 mb-1">{featuredNews.length}</div>
+                <p className="text-sm text-green-600">Tin tức nổi bật</p>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
+            <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-purple-100 hover:shadow-xl transition-all duration-300">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                <CardTitle className="text-sm font-semibold text-purple-700">
                   Banner hoạt động
                 </CardTitle>
-                <ImageIcon className="h-4 w-4 text-muted-foreground" />
+                <div className="p-2 bg-purple-500 rounded-lg">
+                  <ImageIcon className="h-4 w-4 text-white" />
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
+                <div className="text-3xl font-bold text-purple-900 mb-1">
                   {banners.filter((b: any) => b.isActive).length}
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-sm text-purple-600">
                   Trên tổng số {banners.length} banner
                 </p>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
+            <Card className="border-0 shadow-lg bg-gradient-to-br from-orange-50 to-orange-100 hover:shadow-xl transition-all duration-300">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                <CardTitle className="text-sm font-semibold text-orange-700">
                   Trạng thái
                 </CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                <div className="p-2 bg-orange-500 rounded-lg">
+                  <TrendingUp className="h-4 w-4 text-white" />
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-green-600">
+                <div className="text-3xl font-bold text-orange-900 mb-1">
                   Hoạt động
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-sm text-orange-600">
                   Website đang hoạt động bình thường
                 </p>
               </CardContent>

@@ -32,12 +32,13 @@ const sidebarItems = [
     icon: Newspaper,
     description: "Quản lý tin tức và bài viết",
   },
-  {
-    title: "Hệ thống",
-    href: "/admin/system",
-    icon: Settings,
-    description: "Quản lý logo, banner, cài đặt chung",
-  },
+  // Tạm thời ẩn chức năng quản lý hệ thống - đang phát triển
+  // {
+  //   title: "Hệ thống",
+  //   href: "/admin/system",
+  //   icon: Settings,
+  //   description: "Quản lý logo, banner, cài đặt chung",
+  // },
 ];
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
@@ -51,10 +52,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const { 
     isAdminAuthenticated, 
     adminUser, 
-    adminLogout
+    adminLogout,
+    checkAdminAuth
   } = useAuthStore();
 
-  // SIMPLIFIED AUTH CHECK - chỉ chạy 1 lần
+  // IMPROVED AUTH CHECK
   useEffect(() => {
     console.log('🔍 Auth check triggered. Pathname:', pathname);
     console.log('🔍 Current auth state:', { isAdminAuthenticated, adminUser });
@@ -67,66 +69,45 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       return;
     }
 
-    // If auth already checked, don't check again
-    if (authChecked) {
-      console.log('✅ Auth already checked');
+    // If already authenticated in store, allow access
+    if (isAdminAuthenticated && adminUser) {
+      console.log('✅ Already authenticated in store');
       setLoading(false);
+      setAuthChecked(true);
       return;
     }
 
     const verifyAuth = async () => {
       console.log('🔍 Starting auth verification...');
       
-      // Check localStorage token
-      const token = localStorage.getItem('admin_token');
-      console.log('🔍 Token from localStorage:', token ? '***EXISTS***' : 'NULL');
-      
-      if (!token) {
-        console.log('❌ No token found, redirecting to login');
-        setAuthChecked(true);
-        setLoading(false);
-        router.push('/admin/login');
-        return;
-      }
-
       try {
-        console.log('🔍 Verifying token with backend...');
+        // Use the store's checkAdminAuth method
+        const isValid = await checkAdminAuth();
         
-        const response = await fetch('http://localhost:5002/api/auth/admin-verify', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        
-        console.log('🔍 Verify response status:', response.status);
-        
-        if (response.ok) {
-          const data = await response.json();
-          console.log('✅ Auth verified successfully:', data);
+        if (isValid) {
+          console.log('✅ Auth verified successfully');
           setAuthChecked(true);
           setLoading(false);
         } else {
-          console.log('❌ Auth verification failed');
-          localStorage.removeItem('admin_token');
+          console.log('❌ Auth verification failed, redirecting to login');
           setAuthChecked(true);
           setLoading(false);
           router.push('/admin/login');
         }
       } catch (error) {
         console.error('❌ Auth check error:', error);
-        // FOR DEVELOPMENT: Allow access if check fails
-        console.log('🔧 Development mode: allowing access despite error');
+        console.log('❌ Redirecting to login due to error');
         setAuthChecked(true);
         setLoading(false);
+        router.push('/admin/login');
       }
     };
 
     verifyAuth();
-  }, [pathname, router]); // Remove authChecked from dependencies to prevent loop
+  }, [pathname, router, isAdminAuthenticated, adminUser, checkAdminAuth]);
 
   const handleLogout = () => {
     console.log('🚪 Logging out...');
-    localStorage.removeItem('admin_token');
     adminLogout();
     setAuthChecked(false);
     router.push('/admin/login');
@@ -149,124 +130,162 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   // Don't render sidebar on login page
   if (pathname === '/admin/login') {
-    return <>{children}</>;
+    return children;
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="h-screen flex bg-gray-50">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
-        <div
-          className="fixed inset-0 z-50 bg-black/50 lg:hidden"
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar */}
-      <aside
-        className={cn(
-          "fixed top-0 left-0 z-50 h-full w-64 transform bg-white shadow-lg transition-transform duration-300 ease-in-out lg:translate-x-0",
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        )}
-      >
-        <div className="flex h-full flex-col">
-          {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b">
-            <div>
-              <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                <Shield className="h-5 w-5 text-purple-600" />
-                Admin Panel
-              </h1>
-              <p className="text-xs text-gray-500">
-                Welcome, {adminUser?.username || 'Admin'}
-              </p>
+      <div className={cn(
+        "w-64 bg-white border-r border-gray-200 shadow-lg flex-shrink-0 transform transition-transform duration-300 ease-in-out lg:translate-x-0",
+        "lg:relative lg:flex",
+        "fixed inset-y-0 left-0 z-50",
+        sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+      )}>
+        <div className="flex flex-col h-full">
+          {/* Sidebar header */}
+          <div className="flex items-center justify-between h-16 px-6 border-b border-gray-100 bg-gradient-to-r from-purple-50 to-blue-50">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-purple-600 rounded-lg">
+                <Shield className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <span className="text-lg font-bold text-gray-900">Admin Panel</span>
+                <div className="text-xs text-gray-500">E-Football Shop</div>
+              </div>
             </div>
             <Button
               variant="ghost"
               size="sm"
-              className="lg:hidden"
+              className="lg:hidden hover:bg-gray-100"
               onClick={() => setSidebarOpen(false)}
             >
-              <X className="h-5 w-5" />
+              <X className="h-4 w-4" />
             </Button>
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 p-4 space-y-2">
-            {sidebarItems.map((item) => {
-              const isActive = pathname === item.href;
-              const Icon = item.icon;
+          <nav className="flex-1 mt-4 px-4">
+             <div className="mb-4">
+               <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 mb-3">Menu chính</h3>
+               <div className="space-y-1">
+                 {sidebarItems.map((item) => {
+                   const Icon = item.icon;
+                   const isActive = pathname === item.href;
+                   
+                   return (
+                     <Link
+                       key={item.href}
+                       href={item.href}
+                       className={cn(
+                         "group flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all duration-200",
+                         isActive
+                           ? "bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg shadow-purple-500/25"
+                           : "text-gray-700 hover:bg-gray-50 hover:text-gray-900 hover:shadow-sm"
+                       )}
+                       onClick={() => setSidebarOpen(false)}
+                     >
+                       <div className={cn(
+                         "p-2 rounded-lg transition-colors",
+                         isActive 
+                           ? "bg-white/20" 
+                           : "bg-gray-100 group-hover:bg-gray-200"
+                       )}>
+                         <Icon className={cn(
+                           "h-4 w-4",
+                           isActive ? "text-white" : "text-gray-600 group-hover:text-gray-700"
+                         )} />
+                       </div>
+                       <div className="flex-1">
+                         <div className="font-medium">{item.title}</div>
+                         <div className={cn(
+                           "text-xs mt-0.5",
+                           isActive ? "text-white/80" : "text-gray-500"
+                         )}>{item.description}</div>
+                       </div>
+                     </Link>
+                   );
+                 })}
+               </div>
+             </div>
+           </nav>
 
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setSidebarOpen(false)}
-                  className={cn(
-                    "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-gray-100",
-                    isActive
-                      ? "bg-purple-50 text-purple-700 border border-purple-200"
-                      : "text-gray-700"
-                  )}
-                >
-                  <Icon className="h-5 w-5" />
-                  <div className="flex-1">
-                    <div className="font-medium">{item.title}</div>
-                    <div className="text-xs text-gray-500">
-                      {item.description}
+          {/* User info and logout */}
+          <div className="p-4 border-t border-gray-100 mt-auto bg-gray-50/50">
+            <div className="bg-white rounded-xl p-3 shadow-sm border border-gray-100">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <span className="text-white text-sm font-bold">
+                      {adminUser?.username?.charAt(0)?.toUpperCase() || 'A'}
+                    </span>
+                  </div>
+                  <div>
+                    <div className="text-sm font-semibold text-gray-900">
+                      {adminUser?.username || 'Admin'}
+                    </div>
+                    <div className="text-xs text-gray-500 flex items-center gap-1">
+                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                      {adminUser?.role || 'Administrator'}
                     </div>
                   </div>
-                </Link>
-              );
-            })}
-          </nav>
-
-          {/* Footer */}
-          <div className="p-4 border-t space-y-2">
-            <Button variant="outline" className="w-full" asChild>
-              <Link href="/">
-                <Home className="h-4 w-4 mr-2" />
-                Về trang chủ
-              </Link>
-            </Button>
-            <Button 
-              variant="destructive" 
-              className="w-full" 
-              onClick={handleLogout}
-            >
-              <LogOut className="h-4 w-4 mr-2" />
-              Đăng xuất
-            </Button>
-          </div>
-        </div>
-      </aside>
-
-      {/* Main content */}
-      <div className="lg:ml-64">
-        {/* Header */}
-        <header className="border-b bg-white px-6 py-4">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="lg:hidden"
-              onClick={() => setSidebarOpen(true)}
-            >
-              <Menu className="h-5 w-5" />
-            </Button>
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">
-                Quản lý nội dung
-              </h2>
-              <p className="text-sm text-gray-600">
-                Chỉnh sửa và cập nhật nội dung website
-              </p>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleLogout}
+                  className="text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                  title="Đăng xuất"
+                >
+                  <LogOut className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </div>
-        </header>
+        </div>
+      </div>
 
-        {/* Content */}
-        <main className="p-6">{children}</main>
+      {/* Main content */}
+      <div className="flex-1 flex flex-col min-h-screen bg-gray-50">
+        {/* Top bar */}
+        <div className="sticky top-0 z-40 flex h-14 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-6 shadow-sm">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="lg:hidden"
+            onClick={() => setSidebarOpen(true)}
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
+
+          <div className="flex flex-1 items-center justify-between">
+            <div className="flex items-center gap-x-3">
+              <div className="hidden lg:block lg:h-5 lg:w-px lg:bg-gray-300" />
+              <div className="flex items-center gap-x-2">
+                <span className="text-sm text-gray-500">Chào mừng,</span>
+                <span className="text-sm font-semibold text-gray-900">
+                  {adminUser?.username || 'Admin'}
+                </span>
+              </div>
+            </div>
+            <div className="text-xs text-gray-400">
+              {new Date().toLocaleDateString('vi-VN')}
+            </div>
+          </div>
+        </div>
+
+        {/* Page content */}
+        <main className="flex-1 p-6 overflow-auto">
+          {children}
+        </main>
       </div>
     </div>
   );

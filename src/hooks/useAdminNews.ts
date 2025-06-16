@@ -85,15 +85,8 @@ export const useAdminNewsById = (id: string) => {
   return useQuery({
     queryKey: ['adminNews', id],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE}/news/${id}`, {
-        headers: getAuthHeaders(),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch news');
-      }
-
-      return response.json();
+      const response = await tokenInterceptor.get(`/news/${id}`);
+      return response;
     },
     enabled: !!id,
   });
