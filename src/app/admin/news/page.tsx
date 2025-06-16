@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Edit, Trash2, Eye, Save, X, Search } from "lucide-react";
+import { Plus, Edit, Trash2, Eye, Save, X, Search, Star } from "lucide-react";
 import { useForm } from "react-hook-form";
 import Image from "next/image";
 import {
@@ -40,8 +40,10 @@ import {
   useCreateNews,
   useUpdateNews,
   useDeleteNews,
+  useToggleFeatured,
 } from "@/hooks/useAdminNews";
 import { useUploadImage } from "@/hooks/useAdminAccounts";
+import { getImageUrl, getPlaceholderUrl } from "@/utils/imageUtils";
 
 interface NewsFormData {
   title: string;
@@ -62,22 +64,34 @@ interface NewsItem {
   content: string;
   excerpt?: string;
   status: string;
+  featured: boolean;
   isFeatured: boolean;
-  featuredImage?: string;
-  tags: string[] | string;
+  featuredImage?: {
+    url: string;
+    alt: string;
+  };
+  tags: string[];
+  author: {
+    _id: string;
+    username: string;
+    fullName: string;
+  };
+  views: number;
   createdAt: string;
+  updatedAt: string;
+  publishedAt?: string;
 }
 
 interface NewsApiResponse {
   success: boolean;
-  data: NewsItem[];
-  total?: number;
-  totalPages?: number;
-  pagination?: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
+  data: {
+    news: NewsItem[];
+    pagination: {
+      currentPage: number;
+      totalPages: number;
+      totalItems: number;
+      itemsPerPage: number;
+    };
   };
 }
 
@@ -101,16 +115,18 @@ export default function AdminNewsPage() {
     status: filters.status === "all" ? "" : filters.status,
     featured: filters.featured === "all" ? "" : filters.featured,
   };
+  
   const { data: newsData, isLoading } = useAdminNews(apiFilters);
   const createNewsMutation = useCreateNews();
   const updateNewsMutation = useUpdateNews();
   const deleteNewsMutation = useDeleteNews();
+  const toggleFeaturedMutation = useToggleFeatured();
   const uploadImageMutation = useUploadImage();
 
   const typedNewsData = newsData as NewsApiResponse;
-  const news = typedNewsData?.data || [];
-  const totalPages =
-    typedNewsData?.pagination?.totalPages || typedNewsData?.totalPages || 1;
+  const news = typedNewsData?.data?.news || [];
+  const pagination = typedNewsData?.data?.pagination;
+  const totalPages = pagination?.totalPages || 1;
 
   // Form hooks
   const {
@@ -120,7 +136,12 @@ export default function AdminNewsPage() {
     setValue,
     watch,
     formState: { errors },
-  } = useForm<NewsFormData>();
+  } = useForm<NewsFormData>({
+    defaultValues: {
+      status: "draft",
+      isFeatured: false,
+    }
+  });
 
   const {
     register: registerEdit,
@@ -175,25 +196,65 @@ export default function AdminNewsPage() {
   const onSubmitCreate = async (data: NewsFormData) => {
     try {
       let featuredImageData = data.featuredImage;
-
+  
       // Upload ảnh nếu có
       if (selectedImage) {
         featuredImageData = await handleImageUpload(selectedImage);
       }
-
+  
+      // ✅ FIX: Xử lý data để pass validation
       const newsData = {
-        ...data,
-        featuredImage: featuredImageData || { url: "", alt: "" },
-        tags: data.tags.split(",").map((tag) => tag.trim()),
+        title: data.title?.trim() || "",
+        content: data.content?.trim() || "",
+        excerpt: data.excerpt?.trim() || "",
+        status: data.status || "draft",
+        
+        // ✅ FIX: Chuyển boolean đúng cách
+        isFeatured: Boolean(data.isFeatured),
+        featured: Boolean(data.isFeatured),
+        
+        // ✅ FIX: Tags processing
+        tags: data.tags 
+          ? data.tags.split(",").map((tag) => tag.trim()).filter(tag => tag.length > 0)
+          : [],
+        
+        // ✅ FIX: FeaturedImage processing - chỉ gửi nếu có URL hợp lệ
+        ...(featuredImageData && featuredImageData.url && featuredImageData.url.trim() && {
+          featuredImage: {
+            url: featuredImageData.url.trim(),
+            alt: featuredImageData.alt?.trim() || data.title?.trim() || ""
+          }
+        })
       };
-
-      await createNewsMutation.mutateAsync(newsData);
+  
+      // ✅ FIX: Validation trước khi gửi
+      if (!newsData.title || newsData.title.length < 5) {
+        throw new Error('Tiêu đề phải có ít nhất 5 ký tự');
+      }
+      
+      if (!newsData.content || newsData.content.length < 50) {
+        throw new Error('Nội dung phải có ít nhất 50 ký tự');
+      }
+  
+      if (!['draft', 'published', 'archived'].includes(newsData.status)) {
+        newsData.status = 'draft';
+      }
+  
+      console.log('✅ Processed data:', newsData);
+  
+      const result = await createNewsMutation.mutateAsync(newsData);
+      
       setIsCreateDialogOpen(false);
       reset();
       setSelectedImage(null);
       setPreviewImage("");
+      
     } catch (error) {
       console.error("Error creating news:", error);
+      
+      // Hiển thị error message chi tiết
+      const errorMessage = error.response?.data?.message || error.message || 'Có lỗi xảy ra';
+      alert(errorMessage);
     }
   };
 
@@ -210,7 +271,7 @@ export default function AdminNewsPage() {
       const updatedData = {
         ...data,
         featuredImage: featuredImageData || { url: "", alt: "" },
-        tags: data.tags.split(",").map((tag) => tag.trim()),
+        tags: data.tags ? data.tags.split(",").map((tag) => tag.trim()) : [],
       };
 
       await updateNewsMutation.mutateAsync({
@@ -239,10 +300,23 @@ export default function AdminNewsPage() {
     }
   };
 
+  // Xử lý toggle featured
+  const handleToggleFeatured = async (id: string) => {
+    try {
+      await toggleFeaturedMutation.mutateAsync(id);
+    } catch (error) {
+      console.error("Error toggling featured:", error);
+    }
+  };
+
   // Xử lý chỉnh sửa tin tức
   const handleEditNews = (newsItem: NewsItem) => {
     setEditingNews(newsItem);
     setIsEditDialogOpen(true);
+
+    // Reset image states trước
+    setSelectedImage(null);
+    setPreviewImage("");
 
     // Điền dữ liệu vào form
     resetEdit({
@@ -251,16 +325,15 @@ export default function AdminNewsPage() {
       excerpt: newsItem.excerpt || "",
       tags: Array.isArray(newsItem.tags)
         ? newsItem.tags.join(", ")
-        : newsItem.tags || "",
+        : "",
       status: newsItem.status as "published" | "draft" | "archived",
-      isFeatured: newsItem.isFeatured,
-      featuredImage: newsItem.featuredImage
-        ? { url: newsItem.featuredImage, alt: newsItem.title }
-        : undefined,
+      isFeatured: newsItem.featured || newsItem.isFeatured,
+      featuredImage: newsItem.featuredImage || { url: "", alt: "" },
     });
 
-    if (newsItem.featuredImage) {
-      setPreviewImage(newsItem.featuredImage);
+    // Set preview image sau khi reset form
+    if (newsItem.featuredImage?.url) {
+      setPreviewImage(getImageUrl(newsItem.featuredImage.url));
     }
   };
 
@@ -304,6 +377,153 @@ export default function AdminNewsPage() {
     return <Badge variant={config?.variant}>{config?.label || status}</Badge>;
   };
 
+  const renderFormContent = (
+    registerFn: any,
+    errors: any,
+    setValue: any,
+    watch: any,
+    isEdit = false
+  ) => (
+    <Tabs defaultValue="content" className="w-full">
+      <TabsList className="grid w-full grid-cols-3">
+        <TabsTrigger value="content">Nội dung</TabsTrigger>
+        <TabsTrigger value="media">Hình ảnh</TabsTrigger>
+        <TabsTrigger value="settings">Cài đặt</TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="content" className="space-y-4">
+        <div>
+          <Label htmlFor={`${isEdit ? 'edit-' : ''}title`}>Tiêu đề *</Label>
+          <Input
+            id={`${isEdit ? 'edit-' : ''}title`}
+            {...registerFn("title", {
+              required: "Tiêu đề là bắt buộc",
+            })}
+            placeholder="Nhập tiêu đề tin tức"
+            className={errors.title ? "border-red-500" : ""}
+          />
+          {errors.title && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.title.message}
+            </p>
+          )}
+        </div>
+
+        <div>
+          <Label htmlFor={`${isEdit ? 'edit-' : ''}excerpt`}>Tóm tắt</Label>
+          <Textarea
+            id={`${isEdit ? 'edit-' : ''}excerpt`}
+            {...registerFn("excerpt")}
+            placeholder="Tóm tắt ngắn về tin tức"
+            rows={3}
+          />
+        </div>
+
+        <div>
+          <Label htmlFor={`${isEdit ? 'edit-' : ''}content`}>Nội dung *</Label>
+          <Textarea
+            id={`${isEdit ? 'edit-' : ''}content`}
+            {...registerFn("content", {
+              required: "Nội dung là bắt buộc",
+            })}
+            placeholder="Nhập nội dung chi tiết..."
+            rows={10}
+            className={errors.content ? "border-red-500" : ""}
+          />
+          {errors.content && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.content.message}
+            </p>
+          )}
+        </div>
+
+        <div>
+          <Label htmlFor={`${isEdit ? 'edit-' : ''}tags`}>Tags (cách nhau bằng dấu phẩy)</Label>
+          <Input
+            id={`${isEdit ? 'edit-' : ''}tags`}
+            {...registerFn("tags")}
+            placeholder="VD: eFootball, game, thể thao"
+          />
+        </div>
+      </TabsContent>
+
+      <TabsContent value="media" className="space-y-4">
+        <div>
+          <Label htmlFor={`${isEdit ? 'edit-' : ''}featuredImage`}>Ảnh đại diện</Label>
+          <div className="space-y-4">
+            <Input
+              id={`${isEdit ? 'edit-' : ''}featuredImage`}
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="cursor-pointer"
+            />
+
+            {(previewImage || (isEdit && watch("featuredImage")?.url)) && (
+              <div className="relative group">
+                <Image
+                  src={
+                    previewImage || 
+                    (isEdit && watch("featuredImage")?.url ? getImageUrl(watch("featuredImage")?.url) : "") ||
+                    getPlaceholderUrl(400, 192)
+                  }
+                  alt="Preview"
+                  width={400}
+                  height={192}
+                  className="w-full max-w-md h-48 object-cover rounded-lg border"
+                />
+                <button
+                  type="button"
+                  className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center shadow-lg transition-all duration-200 opacity-80 hover:opacity-100 group-hover:scale-110"
+                  onClick={() => {
+                    setPreviewImage("");
+                    setSelectedImage(null);
+                    setValue("featuredImage", { url: "", alt: "" });
+                  }}
+                  title="Xóa hình ảnh"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </TabsContent>
+
+      <TabsContent value="settings" className="space-y-4">
+        <div>
+          <Label htmlFor={`${isEdit ? 'edit-' : ''}status`}>Trạng thái</Label>
+          <Select
+            value={watch("status")}
+            onValueChange={(value) =>
+              setValue("status", value as "published" | "draft" | "archived")
+            }
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Chọn trạng thái" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="draft">Bản nháp</SelectItem>
+              <SelectItem value="published">Đã xuất bản</SelectItem>
+              <SelectItem value="archived">Lưu trữ</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="flex items-center space-x-2">
+          <Switch
+            id={`${isEdit ? 'edit-' : ''}isFeatured`}
+            checked={watch("isFeatured")}
+            onCheckedChange={(checked: boolean) =>
+              setValue("isFeatured", checked)
+            }
+          />
+          <Label htmlFor={`${isEdit ? 'edit-' : ''}isFeatured`}>Tin tức nổi bật</Label>
+        </div>
+      </TabsContent>
+    </Tabs>
+  );
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -328,143 +548,7 @@ export default function AdminNewsPage() {
             </DialogHeader>
 
             <form onSubmit={handleSubmit(onSubmitCreate)} className="space-y-6">
-              <Tabs defaultValue="content" className="w-full">
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="content">Nội dung</TabsTrigger>
-                  <TabsTrigger value="media">Hình ảnh</TabsTrigger>
-                  <TabsTrigger value="settings">Cài đặt</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="content" className="space-y-4">
-                  <div>
-                    <Label htmlFor="title">Tiêu đề *</Label>
-                    <Input
-                      id="title"
-                      {...register("title", {
-                        required: "Tiêu đề là bắt buộc",
-                      })}
-                      placeholder="Nhập tiêu đề tin tức"
-                      className={errors.title ? "border-red-500" : ""}
-                    />
-                    {errors.title && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {errors.title.message}
-                      </p>
-                    )}
-                  </div>
-
-                  <div>
-                    <Label htmlFor="excerpt">Tóm tắt</Label>
-                    <Textarea
-                      id="excerpt"
-                      {...register("excerpt")}
-                      placeholder="Tóm tắt ngắn về tin tức"
-                      rows={3}
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="content">Nội dung *</Label>
-                    <Textarea
-                      id="content"
-                      {...register("content", {
-                        required: "Nội dung là bắt buộc",
-                      })}
-                      placeholder="Nhập nội dung chi tiết..."
-                      rows={10}
-                      className={errors.content ? "border-red-500" : ""}
-                    />
-                    {errors.content && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {errors.content.message}
-                      </p>
-                    )}
-                  </div>
-
-                  <div>
-                    <Label htmlFor="tags">Tags (cách nhau bằng dấu phẩy)</Label>
-                    <Input
-                      id="tags"
-                      {...register("tags")}
-                      placeholder="VD: eFootball, game, thể thao"
-                    />
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="media" className="space-y-4">
-                  <div>
-                    <Label htmlFor="featuredImage">Ảnh đại diện</Label>
-                    <div className="space-y-4">
-                      <Input
-                        id="featuredImage"
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => handleImageChange(e)}
-                        className="cursor-pointer"
-                      />
-
-                      {previewImage && (
-                        <div className="relative">
-                          <Image
-                            src={previewImage}
-                            alt="Preview"
-                            width={400}
-                            height={192}
-                            className="w-full max-w-md h-48 object-cover rounded-lg border"
-                          />
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="sm"
-                            className="absolute top-2 right-2"
-                            onClick={() => {
-                              setPreviewImage("");
-                              setSelectedImage(null);
-                              setValue("featuredImage", undefined);
-                            }}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="settings" className="space-y-4">
-                  <div>
-                    <Label htmlFor="status">Trạng thái</Label>
-                    <Select
-                      onValueChange={(value) =>
-                        setValue(
-                          "status",
-                          value as "published" | "draft" | "archived"
-                        )
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Chọn trạng thái" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="draft">Bản nháp</SelectItem>
-                        <SelectItem value="published">Đã xuất bản</SelectItem>
-                        <SelectItem value="archived">Lưu trữ</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      id="isFeatured"
-                      checked={watch("isFeatured")}
-                      onCheckedChange={(checked: boolean) =>
-                        setValue("isFeatured", checked)
-                      }
-                    />
-                    <Label htmlFor="isFeatured">Tin tức nổi bật</Label>
-                  </div>
-                </TabsContent>
-              </Tabs>
+              {renderFormContent(register, errors, setValue, watch)}
 
               <div className="flex justify-end space-x-2 pt-4 border-t">
                 <Button
@@ -565,8 +649,7 @@ export default function AdminNewsPage() {
       <Card>
         <CardHeader>
           <CardTitle>
-            Danh sách tin tức (
-            {typedNewsData?.pagination?.total || typedNewsData?.total || 0})
+            Danh sách tin tức ({pagination?.totalItems || 0})
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -577,7 +660,7 @@ export default function AdminNewsPage() {
             </div>
           ) : news.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
-              {filters.search || filters.status || filters.featured
+              {filters.search || filters.status !== "all" || filters.featured !== "all"
                 ? "Không tìm thấy tin tức nào phù hợp với bộ lọc"
                 : "Chưa có tin tức nào"}
             </div>
@@ -587,8 +670,10 @@ export default function AdminNewsPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Tiêu đề</TableHead>
+                    <TableHead>Tác giả</TableHead>
                     <TableHead>Trạng thái</TableHead>
                     <TableHead>Nổi bật</TableHead>
+                    <TableHead>Lượt xem</TableHead>
                     <TableHead>Ngày tạo</TableHead>
                     <TableHead>Hành động</TableHead>
                   </TableRow>
@@ -608,24 +693,40 @@ export default function AdminNewsPage() {
                           )}
                         </div>
                       </TableCell>
+                      <TableCell>
+                        <div className="text-sm">
+                          <div className="font-medium">{article.author?.fullName}</div>
+                          <div className="text-gray-500">@{article.author?.username}</div>
+                        </div>
+                      </TableCell>
                       <TableCell>{getStatusBadge(article.status)}</TableCell>
                       <TableCell>
-                        {article.isFeatured ? (
-                          <Badge variant="default">Nổi bật</Badge>
-                        ) : (
-                          <Badge variant="outline">Thường</Badge>
-                        )}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleToggleFeatured(article._id)}
+                          disabled={toggleFeaturedMutation.isPending}
+                          className={
+                            article.featured || article.isFeatured
+                              ? "text-yellow-600 hover:text-yellow-700"
+                              : "text-gray-400 hover:text-yellow-600"
+                          }
+                        >
+                          <Star
+                            className={`h-4 w-4 ${
+                              article.featured || article.isFeatured ? "fill-current" : ""
+                            }`}
+                          />
+                        </Button>
                       </TableCell>
                       <TableCell>
-                        {new Date(article.createdAt).toLocaleDateString(
-                          "vi-VN"
-                        )}
+                        <Badge variant="outline">{article.views}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        {new Date(article.createdAt).toLocaleDateString("vi-VN")}
                       </TableCell>
                       <TableCell>
                         <div className="flex space-x-2">
-                          <Button variant="outline" size="sm">
-                            <Eye className="h-4 w-4" />
-                          </Button>
                           <Button
                             variant="outline"
                             size="sm"
@@ -661,8 +762,9 @@ export default function AdminNewsPage() {
                     Trước
                   </Button>
 
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                    (page) => (
+                  {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                    const page = i + 1;
+                    return (
                       <Button
                         key={page}
                         variant={page === filters.page ? "default" : "outline"}
@@ -671,8 +773,8 @@ export default function AdminNewsPage() {
                       >
                         {page}
                       </Button>
-                    )
-                  )}
+                    );
+                  })}
 
                   <Button
                     variant="outline"
@@ -698,146 +800,7 @@ export default function AdminNewsPage() {
           </DialogHeader>
 
           <form onSubmit={handleSubmitEdit(onSubmitEdit)} className="space-y-6">
-            <Tabs defaultValue="content" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="content">Nội dung</TabsTrigger>
-                <TabsTrigger value="media">Hình ảnh</TabsTrigger>
-                <TabsTrigger value="settings">Cài đặt</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="content" className="space-y-4">
-                <div>
-                  <Label htmlFor="edit-title">Tiêu đề *</Label>
-                  <Input
-                    id="edit-title"
-                    {...registerEdit("title", {
-                      required: "Tiêu đề là bắt buộc",
-                    })}
-                    placeholder="Nhập tiêu đề tin tức"
-                    className={errorsEdit.title ? "border-red-500" : ""}
-                  />
-                  {errorsEdit.title && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errorsEdit.title.message}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <Label htmlFor="edit-excerpt">Tóm tắt</Label>
-                  <Textarea
-                    id="edit-excerpt"
-                    {...registerEdit("excerpt")}
-                    placeholder="Tóm tắt ngắn về tin tức"
-                    rows={3}
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="edit-content">Nội dung *</Label>
-                  <Textarea
-                    id="edit-content"
-                    {...registerEdit("content", {
-                      required: "Nội dung là bắt buộc",
-                    })}
-                    placeholder="Nhập nội dung chi tiết..."
-                    rows={10}
-                    className={errorsEdit.content ? "border-red-500" : ""}
-                  />
-                  {errorsEdit.content && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errorsEdit.content.message}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <Label htmlFor="edit-tags">
-                    Tags (cách nhau bằng dấu phẩy)
-                  </Label>
-                  <Input
-                    id="edit-tags"
-                    {...registerEdit("tags")}
-                    placeholder="VD: eFootball, game, thể thao"
-                  />
-                </div>
-              </TabsContent>
-
-              <TabsContent value="media" className="space-y-4">
-                <div>
-                  <Label htmlFor="edit-featuredImage">Ảnh đại diện</Label>
-                  <div className="space-y-4">
-                    <Input
-                      id="edit-featuredImage"
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleImageChange(e)}
-                      className="cursor-pointer"
-                    />
-
-                                          {previewImage && (
-                        <div className="relative">
-                          <Image
-                            src={previewImage}
-                            alt="Preview"
-                            width={400}
-                            height={192}
-                            className="w-full max-w-md h-48 object-cover rounded-lg border"
-                          />
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="sm"
-                          className="absolute top-2 right-2"
-                          onClick={() => {
-                            setPreviewImage("");
-                            setSelectedImage(null);
-                            setValueEdit("featuredImage", undefined);
-                          }}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="settings" className="space-y-4">
-                <div>
-                  <Label htmlFor="edit-status">Trạng thái</Label>
-                  <Select
-                    value={watchEdit("status")}
-                    onValueChange={(value) =>
-                      setValueEdit(
-                        "status",
-                        value as "published" | "draft" | "archived"
-                      )
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Chọn trạng thái" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="draft">Bản nháp</SelectItem>
-                      <SelectItem value="published">Đã xuất bản</SelectItem>
-                      <SelectItem value="archived">Lưu trữ</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="edit-isFeatured"
-                    checked={watchEdit("isFeatured")}
-                    onCheckedChange={(checked: boolean) =>
-                      setValueEdit("isFeatured", checked)
-                    }
-                  />
-                  <Label htmlFor="edit-isFeatured">Tin tức nổi bật</Label>
-                </div>
-              </TabsContent>
-            </Tabs>
+            {renderFormContent(registerEdit, errorsEdit, setValueEdit, watchEdit, true)}
 
             <div className="flex justify-end space-x-2 pt-4 border-t">
               <Button

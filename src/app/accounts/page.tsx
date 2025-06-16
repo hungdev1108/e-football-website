@@ -36,30 +36,46 @@ export default function AccountsPage() {
     category: "",
     platform: "",
     minPrice: 0,
-    maxPrice: 10000000,
+    maxPrice: 30000000,
     sort: "-createdAt",
   });
 
   // Fetch data using hooks
-  const { data: accountsData, isLoading: loadingAccounts } = useAccounts({
+  const queryParams = {
     page: currentPage,
     limit: 12,
     ...filters,
     search: searchQuery || undefined,
-  });
+  };
+  
+  console.log('🔍 Query params sent to API:', queryParams);
+  
+  const { data: accountsData, isLoading: loadingAccounts } = useAccounts(queryParams);
 
   const { data: categoriesData, isLoading: loadingCategories } =
     useCategories();
 
-  const accounts = accountsData?.data?.accounts || [];
-  const pagination = accountsData?.data?.pagination;
+  // Fix data structure - API returns data as array directly
+  const accounts = accountsData?.data || [];
+  const pagination = accountsData?.pagination;
   const categories = categoriesData?.data || [];
+  
+  // Debug logs
+  console.log('🔍 accountsData:', accountsData);
+  console.log('📊 accounts extracted:', accounts);
+  console.log('📄 pagination:', pagination);
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(price);
+    const priceStr = price.toString();
+    
+    // Định dạng số với dấu chấm phân cách mỗi 3 chữ số từ phải sang trái
+    const formatted = priceStr.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    
+    // Thay thế tất cả chữ số sau chữ số đầu tiên bằng 'x'
+    const firstDigit = formatted[0];
+    const restFormatted = formatted.slice(1).replace(/\d/g, 'x');
+    
+    return `${firstDigit}${restFormatted} đ`;
   };
 
   const getPlatformIcon = (platform: string) => {
@@ -263,8 +279,8 @@ export default function AccountsPage() {
                     <Slider
                       value={[filters.minPrice, filters.maxPrice]}
                       onValueChange={handlePriceRangeChange}
-                      max={10000000}
-                      step={100000}
+                      max={30000000}
+                      step={50000}
                       className="w-full"
                     />
                     <div className="flex justify-between text-sm text-gray-500">
@@ -281,7 +297,7 @@ export default function AccountsPage() {
                       category: "",
                       platform: "",
                       minPrice: 0,
-                      maxPrice: 10000000,
+                      maxPrice: 30000000,
                       sort: "-createdAt",
                     });
                     setSearchQuery("");
@@ -369,7 +385,7 @@ export default function AccountsPage() {
                       category: "",
                       platform: "",
                       minPrice: 0,
-                      maxPrice: 10000000,
+                      maxPrice: 30000000,
                       sort: "-createdAt",
                     });
                     setSearchQuery("");

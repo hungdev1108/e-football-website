@@ -21,7 +21,7 @@ const formatDate = (dateString: string): string => {
 export const NewsSection = memo(function NewsSection({
   className,
 }: NewsSectionProps) {
-  const { data: featuredNewsData, isLoading: loadingNews } = useFeaturedNews(3);
+  const { data: featuredNewsData, isLoading: loadingNews } = useFeaturedNews(4);
 
   // Memoize the news array
   const hotNews = useMemo(() => {
@@ -103,7 +103,7 @@ const NewsCard = memo(function NewsCard({ news }: { news: ApiNews }) {
           </p>
           <div className="flex items-center justify-between">
             <div className="text-sm text-slate-500">
-              Tác giả: {news.author.fullName || news.author.username}
+              Tác giả: Trần Đình Hiệp
             </div>
             <ArrowRight className="w-4 h-4 text-blue-500 arrow-smooth group-hover:translate-x-1" />
           </div>

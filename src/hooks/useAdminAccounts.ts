@@ -1,75 +1,94 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiService } from '@/services/api';
-import { toast } from 'react-hot-toast';
-import { AdminAccountFormData, AdminQueryParams, AdminErrorResponse } from '@/types/admin';
+import tokenInterceptor from '@/services/tokenInterceptor';
 
-// Hook để lấy danh sách tài khoản game (cho admin)
-export const useAdminAccounts = (params?: AdminQueryParams) => {
+// Get all accounts for admin
+export const useAdminAccounts = (filters: any) => {
   return useQuery({
-    queryKey: ['admin', 'accounts', params],
-    queryFn: () => apiService.get('/admin/accounts', params),
-    staleTime: 2 * 60 * 1000, // 2 minutes
+    queryKey: ['adminAccounts', filters],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value && value !== '' && value !== 'all') {
+          params.append(key, String(value));
+        }
+      });
+
+      const response = await tokenInterceptor.get(`/accounts/admin/all?${params}`);
+      return response;
+    },
   });
 };
 
-// Hook để tạo tài khoản game mới
+// Create account
 export const useCreateAccount = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: (accountData: AdminAccountFormData) => apiService.post('/admin/accounts', accountData),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'accounts'] });
-      queryClient.invalidateQueries({ queryKey: ['accounts'] });
-      toast.success('Tạo tài khoản thành công!');
+    mutationFn: async (accountData: any) => {
+      console.log('Creating account with data:', JSON.stringify(accountData, null, 2));
+      
+      const response = await tokenInterceptor.post('/accounts/admin/create', accountData);
+      return response;
     },
-    onError: (error: AdminErrorResponse) => {
-      toast.error(error?.response?.data?.message || 'Có lỗi xảy ra khi tạo tài khoản');
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['adminAccounts'] });
     },
   });
 };
 
-// Hook để cập nhật tài khoản game
+// Update account
 export const useUpdateAccount = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<AdminAccountFormData> }) => 
-      apiService.put(`/admin/accounts/${id}`, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'accounts'] });
-      queryClient.invalidateQueries({ queryKey: ['accounts'] });
-      toast.success('Cập nhật tài khoản thành công!');
+    mutationFn: async ({ id, data }: { id: string; data: any }) => {
+      const response = await tokenInterceptor.put(`/accounts/admin/${id}`, data);
+      return response;
     },
-    onError: (error: AdminErrorResponse) => {
-      toast.error(error?.response?.data?.message || 'Có lỗi xảy ra khi cập nhật tài khoản');
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['adminAccounts'] });
     },
   });
 };
 
-// Hook để xóa tài khoản game
+// Delete account
 export const useDeleteAccount = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: (id: string) => apiService.delete(`/admin/accounts/${id}`),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'accounts'] });
-      queryClient.invalidateQueries({ queryKey: ['accounts'] });
-      toast.success('Xóa tài khoản thành công!');
+    mutationFn: async (id: string) => {
+      const response = await tokenInterceptor.delete(`/accounts/admin/${id}`);
+      return response;
     },
-    onError: (error: AdminErrorResponse) => {
-      toast.error(error?.response?.data?.message || 'Có lỗi xảy ra khi xóa tài khoản');
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['adminAccounts'] });
     },
   });
 };
 
-// Hook để upload ảnh
+// Upload image
 export const useUploadImage = () => {
   return useMutation({
-    mutationFn: (formData: FormData) => apiService.post('/admin/upload', formData),
-    onError: (error: AdminErrorResponse) => {
-      toast.error(error?.response?.data?.message || 'Có lỗi xảy ra khi upload ảnh');
+    mutationFn: async (formData: FormData) => {
+      const response = await tokenInterceptor.request('/accounts/admin/upload-image', {
+        method: 'POST',
+        body: formData,
+        headers: {} // Don't set Content-Type for FormData
+      });
+      return response;
     },
   });
-}; 
+};
+
+// Get categories
+export const useAdminCategories = () => {
+  return useQuery({
+    queryKey: ['adminCategories'],
+    queryFn: async () => {
+      const data = await tokenInterceptor.get('/accounts/categories');
+      // Ensure we return an array
+      return Array.isArray(data) ? data : (data?.data || data?.categories || []);
+    },
+  });
+};

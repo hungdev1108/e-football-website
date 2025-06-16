@@ -33,10 +33,13 @@ import { toast } from "react-hot-toast";
 import { useAccount } from "@/hooks/useAccounts";
 import { ApiGameAccount } from "@/types";
 import { getImageUrl, getPlaceholderUrl } from "@/utils/imageUtils";
+import PurchaseModal from "@/components/ui/PurchaseModal";
+import "@/styles/purchase-button.css";
 
 export default function AccountDetailPage() {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
+  const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
   const params = useParams();
   const accountId = params.id as string;
 
@@ -44,18 +47,37 @@ export default function AccountDetailPage() {
   const account = accountData?.data as ApiGameAccount;
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(price);
+    const priceStr = price.toString();
+    if (priceStr.length <= 3) {
+      return `${price} đ`;
+    }
+    
+    const firstDigit = priceStr[0];
+    const remainingStr = priceStr.slice(1);
+    
+    // Tạo pattern từ phải sang trái theo chuẩn định dạng tiền tệ
+    let pattern = '';
+    for (let i = 0; i < remainingStr.length; i++) {
+      if (i > 0 && (remainingStr.length - i) % 3 === 0) {
+        pattern += '.';
+      }
+      pattern += 'x';
+    }
+    
+    return `${firstDigit}${pattern} đ`;
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("vi-VN", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+    if (!dateString) return "Không xác định";
+    try {
+      return new Date(dateString).toLocaleDateString("vi-VN", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+    } catch (error) {
+      return "Không xác định";
+    }
   };
 
   const getPlatformIcon = (platform: string) => {
@@ -96,10 +118,7 @@ export default function AccountDetailPage() {
       toast.error("Tài khoản này không còn khả dụng!");
       return;
     }
-    // TODO: Implement direct purchase when API is ready
-    toast.success("Chuyển đến trang thanh toán!");
-    // Redirect to payment/checkout page
-    // router.push(`/checkout/${account._id}`);
+    setIsPurchaseModalOpen(true);
   };
 
   const handleShare = () => {
@@ -196,8 +215,8 @@ export default function AccountDetailPage() {
 
                   {/* Platform Badge */}
                   <Badge className="absolute top-4 left-4" variant="secondary">
-                    {getPlatformIcon(account.accountDetails.platform)}{" "}
-                    {getPlatformLabel(account.accountDetails.platform)}
+                    {getPlatformIcon(account.accountDetails?.platform || 'mobile')}{" "}
+                    {getPlatformLabel(account.accountDetails?.platform || 'mobile')}
                   </Badge>
 
                   {/* Account Code Badge */}
@@ -249,10 +268,9 @@ export default function AccountDetailPage() {
               </CardHeader>
               <CardContent>
                 <Tabs defaultValue="overview">
-                  <TabsList className="grid w-full grid-cols-3">
+                  <TabsList className="grid w-full grid-cols-2">
                     <TabsTrigger value="overview">Tổng quan</TabsTrigger>
                     <TabsTrigger value="stats">Thống kê</TabsTrigger>
-                    <TabsTrigger value="seller">Người bán</TabsTrigger>
                   </TabsList>
 
                   <TabsContent value="overview" className="space-y-4">
@@ -271,24 +289,17 @@ export default function AccountDetailPage() {
                           Nền tảng
                         </span>
                         <p className="font-semibold">
-                          {getPlatformIcon(account.accountDetails.platform)}{" "}
-                          {getPlatformLabel(account.accountDetails.platform)}
+                          {getPlatformIcon(account.accountDetails?.platform || 'mobile')}{" "}
+                          {getPlatformLabel(account.accountDetails?.platform || 'mobile')}
                         </p>
                       </div>
-                      <div>
-                        <span className="text-sm font-medium text-gray-500">
-                          Level
-                        </span>
-                        <p className="font-semibold">
-                          {account.accountDetails.level}
-                        </p>
-                      </div>
+
                       <div>
                         <span className="text-sm font-medium text-gray-500">
                           GP
                         </span>
                         <p className="font-semibold">
-                          {account.accountDetails.gp.toLocaleString()}
+                          {account.accountDetails?.gp?.toLocaleString() || '0'}
                         </p>
                       </div>
                       <div>
@@ -296,14 +307,14 @@ export default function AccountDetailPage() {
                           Coins
                         </span>
                         <p className="font-semibold">
-                          {account.accountDetails.coins.toLocaleString()}
+                          {account.accountDetails?.coins?.toLocaleString() || '0'}
                         </p>
                       </div>
                     </div>
                   </TabsContent>
 
                   <TabsContent value="stats" className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <Card>
                         <CardContent className="p-4 text-center">
                           <Star className="h-8 w-8 text-yellow-500 mx-auto mb-2" />
@@ -324,15 +335,7 @@ export default function AccountDetailPage() {
                         </CardContent>
                       </Card>
 
-                      <Card>
-                        <CardContent className="p-4 text-center">
-                          <Trophy className="h-8 w-8 text-green-500 mx-auto mb-2" />
-                          <p className="text-2xl font-bold">
-                            {account.accountDetails.level}
-                          </p>
-                          <p className="text-sm text-gray-600">Level</p>
-                        </CardContent>
-                      </Card>
+
 
                       <Card>
                         <CardContent className="p-4 text-center">
@@ -346,33 +349,7 @@ export default function AccountDetailPage() {
                     </div>
                   </TabsContent>
 
-                  <TabsContent value="seller" className="space-y-4">
-                    <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-xl font-bold">
-                        {account.seller.username.charAt(0).toUpperCase()}
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-lg">
-                          {account.seller.fullName || account.seller.username}
-                        </h4>
-                        <p className="text-gray-600">
-                          @{account.seller.username}
-                        </p>
-                      </div>
-                    </div>
 
-                    <Separator />
-
-                    <div>
-                      <h5 className="font-semibold mb-2">
-                        Thông tin người bán
-                      </h5>
-                      <p className="text-gray-600">
-                        Người bán uy tín với nhiều tài khoản chất lượng. Cam kết
-                        giao hàng nhanh chóng và hỗ trợ tận tình.
-                      </p>
-                    </div>
-                  </TabsContent>
                 </Tabs>
               </CardContent>
             </Card>
@@ -385,7 +362,7 @@ export default function AccountDetailPage() {
                 <CardTitle className="line-clamp-2">{account.title}</CardTitle>
                 <CardDescription className="flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
-                  Đăng ngày {formatDate(account.createdAt)}
+                  Đăng ngày {formatDate(account?.createdAt)}
                 </CardDescription>
               </CardHeader>
 
@@ -395,8 +372,8 @@ export default function AccountDetailPage() {
                   <div className="text-3xl font-bold text-blue-600 mb-2">
                     {formatPrice(account.price)}
                   </div>
-                  <Badge variant="secondary" className="text-sm">
-                    Giá cố định
+                  <Badge variant="secondary" className="text-sm bg-green-100 text-green-800 font-semibold">
+                    🏦 Hỗ trợ trả góp
                   </Badge>
                 </div>
 
@@ -416,15 +393,7 @@ export default function AccountDetailPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Level</span>
-                    <div className="flex items-center gap-1">
-                      <Users className="h-4 w-4 text-blue-500" />
-                      <span className="font-semibold">
-                        {account.accountDetails.level}
-                      </span>
-                    </div>
-                  </div>
+
 
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Lượt xem</span>
@@ -457,15 +426,21 @@ export default function AccountDetailPage() {
                 {/* Action Buttons */}
                 <div className="space-y-3">
                   <Button
-                    className="w-full"
+                    className={`w-full text-white font-bold shadow-lg relative overflow-hidden ${
+                      account.status === "available" 
+                        ? "purchase-button" 
+                        : "bg-gray-400 cursor-not-allowed"
+                    }`}
                     size="lg"
                     onClick={handlePurchase}
                     disabled={account.status !== "available"}
                   >
-                    <ShoppingCart className="h-5 w-5 mr-2" />
-                    {account.status === "available"
-                      ? "Mua ngay"
-                      : "Không khả dụng"}
+                    <ShoppingCart className="h-5 w-5 mr-2 relative z-10" />
+                    <span className="relative z-10">
+                      {account.status === "available"
+                        ? "🚀 Mua ngay"
+                        : "Không khả dụng"}
+                    </span>
                   </Button>
 
                   <div className="flex gap-2">
@@ -529,6 +504,15 @@ export default function AccountDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Purchase Modal */}
+      {account && (
+        <PurchaseModal
+          isOpen={isPurchaseModalOpen}
+          onClose={() => setIsPurchaseModalOpen(false)}
+          account={account}
+        />
+      )}
     </div>
   );
 }

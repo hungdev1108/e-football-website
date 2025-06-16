@@ -80,6 +80,7 @@ export default function RootLayout({
     <html lang="vi" suppressHydrationWarning>
       <body
         className={`${inter.className} antialiased min-h-screen bg-background`}
+        suppressHydrationWarning
       >
         <Providers>{children}</Providers>
       </body>

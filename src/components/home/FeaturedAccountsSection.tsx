@@ -23,10 +23,24 @@ interface FeaturedAccountsSectionProps {
 
 // Memoized helper functions outside component
 const formatPrice = (price: number): string => {
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-  }).format(price);
+  const priceStr = price.toString();
+  if (priceStr.length <= 3) {
+    return `${price} đ`;
+  }
+  
+  const firstDigit = priceStr[0];
+  const remainingStr = priceStr.slice(1);
+  
+  // Tạo pattern từ phải sang trái theo chuẩn định dạng tiền tệ
+  let pattern = '';
+  for (let i = 0; i < remainingStr.length; i++) {
+    if (i > 0 && (remainingStr.length - i) % 3 === 0) {
+      pattern += '.';
+    }
+    pattern += 'x';
+  }
+  
+  return `${firstDigit}${pattern} đ`;
 };
 
 const getPlatformIcon = (platform: string): string => {

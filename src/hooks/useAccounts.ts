@@ -14,9 +14,23 @@ export const useAccounts = (params?: {
 }) => {
   return useQuery({
     queryKey: ['accounts', params],
-    queryFn: () => accountService.getAccounts(params),
+    queryFn: async () => {
+      console.log('🔍 Calling API with params:', params);
+      try {
+        const result = await accountService.getAccounts(params);
+        console.log('✅ API Response:', result);
+        return result;
+      } catch (error) {
+        console.error('❌ API Error:', error);
+        throw error;
+      }
+    },
     staleTime: 3 * 60 * 1000, // 3 minutes (reduced for real-time updates)
     enabled: true, // Always enabled
+    retry: 1, // Retry once on failure
+    onError: (error) => {
+      console.error('🚨 useAccounts Error:', error);
+    },
   });
 };
 
@@ -44,10 +58,24 @@ export const useAccount = (id: string) => {
 export const useCategories = () => {
   return useQuery({
     queryKey: ['categories'],
-    queryFn: () => accountService.getCategories(),
+    queryFn: async () => {
+      console.log('🔍 Calling Categories API...');
+      try {
+        const result = await accountService.getCategories();
+        console.log('✅ Categories API Response:', result);
+        return result;
+      } catch (error) {
+        console.error('❌ Categories API Error:', error);
+        throw error;
+      }
+    },
     staleTime: 60 * 60 * 1000, // 1 hour - categories don't change often
     gcTime: 2 * 60 * 60 * 1000, // 2 hours
     enabled: true,
+    retry: 1, // Retry once on failure
+    onError: (error) => {
+      console.error('🚨 useCategories Error:', error);
+    },
   });
 };
 
@@ -59,4 +87,4 @@ export const useAccountsByPriceRange = (minPrice: number, maxPrice: number, limi
     enabled: minPrice >= 0 && maxPrice > minPrice && maxPrice <= 1000000000, // Reasonable limits
     staleTime: 5 * 60 * 1000,
   });
-}; 
+};

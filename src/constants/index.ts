@@ -21,12 +21,20 @@ export const PAGINATION = {
   maxPageSize: 100,
 } as const;
 
-// Platform Options
+// Platform Options - CẬP NHẬT ĐỂ KHỚP VỚI BACKEND
 export const PLATFORMS = [
-  { value: 'PC', label: 'PC/Steam' },
-  { value: 'MOBILE', label: 'Mobile' },
-  { value: 'CONSOLE', label: 'Console (PS/Xbox)' },
+  { value: 'steam', label: 'Steam' },
+  { value: 'mobile', label: 'Mobile' },
+  { value: 'ps4', label: 'PlayStation 4' },
+  { value: 'ps5', label: 'PlayStation 5' },
+  { value: 'xbox', label: 'Xbox' },
 ] as const;
+
+// Helper function để get platform label
+export const getPlatformLabel = (platform) => {
+  const platformObj = PLATFORMS.find(p => p.value === platform);
+  return platformObj ? platformObj.label : platform;
+};
 
 // Game Account Categories
 export const ACCOUNT_CATEGORIES = [
@@ -40,10 +48,11 @@ export const ACCOUNT_CATEGORIES = [
 // Price Ranges (in VND)
 export const PRICE_RANGES = [
   { min: 0, max: 100000, label: 'Dưới 100K' },
-  { min: 100000, max: 500000, label: '100K - 500K' },
+  { min: 100000, max: 300000, label: '100K - 300K' },
+  { min: 300000, max: 500000, label: '300K - 500K' },
   { min: 500000, max: 1000000, label: '500K - 1M' },
-  { min: 1000000, max: 5000000, label: '1M - 5M' },
-  { min: 5000000, max: 10000000, label: '5M - 10M' },
+  { min: 1000000, max: 9000000, label: '1M - 9M' },
+  { min: 9000000, max: 10000000, label: '9M - 10M' },
   { min: 10000000, max: Infinity, label: 'Trên 10M' },
 ] as const;
 
@@ -167,4 +176,4 @@ export const CACHE_KEYS = {
   theme: 'theme-storage',
   language: 'language-storage',
   recentSearch: 'recent-search-storage',
-} as const; 
+} as const;

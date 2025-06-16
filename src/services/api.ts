@@ -87,7 +87,7 @@ export const accountService = {
 
   // Get categories
   getCategories: async () => {
-    const response = await api.get('/accounts/categories');
+    const response = await api.get('/categories');
     return response.data;
   },
 
@@ -142,6 +142,12 @@ export const systemService = {
   // Get banners
   getBanners: async () => {
     const response = await api.get('/system/banners');
+    return response.data;
+  },
+
+  // Get system settings (public)
+  getSettings: async () => {
+    const response = await api.get('/system/settings/public');
     return response.data;
   },
 };
@@ -210,4 +216,4 @@ export const uploadFile = async (file: File, onProgress?: (progress: number) => 
   return response.data;
 };
 
-export default api; 
+export default api;

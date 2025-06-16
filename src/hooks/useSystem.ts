@@ -1,20 +1,54 @@
 import { useQuery } from '@tanstack/react-query';
-import { systemService } from '@/services/api';
+import { usePublicSettings, usePublicLogo, usePublicBanners } from './useAdminSystem';
 
-// Hook to get logo
-export const useLogo = () => {
-  return useQuery({
-    queryKey: ['system', 'logo'],
-    queryFn: () => systemService.getLogo(),
-    staleTime: 60 * 60 * 1000, // 1 hour - logo doesn't change often
-  });
+// Main public hooks using new endpoints
+export const useSystemSettings = usePublicSettings;
+export const useSystemLogo = usePublicLogo;
+export const useSystemBanners = usePublicBanners;
+
+// Legacy hooks for backward compatibility
+export const useLogo = usePublicLogo;
+export const useBanners = usePublicBanners;
+
+// Additional utility hooks for specific use cases
+export const useHeaderData = () => {
+  const { data: logoData, isLoading: logoLoading } = useSystemLogo();
+  const { data: settingsData, isLoading: settingsLoading } = useSystemSettings();
+  
+  return {
+    logo: logoData?.data,
+    siteName: settingsData?.data?.siteName,
+    isLoading: logoLoading || settingsLoading
+  };
 };
 
-// Hook to get banners
-export const useBanners = () => {
-  return useQuery({
-    queryKey: ['system', 'banners'],
-    queryFn: () => systemService.getBanners(),
-    staleTime: 10 * 60 * 1000, // 10 minutes
-  });
-}; 
+export const useFooterData = () => {
+  const { data: settingsData, isLoading } = useSystemSettings();
+  
+  return {
+    contactInfo: settingsData?.data?.contactInfo,
+    socialMedia: settingsData?.data?.socialMedia,
+    bankingInfo: settingsData?.data?.bankingInfo,
+    isLoading
+  };
+};
+
+export const useHomeBanners = () => {
+  const { data: bannersData, isLoading } = useSystemBanners();
+  
+  return {
+    banners: bannersData?.data?.filter((banner: any) => banner.isActive) || [],
+    isLoading
+  };
+};
+
+// Hook for payment information
+export const usePaymentInfo = () => {
+  const { data: settingsData, isLoading } = useSystemSettings();
+  
+  return {
+    bankingInfo: settingsData?.data?.bankingInfo,
+    qrCodeImage: settingsData?.data?.bankingInfo?.qrCodeImage,
+    isLoading
+  };
+};

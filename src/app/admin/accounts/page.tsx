@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -34,13 +34,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Edit, Trash2, Eye, Save, X, Search, Upload } from "lucide-react";
 import { useForm } from "react-hook-form";
 import Image from "next/image";
+import { toast } from "react-hot-toast";
 import {
   useAdminAccounts,
   useCreateAccount,
   useUpdateAccount,
   useDeleteAccount,
   useUploadImage,
+  useAdminCategories,
 } from "@/hooks/useAdminAccounts";
+import { getImageUrl, getPlaceholderUrl } from "@/utils/imageUtils";
+import { PLATFORMS, getPlatformLabel } from "@/constants";
 
 interface AccountFormData {
   title: string;
@@ -50,10 +54,11 @@ interface AccountFormData {
   accountCode: string;
   collectiveStrength: number;
   status: "available" | "sold" | "reserved";
+  featured: boolean;
   accountDetails: {
     platform: string;
-    level: number;
     coins: number;
+    gp: number;
     players: string;
   };
   images: { url: string; alt: string }[];
@@ -64,14 +69,15 @@ interface AccountItem {
   title: string;
   description: string;
   price: number;
-  category: string;
+  category: string | { _id: string; name: string; icon?: string };
   accountCode: string;
   collectiveStrength: number;
   status: string;
+  featured: boolean;
   accountDetails: {
     platform: string;
-    level: number;
     coins: number;
+    gp: number;
     players: string[];
   };
   images: { url: string; alt: string }[];
@@ -105,6 +111,7 @@ export default function AdminAccountsPage() {
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [previewImages, setPreviewImages] = useState<string[]>([]);
 
+  // ✅ TẤT CẢ HOOKS PHẢI Ở ĐẦU - KHÔNG ĐƯỢC EARLY RETURN TRƯỚC HOOKS
   // API hooks
   const apiFilters = {
     ...filters,
@@ -116,13 +123,9 @@ export default function AdminAccountsPage() {
   const updateAccountMutation = useUpdateAccount();
   const deleteAccountMutation = useDeleteAccount();
   const uploadImageMutation = useUploadImage();
-
-  const typedAccountsData = accountsData as AccountApiResponse;
-  const accounts = typedAccountsData?.data || [];
-  const totalPages =
-    typedAccountsData?.pagination?.totalPages || typedAccountsData?.totalPages || 1;
-
-  // Form hooks
+  const { data: categoriesData = [], isLoading: categoriesLoading, error: categoriesError } = useAdminCategories();
+  
+  // Form hooks - PHẢI ở sau tất cả hooks khác
   const {
     register,
     handleSubmit,
@@ -140,6 +143,34 @@ export default function AdminAccountsPage() {
     watch: watchEdit,
     formState: { errors: errorsEdit },
   } = useForm<AccountFormData>();
+
+  // Ensure categories is always an array
+  const categories = Array.isArray(categoriesData) ? categoriesData : [];
+  
+  // Show error message if categories fail to load
+  React.useEffect(() => {
+    if (categoriesError) {
+      toast.error('Không thể tải danh sách categories');
+    }
+  }, [categoriesError]);
+
+  // ✅ CONDITIONAL RENDERING THAY VÌ EARLY RETURN
+  // Show loading state for categories
+  if (categoriesLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="text-center py-8">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+          <p className="mt-2">Đang tải danh mục...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const typedAccountsData = accountsData as AccountApiResponse;
+  const accounts = typedAccountsData?.data || [];
+  const totalPages =
+    typedAccountsData?.pagination?.totalPages || typedAccountsData?.totalPages || 1;
 
   // Xử lý upload nhiều ảnh
   const handleMultipleImageUpload = async (files: File[], isEdit = false) => {
@@ -165,6 +196,7 @@ export default function AdminAccountsPage() {
       return uploadedImages;
     } catch (error) {
       console.error("Error uploading images:", error);
+      toast.error("Lỗi khi upload ảnh");
     }
   };
 
@@ -198,6 +230,17 @@ export default function AdminAccountsPage() {
   // Xử lý tạo tài khoản mới
   const onSubmitCreate = async (data: AccountFormData) => {
     try {
+      // Validation cơ bản
+      if (!data.title || !data.description || !data.category) {
+        toast.error('Vui lòng điền đầy đủ thông tin bắt buộc!');
+        return;
+      }
+      
+      if (data.price <= 0) {
+        toast.error('Giá phải lớn hơn 0!');
+        return;
+      }
+
       let imagesData = data.images || [];
 
       // Upload ảnh nếu có
@@ -212,20 +255,33 @@ export default function AdminAccountsPage() {
         collectiveStrength: Number(data.collectiveStrength),
         accountDetails: {
           ...data.accountDetails,
-          level: Number(data.accountDetails.level),
-          coins: Number(data.accountDetails.coins),
+          coins: Number(data.accountDetails.coins) || 0,
+          gp: Number(data.accountDetails.gp) || 0,
           players: data.accountDetails.players.split(",").map((p) => p.trim()),
         },
         images: imagesData,
       };
 
+      // Debug: Log dữ liệu được gửi
+      console.log('Sending account data:', JSON.stringify(accountData, null, 2));
+
       await createAccountMutation.mutateAsync(accountData);
+      toast.success("Tạo tài khoản thành công!");
       setIsCreateDialogOpen(false);
       reset();
       setSelectedImages([]);
       setPreviewImages([]);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating account:", error);
+      
+      // Hiển thị lỗi chi tiết hơn
+      if (error?.response?.data?.message) {
+        toast.error(`Lỗi: ${error.response.data.message}`);
+      } else if (error?.message) {
+        toast.error(`Lỗi: ${error.message}`);
+      } else {
+        toast.error("Có lỗi xảy ra khi tạo tài khoản!");
+      }
     }
   };
 
@@ -246,8 +302,8 @@ export default function AdminAccountsPage() {
         collectiveStrength: Number(data.collectiveStrength),
         accountDetails: {
           ...data.accountDetails,
-          level: Number(data.accountDetails.level),
-          coins: Number(data.accountDetails.coins),
+          coins: Number(data.accountDetails.coins) || 0,
+          gp: Number(data.accountDetails.gp) || 0,
           players: data.accountDetails.players.split(",").map((p) => p.trim()),
         },
         images: imagesData,
@@ -257,14 +313,15 @@ export default function AdminAccountsPage() {
         id: editingAccount!._id,
         data: updatedData,
       });
-
+      toast.success("Cập nhật tài khoản thành công!");
       setIsEditDialogOpen(false);
-      setEditingAccount(null);
       resetEdit();
+      setEditingAccount(null);
       setSelectedImages([]);
       setPreviewImages([]);
     } catch (error) {
       console.error("Error updating account:", error);
+      toast.error("Có lỗi xảy ra khi cập nhật tài khoản!");
     }
   };
 
@@ -273,8 +330,10 @@ export default function AdminAccountsPage() {
     if (confirm("Bạn có chắc chắn muốn xóa tài khoản này?")) {
       try {
         await deleteAccountMutation.mutateAsync(id);
+        toast.success("Xóa tài khoản thành công!");
       } catch (error) {
         console.error("Error deleting account:", error);
+        toast.error("Có lỗi xảy ra khi xóa tài khoản!");
       }
     }
   };
@@ -285,18 +344,24 @@ export default function AdminAccountsPage() {
     setIsEditDialogOpen(true);
 
     // Điền dữ liệu vào form
+    // Handle category - it might be an object with _id or just a string
+    const categoryValue = typeof account.category === 'object' && account.category?._id 
+      ? account.category._id 
+      : account.category;
+    
     resetEdit({
       title: account.title,
       description: account.description,
       price: account.price,
-      category: account.category,
+      category: categoryValue,
       accountCode: account.accountCode,
       collectiveStrength: account.collectiveStrength,
       status: account.status as "available" | "sold" | "reserved",
+      featured: account.featured || false,
       accountDetails: {
         platform: account.accountDetails.platform,
-        level: account.accountDetails.level,
-        coins: account.accountDetails.coins,
+        coins: account.accountDetails.coins || 0,
+        gp: account.accountDetails.gp || 0,
         players: Array.isArray(account.accountDetails.players)
           ? account.accountDetails.players.join(", ")
           : account.accountDetails.players || "",
@@ -346,10 +411,24 @@ export default function AdminAccountsPage() {
   };
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(price);
+    const priceStr = price.toString();
+    if (priceStr.length <= 3) {
+      return `${price} đ`;
+    }
+    
+    const firstDigit = priceStr[0];
+    const remainingStr = priceStr.slice(1);
+    
+    // Tạo pattern từ phải sang trái theo chuẩn định dạng tiền tệ
+    let pattern = '';
+    for (let i = 0; i < remainingStr.length; i++) {
+      if (i > 0 && (remainingStr.length - i) % 3 === 0) {
+        pattern += '.';
+      }
+      pattern += 'x';
+    }
+    
+    return `${firstDigit}${pattern} đ`;
   };
 
   return (
@@ -423,33 +502,73 @@ export default function AdminAccountsPage() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="price">Giá bán (VND) *</Label>
-                      <Input
-                        id="price"
-                        type="number"
-                        {...register("price", {
-                          required: "Giá bán là bắt buộc",
-                          min: { value: 0, message: "Giá phải lớn hơn 0" },
-                        })}
-                        placeholder="VD: 500000"
-                        className={errors.price ? "border-red-500" : ""}
-                      />
-                      {errors.price && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {errors.price.message}
-                        </p>
-                      )}
+                      <div className="space-y-2">
+                        <div className="flex gap-2">
+                          <Select onValueChange={(value) => setValue("price", Number(value))}>
+                            <SelectTrigger className="w-[180px]">
+                              <SelectValue placeholder="Chọn nhanh" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="200000">Xxx.xxx (200K)</SelectItem>
+                              <SelectItem value="300000">Xxx.xxx (300K)</SelectItem>
+                              <SelectItem value="500000">Xxx.xxx (500K)</SelectItem>
+                              <SelectItem value="800000">Xxx.xxx (800K)</SelectItem>
+                              <SelectItem value="1000000">Xxx.xxx (1M)</SelectItem>
+                              <SelectItem value="2000000">Xxx.xxx (2M)</SelectItem>
+                              <SelectItem value="3000000">Xxx.xxx (3M)</SelectItem>
+                              <SelectItem value="4000000">Xxx.xxx (4M)</SelectItem>
+                              <SelectItem value="5000000">Xxx.xxx (5M)</SelectItem>
+                              <SelectItem value="6000000">Xxx.xxx (6M)</SelectItem>
+                              <SelectItem value="7000000">Xxx.xxx (7M)</SelectItem>
+                              <SelectItem value="8000000">Xxx.xxx (8M)</SelectItem>
+                              <SelectItem value="9000000">Xxx.xxx (9M)</SelectItem>
+                              <SelectItem value="10000000">Xx.xxx.xxx (10M)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <Input
+                            id="price"
+                            type="number"
+                            {...register("price", {
+                              required: "Giá bán là bắt buộc",
+                              min: { value: 0, message: "Giá phải lớn hơn 0" },
+                            })}
+                            placeholder="Hoặc nhập thủ công"
+                            className={`flex-1 ${errors.price ? "border-red-500" : ""}`}
+                          />
+                        </div>
+                        {errors.price && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.price.message}
+                          </p>
+                        )}
+                      </div>
                     </div>
 
                     <div>
                       <Label htmlFor="accountCode">Mã tài khoản *</Label>
-                      <Input
-                        id="accountCode"
-                        {...register("accountCode", {
-                          required: "Mã tài khoản là bắt buộc",
-                        })}
-                        placeholder="VD: EF2024001"
-                        className={errors.accountCode ? "border-red-500" : ""}
-                      />
+                      <div className="flex">
+                        <span className="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border border-r-0 border-gray-300 rounded-l-md">
+                          HT-
+                        </span>
+                        <Input
+                          id="accountCode"
+                          {...register("accountCode", {
+                            required: "Mã tài khoản là bắt buộc",
+                            pattern: {
+                              value: /^HT-\d+$/,
+                              message: "Mã tài khoản phải có định dạng HT-xxx"
+                            }
+                          })}
+                          placeholder="099"
+                          className={`rounded-l-none ${errors.accountCode ? "border-red-500" : ""}`}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            if (!value.startsWith('HT-')) {
+                              setValue('accountCode', `HT-${value.replace('HT-', '')}`);
+                            }
+                          }}
+                        />
+                      </div>
                       {errors.accountCode && (
                         <p className="text-red-500 text-sm mt-1">
                           {errors.accountCode.message}
@@ -468,10 +587,11 @@ export default function AdminAccountsPage() {
                           <SelectValue placeholder="Chọn danh mục" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="legend">Legend</SelectItem>
-                          <SelectItem value="epic">Epic</SelectItem>
-                          <SelectItem value="featured">Featured</SelectItem>
-                          <SelectItem value="normal">Normal</SelectItem>
+                          {categories.map((category: any) => (
+                            <SelectItem key={category._id} value={category._id}>
+                              {category.icon && `${category.icon} `}{category.name}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                       {errors.category && (
@@ -505,25 +625,16 @@ export default function AdminAccountsPage() {
                         <SelectValue placeholder="Chọn nền tảng" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="steam">Steam</SelectItem>
-                        <SelectItem value="epic">Epic Games</SelectItem>
-                        <SelectItem value="mobile">Mobile</SelectItem>
-                        <SelectItem value="console">Console</SelectItem>
+                        {PLATFORMS.map((platform) => (
+                          <SelectItem key={platform.value} value={platform.value}>
+                            {platform.label}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="level">Level</Label>
-                      <Input
-                        id="level"
-                        type="number"
-                        {...register("accountDetails.level")}
-                        placeholder="VD: 85"
-                      />
-                    </div>
-
                     <div>
                       <Label htmlFor="coins">Coins</Label>
                       <Input
@@ -531,6 +642,16 @@ export default function AdminAccountsPage() {
                         type="number"
                         {...register("accountDetails.coins")}
                         placeholder="VD: 50000"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="gp">GP (Game Points)</Label>
+                      <Input
+                        id="gp"
+                        type="number"
+                        {...register("accountDetails.gp")}
+                        placeholder="VD: 100000"
                       />
                     </div>
                   </div>
@@ -604,11 +725,14 @@ export default function AdminAccountsPage() {
                             {watch("images").map((image, index) => (
                               <div key={index} className="relative">
                                 <Image
-                                  src={image.url}
+                                  src={getImageUrl(image.url)}
                                   alt={image.alt}
                                   width={200}
                                   height={150}
                                   className="w-full h-32 object-cover rounded-lg border"
+                                  onError={(e) => {
+                                    e.currentTarget.src = getPlaceholderUrl(200, 150);
+                                  }}
                                 />
                                 <Button
                                   type="button"
@@ -645,6 +769,16 @@ export default function AdminAccountsPage() {
                         <SelectItem value="sold">Đã bán</SelectItem>
                       </SelectContent>
                     </Select>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="featured"
+                      {...register("featured")}
+                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <Label htmlFor="featured">Tài khoản nổi bật</Label>
                   </div>
                 </TabsContent>
               </Tabs>
@@ -717,10 +851,11 @@ export default function AdminAccountsPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Tất cả danh mục</SelectItem>
-                  <SelectItem value="legend">Legend</SelectItem>
-                  <SelectItem value="epic">Epic</SelectItem>
-                  <SelectItem value="featured">Featured</SelectItem>
-                  <SelectItem value="normal">Normal</SelectItem>
+                  {categories.map((category: any) => (
+                    <SelectItem key={category._id} value={category._id}>
+                      {category.icon && `${category.icon} `}{category.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -768,78 +903,102 @@ export default function AdminAccountsPage() {
             </div>
           ) : (
             <>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Tài khoản</TableHead>
-                    <TableHead>Danh mục</TableHead>
-                    <TableHead>Giá</TableHead>
-                    <TableHead>Trạng thái</TableHead>
-                    <TableHead>Sức mạnh</TableHead>
-                    <TableHead>Ngày tạo</TableHead>
-                    <TableHead>Hành động</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {accounts.map((account: AccountItem) => (
-                    <TableRow key={account._id}>
-                      <TableCell className="max-w-md">
-                        <div className="flex items-center space-x-3">
-                          {account.images?.[0] && (
-                            <Image
-                              src={account.images[0].url}
-                              alt={account.images[0].alt}
-                              width={50}
-                              height={50}
-                              className="w-12 h-12 object-cover rounded"
-                            />
-                          )}
-                          <div>
-                            <div className="font-medium truncate">
-                              {account.title}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {account.accountCode}
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="min-w-[200px]">Tài khoản</TableHead>
+                      <TableHead className="min-w-[120px]">Danh mục</TableHead>
+                      <TableHead className="min-w-[80px]">Platform</TableHead>
+                      <TableHead className="min-w-[100px]">Giá</TableHead>
+                      <TableHead className="min-w-[100px]">Trạng thái</TableHead>
+                      <TableHead className="min-w-[60px] text-center">⭐</TableHead>
+                      <TableHead className="min-w-[80px]">Sức mạnh</TableHead>
+                      <TableHead className="min-w-[100px]">Ngày tạo</TableHead>
+                      <TableHead className="min-w-[120px] text-center">Hành động</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {accounts.map((account: AccountItem) => (
+                      <TableRow key={account._id}>
+                        <TableCell className="min-w-[200px]">
+                          <div className="flex items-center space-x-3">
+                            {account.images?.[0] && (
+                              <Image
+                                src={getImageUrl(account.images[0].url)}
+                                alt={account.images[0].alt}
+                                width={40}
+                                height={40}
+                                className="w-10 h-10 object-cover rounded"
+                                onError={(e) => {
+                                  e.currentTarget.src = getPlaceholderUrl(40, 40);
+                                }}
+                              />
+                            )}
+                            <div className="min-w-0 flex-1">
+                              <div className="font-medium truncate text-sm">
+                                {account.title}
+                              </div>
+                              <div className="text-xs text-gray-500">
+                                {account.accountCode}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{account.category}</Badge>
-                      </TableCell>
-                      <TableCell>{formatPrice(account.price)}</TableCell>
-                      <TableCell>{getStatusBadge(account.status)}</TableCell>
-                      <TableCell>{account.collectiveStrength}</TableCell>
-                      <TableCell>
-                        {new Date(account.createdAt).toLocaleDateString("vi-VN")}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex space-x-2">
-                          <Button variant="outline" size="sm">
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleEditAccount(account)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="text-red-600 hover:text-red-700"
-                            onClick={() => handleDeleteAccount(account._id)}
-                            disabled={deleteAccountMutation.isPending}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                        </TableCell>
+                        <TableCell className="min-w-[120px]">
+                          <Badge variant="outline" className="text-xs">
+                            {typeof account.category === 'object' && account.category?.icon && `${account.category.icon} `}
+                            {typeof account.category === 'object' && account.category?.name 
+                              ? account.category.name 
+                              : account.category}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="min-w-[80px]">
+                          <Badge variant="secondary" className="text-xs">
+                            {getPlatformLabel(account.accountDetails.platform)}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="min-w-[100px] text-sm">{formatPrice(account.price)}</TableCell>
+                        <TableCell className="min-w-[100px]">{getStatusBadge(account.status)}</TableCell>
+                        <TableCell className="min-w-[60px] text-center">
+                          <div className="flex justify-center">
+                            {account.featured ? (
+                              <span className="text-yellow-500 text-lg">⭐</span>
+                            ) : (
+                              <span className="text-gray-400 text-lg">☆</span>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="min-w-[80px] text-sm">{account.collectiveStrength}</TableCell>
+                        <TableCell className="min-w-[100px] text-sm">
+                          {new Date(account.createdAt).toLocaleDateString("vi-VN")}
+                        </TableCell>
+                        <TableCell className="min-w-[120px]">
+                          <div className="flex justify-center space-x-1">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleEditAccount(account)}
+                              className="h-8 w-8 p-0"
+                            >
+                              <Edit className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-red-600 hover:text-red-700 h-8 w-8 p-0"
+                              onClick={() => handleDeleteAccount(account._id)}
+                              disabled={deleteAccountMutation.isPending}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
                 </TableBody>
-              </Table>
+                 </Table>
+               </div>
 
               {/* Pagination */}
               {totalPages > 1 && (
@@ -937,33 +1096,73 @@ export default function AdminAccountsPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="edit-price">Giá bán (VND) *</Label>
-                    <Input
-                      id="edit-price"
-                      type="number"
-                      {...registerEdit("price", {
-                        required: "Giá bán là bắt buộc",
-                        min: { value: 0, message: "Giá phải lớn hơn 0" },
-                      })}
-                      placeholder="VD: 500000"
-                      className={errorsEdit.price ? "border-red-500" : ""}
-                    />
-                    {errorsEdit.price && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {errorsEdit.price.message}
-                      </p>
-                    )}
+                    <div className="space-y-2">
+                      <div className="flex gap-2">
+                        <Select onValueChange={(value) => setValueEdit("price", Number(value))}>
+                          <SelectTrigger className="w-[180px]">
+                            <SelectValue placeholder="Chọn nhanh" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="200000">Xxx.xxx (200K)</SelectItem>
+                            <SelectItem value="300000">Xxx.xxx (300K)</SelectItem>
+                            <SelectItem value="500000">Xxx.xxx (500K)</SelectItem>
+                            <SelectItem value="800000">Xxx.xxx (800K)</SelectItem>
+                            <SelectItem value="1000000">Xxx.xxx (1M)</SelectItem>
+                            <SelectItem value="2000000">Xxx.xxx (2M)</SelectItem>
+                            <SelectItem value="3000000">Xxx.xxx (3M)</SelectItem>
+                            <SelectItem value="4000000">Xxx.xxx (4M)</SelectItem>
+                            <SelectItem value="5000000">Xxx.xxx (5M)</SelectItem>
+                            <SelectItem value="6000000">Xxx.xxx (6M)</SelectItem>
+                            <SelectItem value="7000000">Xxx.xxx (7M)</SelectItem>
+                            <SelectItem value="8000000">Xxx.xxx (8M)</SelectItem>
+                            <SelectItem value="9000000">Xxx.xxx (9M)</SelectItem>
+                            <SelectItem value="10000000">Xx.xxx.xxx (10M)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <Input
+                          id="edit-price"
+                          type="number"
+                          {...registerEdit("price", {
+                            required: "Giá bán là bắt buộc",
+                            min: { value: 0, message: "Giá phải lớn hơn 0" },
+                          })}
+                          placeholder="Hoặc nhập thủ công"
+                          className={`flex-1 ${errorsEdit.price ? "border-red-500" : ""}`}
+                        />
+                      </div>
+                      {errorsEdit.price && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errorsEdit.price.message}
+                        </p>
+                      )}
+                    </div>
                   </div>
 
                   <div>
                     <Label htmlFor="edit-accountCode">Mã tài khoản *</Label>
-                    <Input
-                      id="edit-accountCode"
-                      {...registerEdit("accountCode", {
-                        required: "Mã tài khoản là bắt buộc",
-                      })}
-                      placeholder="VD: EF2024001"
-                      className={errorsEdit.accountCode ? "border-red-500" : ""}
-                    />
+                    <div className="flex">
+                      <span className="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border border-r-0 border-gray-300 rounded-l-md">
+                        HT-
+                      </span>
+                      <Input
+                        id="edit-accountCode"
+                        {...registerEdit("accountCode", {
+                          required: "Mã tài khoản là bắt buộc",
+                          pattern: {
+                            value: /^HT-\d+$/,
+                            message: "Mã tài khoản phải có định dạng HT-xxx"
+                          }
+                        })}
+                        placeholder="099"
+                        className={`rounded-l-none ${errorsEdit.accountCode ? "border-red-500" : ""}`}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (!value.startsWith('HT-')) {
+                            setValueEdit('accountCode', `HT-${value.replace('HT-', '')}`);
+                          }
+                        }}
+                      />
+                    </div>
                     {errorsEdit.accountCode && (
                       <p className="text-red-500 text-sm mt-1">
                         {errorsEdit.accountCode.message}
@@ -983,10 +1182,11 @@ export default function AdminAccountsPage() {
                         <SelectValue placeholder="Chọn danh mục" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="legend">Legend</SelectItem>
-                        <SelectItem value="epic">Epic</SelectItem>
-                        <SelectItem value="featured">Featured</SelectItem>
-                        <SelectItem value="normal">Normal</SelectItem>
+                        {categories.map((category: any) => (
+                          <SelectItem key={category._id} value={category._id}>
+                            {category.icon && `${category.icon} `}{category.name}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
@@ -1016,25 +1216,16 @@ export default function AdminAccountsPage() {
                       <SelectValue placeholder="Chọn nền tảng" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="steam">Steam</SelectItem>
-                      <SelectItem value="epic">Epic Games</SelectItem>
-                      <SelectItem value="mobile">Mobile</SelectItem>
-                      <SelectItem value="console">Console</SelectItem>
+                      {PLATFORMS.map((platform) => (
+                        <SelectItem key={platform.value} value={platform.value}>
+                          {platform.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="edit-level">Level</Label>
-                    <Input
-                      id="edit-level"
-                      type="number"
-                      {...registerEdit("accountDetails.level")}
-                      placeholder="VD: 85"
-                    />
-                  </div>
-
                   <div>
                     <Label htmlFor="edit-coins">Coins</Label>
                     <Input
@@ -1042,6 +1233,16 @@ export default function AdminAccountsPage() {
                       type="number"
                       {...registerEdit("accountDetails.coins")}
                       placeholder="VD: 50000"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="edit-gp">GP (Game Points)</Label>
+                    <Input
+                      id="edit-gp"
+                      type="number"
+                      {...registerEdit("accountDetails.gp")}
+                      placeholder="VD: 100000"
                     />
                   </div>
                 </div>
@@ -1115,11 +1316,14 @@ export default function AdminAccountsPage() {
                           {watchEdit("images").map((image, index) => (
                             <div key={index} className="relative">
                               <Image
-                                src={image.url}
+                                src={getImageUrl(image.url)}
                                 alt={image.alt}
                                 width={200}
                                 height={150}
                                 className="w-full h-32 object-cover rounded-lg border"
+                                onError={(e) => {
+                                  e.currentTarget.src = getPlaceholderUrl(200, 150);
+                                }}
                               />
                               <Button
                                 type="button"
@@ -1158,6 +1362,17 @@ export default function AdminAccountsPage() {
                     </SelectContent>
                   </Select>
                 </div>
+
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="edit-featured"
+                    checked={watchEdit("featured")}
+                    onChange={(e) => setValueEdit("featured", e.target.checked)}
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <Label htmlFor="edit-featured">Tài khoản nổi bật</Label>
+                </div>
               </TabsContent>
             </Tabs>
 
@@ -1179,4 +1394,4 @@ export default function AdminAccountsPage() {
       </Dialog>
     </div>
   );
-} 
+}
