@@ -31,7 +31,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Edit, Trash2, Eye, Save, X, Search, Upload } from "lucide-react";
+import { Plus, Edit, Trash2, Save, X, Search, Upload } from "lucide-react";
 import { useForm } from "react-hook-form";
 import Image from "next/image";
 import { toast } from "react-hot-toast";
@@ -59,9 +59,16 @@ interface AccountFormData {
     platform: string;
     coins: number;
     gp: number;
-    players: string;
+    players: string; // Form input is string, will convert to array
   };
   images: { url: string; alt: string }[];
+}
+
+// Category interface for admin operations
+interface CategoryItem {
+  _id: string;
+  name: string;
+  icon?: string;
 }
 
 interface AccountItem {
@@ -144,8 +151,8 @@ export default function AdminAccountsPage() {
     formState: { errors: errorsEdit },
   } = useForm<AccountFormData>();
 
-  // Ensure categories is always an array
-  const categories = Array.isArray(categoriesData) ? categoriesData : [];
+  // Ensure categories is always an array with proper typing
+  const categories = Array.isArray(categoriesData) ? categoriesData as CategoryItem[] : [];
   
   // Show error message if categories fail to load
   React.useEffect(() => {
@@ -271,14 +278,15 @@ export default function AdminAccountsPage() {
       reset();
       setSelectedImages([]);
       setPreviewImages([]);
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error creating account:", error);
       
       // Hiển thị lỗi chi tiết hơn
-      if (error?.response?.data?.message) {
-        toast.error(`Lỗi: ${error.response.data.message}`);
-      } else if (error?.message) {
-        toast.error(`Lỗi: ${error.message}`);
+      const apiError = error as { response?: { data?: { message?: string } }; message?: string };
+      if (apiError?.response?.data?.message) {
+        toast.error(`Lỗi: ${apiError.response.data.message}`);
+      } else if (apiError?.message) {
+        toast.error(`Lỗi: ${apiError.message}`);
       } else {
         toast.error("Có lỗi xảy ra khi tạo tài khoản!");
       }
@@ -345,9 +353,9 @@ export default function AdminAccountsPage() {
 
     // Điền dữ liệu vào form
     // Handle category - it might be an object with _id or just a string
-    const categoryValue = typeof account.category === 'object' && account.category?._id 
+    const categoryValue: string = typeof account.category === 'object' && account.category?._id 
       ? account.category._id 
-      : account.category;
+      : String(account.category);
     
     resetEdit({
       title: account.title,
@@ -587,7 +595,7 @@ export default function AdminAccountsPage() {
                           <SelectValue placeholder="Chọn danh mục" />
                         </SelectTrigger>
                         <SelectContent>
-                          {categories.map((category: any) => (
+                          {categories.map((category: CategoryItem) => (
                             <SelectItem key={category._id} value={category._id}>
                               {category.icon && `${category.icon} `}{category.name}
                             </SelectItem>
@@ -851,7 +859,7 @@ export default function AdminAccountsPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Tất cả danh mục</SelectItem>
-                  {categories.map((category: any) => (
+                  {categories.map((category: CategoryItem) => (
                     <SelectItem key={category._id} value={category._id}>
                       {category.icon && `${category.icon} `}{category.name}
                     </SelectItem>
@@ -925,7 +933,7 @@ export default function AdminAccountsPage() {
                           <div className="flex items-center space-x-3">
                             {account.images?.[0] && (
                               <Image
-                                src={getImageUrl(account.images[0].url)}
+                                src={getImageUrl(account.images[0]?.url)}
                                 alt={account.images[0].alt}
                                 width={40}
                                 height={40}
@@ -950,7 +958,7 @@ export default function AdminAccountsPage() {
                             {typeof account.category === 'object' && account.category?.icon && `${account.category.icon} `}
                             {typeof account.category === 'object' && account.category?.name 
                               ? account.category.name 
-                              : account.category}
+                              : String(account.category)}
                           </Badge>
                         </TableCell>
                         <TableCell className="min-w-[80px]">
@@ -1182,7 +1190,7 @@ export default function AdminAccountsPage() {
                         <SelectValue placeholder="Chọn danh mục" />
                       </SelectTrigger>
                       <SelectContent>
-                        {categories.map((category: any) => (
+                        {categories.map((category: CategoryItem) => (
                           <SelectItem key={category._id} value={category._id}>
                             {category.icon && `${category.icon} `}{category.name}
                           </SelectItem>

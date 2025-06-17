@@ -18,6 +18,11 @@ const nextConfig: NextConfig = {
         hostname: 'localhost',
         port: '3000',
       },
+      {
+        protocol: 'http',
+        hostname: '14.225.211.212',
+        port: '5002',
+      },
     ],
     formats: ['image/webp', 'image/avif'],
   },

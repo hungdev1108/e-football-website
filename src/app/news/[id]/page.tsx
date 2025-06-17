@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Clock, Eye, Share2, Heart, MessageCircle } from "lucide-react";
 import { useNewsById, useFeaturedNews } from "@/hooks/useNews";
-import { getImageUrl, getPlaceholderUrl } from "@/utils/imageUtils";
+import { getImageUrl } from "@/utils/imageUtils";
 import { ApiNews } from "@/types";
 
 export default function NewsDetailPage() {

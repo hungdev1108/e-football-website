@@ -113,45 +113,66 @@ interface Banner {
   updatedAt: string;
 }
 
+// Types for API responses
+interface PublicSettingsData {
+  siteName?: string;
+  siteDescription?: string;
+  contactInfo?: object;
+  socialMedia?: object;
+  bankingInfo?: object;
+  [key: string]: unknown;
+}
 
+interface LogoData {
+  url: string;
+  alt: string;
+  width?: number;
+  height?: number;
+}
+
+interface UploadResponse {
+  url: string;
+  filename: string;
+  size: number;
+}
 
 // API Functions using tokenInterceptor
 const adminApi = {
   // System Info
   getSystemInfo: async (): Promise<{ success: boolean; data: SystemInfo }> => {
     const response = await tokenInterceptor.get('/system/info');
-    return response;
+    return response as { success: boolean; data: SystemInfo };
   },
 
   // Settings - Admin endpoints
   getSystemSettings: async (): Promise<{ success: boolean; data: SystemSettings }> => {
     const response = await tokenInterceptor.get('/system/settings');
-    return response;
+    return response as { success: boolean; data: SystemSettings };
   },
 
   updateSystemSettings: async (settings: Partial<SystemSettings>): Promise<{ success: boolean; data: SystemSettings }> => {
     const response = await tokenInterceptor.put('/system/settings', settings);
-    return response;
+    return response as { success: boolean; data: SystemSettings };
   },
 
   // Public settings endpoints
-  getPublicSettings: async (): Promise<{ success: boolean; data: any }> => {
+  getPublicSettings: async (): Promise<{ success: boolean; data: PublicSettingsData }> => {
     const response = await tokenInterceptor.get('/system/settings/public');
-    return response;
+    return response as { success: boolean; data: PublicSettingsData };
   },
 
-  getPublicLogo: async (): Promise<{ success: boolean; data: any }> => {
+  getPublicLogo: async (): Promise<{ success: boolean; data: LogoData }> => {
     const response = await tokenInterceptor.get('/system/logo');
-    return response;
+    return response as { success: boolean; data: LogoData };
   },
 
   getPublicBanners: async (): Promise<{ success: boolean; data: Banner[] }> => {
     const response = await tokenInterceptor.get('/system/banners');
-    return response;
+    return response as { success: boolean; data: Banner[] };
   },
 
   // Logo upload
-  updateLogo: async (logoFile: File): Promise<{ success: boolean; data: any }> => {
+  updateLogo: async (logoFile: File): Promise<{ success: boolean; data: UploadResponse }> => {
     const formData = new FormData();
     formData.append('logo', logoFile);
     
@@ -160,11 +181,11 @@ const adminApi = {
         'Content-Type': 'multipart/form-data'
       }
     });
-    return response;
+    return response as { success: boolean; data: UploadResponse };
   },
 
   // QR Code upload
-  updateQRCode: async (qrFile: File): Promise<{ success: boolean; data: any }> => {
+  updateQRCode: async (qrFile: File): Promise<{ success: boolean; data: UploadResponse }> => {
     const formData = new FormData();
     formData.append('qrCode', qrFile);
     
@@ -173,37 +194,37 @@ const adminApi = {
         'Content-Type': 'multipart/form-data'
       }
     });
-    return response;
+    return response as { success: boolean; data: UploadResponse };
   },
 
   // Banners - Admin endpoints
   getBanners: async (): Promise<{ success: boolean; data: Banner[] }> => {
     const response = await tokenInterceptor.get('/system/banners/admin');
-    return response;
+    return response as { success: boolean; data: Banner[] };
   },
 
   createBanner: async (bannerData: Partial<Banner>): Promise<{ success: boolean; data: Banner }> => {
     const response = await tokenInterceptor.post('/system/banners', bannerData);
-    return response;
+    return response as { success: boolean; data: Banner };
   },
 
   updateBanner: async ({ id, data }: { id: string; data: Partial<Banner> }): Promise<{ success: boolean; data: Banner }> => {
     const response = await tokenInterceptor.put(`/system/banners/${id}`, data);
-    return response;
+    return response as { success: boolean; data: Banner };
   },
 
   deleteBanner: async (id: string): Promise<{ success: boolean }> => {
     const response = await tokenInterceptor.delete(`/system/banners/${id}`);
-    return response;
+    return response as { success: boolean };
   },
 
   toggleBannerStatus: async (id: string): Promise<{ success: boolean; data: { isActive: boolean } }> => {
     const response = await tokenInterceptor.patch(`/system/banners/${id}/toggle`);
-    return response;
+    return response as { success: boolean; data: { isActive: boolean } };
   },
 
   // Banner upload
-  uploadBanners: async (bannerFiles: File[]): Promise<{ success: boolean; data: any }> => {
+  uploadBanners: async (bannerFiles: File[]): Promise<{ success: boolean; data: UploadResponse[] }> => {
     const formData = new FormData();
     bannerFiles.forEach(file => {
       formData.append('banners', file);
@@ -214,9 +235,8 @@ const adminApi = {
         'Content-Type': 'multipart/form-data'
       }
     });
-    return response;
+    return response as { success: boolean; data: UploadResponse[] };
   },
-
 
 };
 

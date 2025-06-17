@@ -22,15 +22,13 @@ export const useAccounts = (params?: {
         return result;
       } catch (error) {
         console.error('❌ API Error:', error);
+        console.error('🚨 useAccounts Error:', error);
         throw error;
       }
     },
     staleTime: 3 * 60 * 1000, // 3 minutes (reduced for real-time updates)
     enabled: true, // Always enabled
     retry: 1, // Retry once on failure
-    onError: (error) => {
-      console.error('🚨 useAccounts Error:', error);
-    },
   });
 };
 
@@ -73,9 +71,6 @@ export const useCategories = () => {
     gcTime: 2 * 60 * 60 * 1000, // 2 hours
     enabled: true,
     retry: 1, // Retry once on failure
-    onError: (error) => {
-      console.error('🚨 useCategories Error:', error);
-    },
   });
 };
 

@@ -5,7 +5,6 @@ import { useAuthStore } from '@/store/auth';
 // Constants
 const TOKEN_REFRESH_THRESHOLD = 23 * 60 * 60 * 1000; // 23 hours in milliseconds
 const TOKEN_EXPIRY_TIME = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-const REFRESH_TOKEN_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
 
 export const useAuth = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -35,7 +34,7 @@ export const useAuth = () => {
     try {
       console.log('🔄 Refreshing admin token...');
       
-      const response = await fetch('http://localhost:5002/api/auth/admin-refresh-token', {
+      const response = await fetch('http://14.225.211.212:5002/api/auth/admin-refresh-token', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -73,7 +72,7 @@ export const useAuth = () => {
     } finally {
       setIsRefreshing(false);
     }
-  }, [adminToken, adminUser, adminLogin, isRefreshing]);
+  }, [adminToken, adminUser, adminLogin, isRefreshing, handleLogout, scheduleTokenRefresh]);
 
   // Schedule automatic token refresh
   const scheduleTokenRefresh = useCallback((expiry) => {
@@ -95,7 +94,7 @@ export const useAuth = () => {
   const handleLogout = useCallback(async () => {
     try {
       if (adminToken) {
-        await fetch('http://localhost:5002/api/auth/admin-logout', {
+        await fetch('http://14.225.211.212:5002/api/auth/admin-logout', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${adminToken}`
@@ -119,7 +118,7 @@ export const useAuth = () => {
   // Enhanced login with token expiry tracking
   const enhancedLogin = useCallback(async (credentials) => {
     try {
-      const response = await fetch('http://localhost:5002/api/auth/admin-login', {
+      const response = await fetch('http://14.225.211.212:5002/api/auth/admin-login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -171,7 +170,7 @@ export const useAuth = () => {
         refreshToken();
       }
     }
-  }, [adminToken, scheduleTokenRefresh, refreshToken]);
+  }, [adminToken, scheduleTokenRefresh, handleLogout]);
 
   // Cleanup on unmount
   useEffect(() => {

@@ -19,14 +19,14 @@ export const CategoriesSection = memo(function CategoriesSection({
       <div className="container mx-auto">
         <div className="text-center mb-8">
           <h3
-            className="text-4xl md:text-5xl font-bold leading-tight py-2 bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent mb-2"
+            className="text-2xl md:text-4xl lg:text-5xl font-bold leading-tight py-2 bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent mb-2"
             style={{
               fontFamily: "Inter, Roboto, Noto Sans, Arial, sans-serif",
             }}
           >
             Tài khoản theo khoảng giá
           </h3>
-          <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-sm md:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed px-4">
             Khám phá các loại tài khoản game đa dạng với mức giá phù hợp cho mọi
             nhu cầu của bạn
           </p>

@@ -96,14 +96,14 @@ export const FeaturedAccountsSection = memo(function FeaturedAccountsSection({
       <div className="container mx-auto">
         <div className="text-center mb-8">
           <h3
-            className="text-4xl md:text-5xl font-bold leading-tight py-2 bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent mb-2"
+            className="text-2xl md:text-4xl lg:text-5xl font-bold leading-tight py-2 bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent mb-2"
             style={{
               fontFamily: "Inter, Roboto, Noto Sans, Arial, sans-serif",
             }}
           >
             Tài khoản nổi bật
           </h3>
-          <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-sm md:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed px-4">
             Những tài khoản game chất lượng cao được chọn lọc kỹ càng
           </p>
         </div>
@@ -113,7 +113,7 @@ export const FeaturedAccountsSection = memo(function FeaturedAccountsSection({
             <LoaderIcon className="w-8 h-8 animate-spin" />
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
             {featuredAccounts.map((account: ApiGameAccount) => (
               <AccountCard key={account._id} account={account} />
             ))}
@@ -155,50 +155,53 @@ const AccountCard = memo(function AccountCard({
             alt={account.images[0]?.alt || account.title}
             width={300}
             height={192}
-            className="w-full h-48 object-cover image-scale-smooth"
+            className="w-full h-32 md:h-48 object-cover image-scale-smooth"
           />
-          <div className="absolute top-4 left-4">
-            <Badge variant="secondary" className="bg-white/90 text-slate-700">
-              {getPlatformIcon(account.accountDetails.platform)}{" "}
-              {getPlatformLabel(account.accountDetails.platform)}
+          <div className="absolute top-2 left-2 md:top-4 md:left-4">
+            <Badge variant="secondary" className="bg-white/90 text-slate-700 text-xs md:text-sm">
+              <span className="md:hidden">{getPlatformIcon(account.accountDetails.platform)}</span>
+              <span className="hidden md:inline">
+                {getPlatformIcon(account.accountDetails.platform)}{" "}
+                {getPlatformLabel(account.accountDetails.platform)}
+              </span>
             </Badge>
           </div>
-          <div className="absolute top-4 right-4">
-            <Badge className="bg-blue-600">{account.accountCode}</Badge>
+          <div className="absolute top-2 right-2 md:top-4 md:right-4">
+            <Badge className="bg-blue-600 text-xs md:text-sm">{account.accountCode}</Badge>
           </div>
           {account.status === "sold" && (
             <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-              <Badge variant="destructive" className="text-lg px-4 py-2">
+              <Badge variant="destructive" className="text-sm md:text-lg px-2 py-1 md:px-4 md:py-2">
                 ĐÃ BÁN
               </Badge>
             </div>
           )}
         </div>
 
-        <CardHeader className="pb-2">
-          <CardTitle className="text-lg line-clamp-2 text-hover-smooth group-hover:text-blue-600">
+        <CardHeader className="pb-2 px-3 md:px-6 pt-3 md:pt-6">
+          <CardTitle className="text-sm md:text-lg line-clamp-2 text-hover-smooth group-hover:text-blue-600">
             {account.title}
           </CardTitle>
-          <CardDescription className="line-clamp-2">
+          <CardDescription className="line-clamp-2 text-xs md:text-sm hidden md:block">
             {account.description}
           </CardDescription>
         </CardHeader>
 
-        <CardContent className="pt-0">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <Star className="h-4 w-4 text-yellow-500 fill-current" />
-              <span className="text-sm font-medium">
+        <CardContent className="pt-0 px-3 md:px-6 pb-3 md:pb-6">
+          <div className="flex items-center justify-between mb-3 md:mb-4">
+            <div className="flex items-center gap-1 md:gap-2">
+              <Star className="h-3 w-3 md:h-4 md:w-4 text-yellow-500 fill-current" />
+              <span className="text-xs md:text-sm font-medium">
                 {account.collectiveStrength}
               </span>
             </div>
-            <div className="text-xl font-bold text-blue-600">
+            <div className="text-sm md:text-xl font-bold text-blue-600">
               {formatPrice(account.price)}
             </div>
           </div>
 
           <Button
-            className="w-full mt-4 button-hover-smooth group-hover:bg-blue-700"
+            className="w-full mt-2 md:mt-4 button-hover-smooth group-hover:bg-blue-700 text-xs md:text-sm py-2 md:py-3"
             disabled={account.status !== "available"}
           >
             {account.status === "available" ? "Xem chi tiết" : "Không khả dụng"}

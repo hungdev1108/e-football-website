@@ -4,8 +4,10 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import {
   Dialog,
-  DialogContent,
+  DialogPortal,
+  DialogOverlay,
 } from "@/components/ui/dialog";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -23,11 +25,15 @@ import {
   Award,
   Sparkles,
   X,
+  ChevronRight,
+  // Zap,
+  // Globe,
+  CreditCard,
 } from "lucide-react";
 import { toast } from "sonner";
 import { ApiGameAccount } from "@/types";
 import { useSystemSettings } from "@/hooks/useSystem";
-import { getImageUrl, getPlaceholderUrl } from "@/utils/imageUtils";
+// import { getImageUrl, getPlaceholderUrl } from "@/utils/imageUtils";
 
 interface PurchaseModalProps {
   isOpen: boolean;
@@ -35,10 +41,19 @@ interface PurchaseModalProps {
   account: ApiGameAccount;
 }
 
+interface SystemSettings {
+  contactPhone?: string;
+  zaloLink?: string;
+  facebookLink?: string;
+  paymentQR?: string;
+  zaloQR?: string;
+  facebookQR?: string;
+}
+
 export default function PurchaseModal({
   isOpen,
   onClose,
-  account,
+  // account,
 }: PurchaseModalProps) {
   const [copiedText, setCopiedText] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
@@ -51,39 +66,38 @@ export default function PurchaseModal({
     checkMobile();
   }, []);
 
-  // Parse settings data
-  const settings = settingsData?.data || {};
-  const settingsObject = settings;
-
+  // Parse settings data with proper type safety
+  const settings = (settingsData?.data || {}) as SystemSettings;
+  
   const contactInfo = {
-    phone: settingsObject.contactPhone || "0395860670",
-    zalo: settingsObject.zaloLink || "https://zalo.me/0395860670",
-    facebook: settingsObject.facebookLink || "https://facebook.com/efootballstore",
-    qrPayment: settingsObject.paymentQR || "/api/placeholder/200/200",
-    qrZalo: settingsObject.zaloQR || "/api/placeholder/150/150",
-    qrFacebook: settingsObject.facebookQR || "/api/placeholder/150/150",
+    phone: settings.contactPhone || "0395860670",
+    zalo: settings.zaloLink || "https://zalo.me/0395860670",
+    facebook: settings.facebookLink || "https://www.facebook.com/tran.hiep.229430",
+    qrPayment: settings.paymentQR || "/QR_ThanhToan.png",
+    qrZalo: settings.zaloQR || "/api/placeholder/150/150",
+    qrFacebook: settings.facebookQR || "/api/placeholder/150/150",
   };
 
-  const formatPrice = (price: number) => {
-    const priceStr = price.toString();
-    if (priceStr.length <= 3) {
-      return `${price} đ`;
-    }
+  // const formatPrice = (price: number) => {
+  //   const priceStr = price.toString();
+  //   if (priceStr.length <= 3) {
+  //     return `${price} đ`;
+  //   }
     
-    const firstDigit = priceStr[0];
-    const remainingLength = priceStr.length - 1;
+  //   const firstDigit = priceStr[0];
+  //   const remainingLength = priceStr.length - 1;
     
-    // Create pattern from right to left
-    let pattern = '';
-    for (let i = 0; i < remainingLength; i++) {
-      if (i > 0 && i % 3 === 0) {
-        pattern = '.' + pattern;
-      }
-      pattern = 'x' + pattern;
-    }
+  //   // Create pattern from right to left
+  //   let pattern = '';
+  //   for (let i = 0; i < remainingLength; i++) {
+  //     if (i > 0 && i % 3 === 0) {
+  //       pattern = '.' + pattern;
+  //     }
+  //     pattern = 'x' + pattern;
+  //   }
     
-    return `${firstDigit}${pattern} đ`;
-  };
+  //   return `${firstDigit}${pattern} đ`;
+  // };
 
   const copyToClipboard = async (text: string, label: string) => {
     try {
@@ -91,7 +105,7 @@ export default function PurchaseModal({
       setCopiedText(label);
       toast.success(`Đã copy ${label}!`);
       setTimeout(() => setCopiedText(null), 2000);
-    } catch (err) {
+    } catch {
       toast.error("Không thể copy!");
     }
   };
@@ -108,238 +122,260 @@ export default function PurchaseModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl w-[85vw] max-h-[80vh] overflow-y-auto p-0 bg-white border-0 shadow-2xl [&>button]:hidden scrollbar-thin">
-        {/* Header với nút X duy nhất */}
-        <div className="relative bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-600 text-white p-6">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onClose}
-            className="absolute top-4 right-4 text-white hover:bg-white/20 h-8 w-8 p-0 rounded-full transition-all duration-200"
-          >
-            <X className="h-4 w-4" />
-          </Button>
-          
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
-              <Sparkles className="h-6 w-6" />
-            </div>
-            <div>
-              <h2 className="text-xl font-bold mb-1">Thanh toán & Liên hệ</h2>
-              <p className="text-blue-100 text-sm">Quét mã QR hoặc liên hệ trực tiếp để mua tài khoản</p>
+      <DialogPortal>
+        <DialogOverlay />
+        <DialogPrimitive.Content className="fixed top-[50%] left-[50%] z-50 translate-x-[-50%] translate-y-[-50%] w-[90vw] max-w-4xl max-h-[85vh] overflow-hidden p-0 bg-transparent border-0 shadow-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 duration-200">
+        <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
+          {/* Animated Header */}
+          <div className="relative bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white rounded-lg shadow-md p-4 sm:p-5">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-pink-600/10 animate-pulse z-0 pointer-events-none" />
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClose}
+              className="absolute top-6 right-6 text-white hover:bg-white/20 h-10 w-10 p-0 rounded-full transition-all duration-300 backdrop-blur-sm z-100"
+            >
+              <X className="h-5 w-5" />
+            </Button>
+
+            <div className="relative z-1 flex items-center gap-3">
+              <div className="p-2 bg-white/10 rounded-xl backdrop-blur-sm">
+                <Sparkles className="h-5 w-5 animate-spin" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold leading-tight">Thanh toán & Liên hệ</h2>
+                <p className="text-sm text-white/90">Quét mã QR hoặc liên hệ trực tiếp để mua tài khoản premium</p>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Content */}
-        <div className="p-6 space-y-6 bg-gradient-to-br from-gray-50 to-blue-50">
-          {/* Account Info Card */}
-          <Card className="border-0 shadow-lg bg-white rounded-xl overflow-hidden">
-            <CardContent className="p-0">
-              {/* Image Section - Full Width */}
-              <div className="relative w-full">
-                {account.images && account.images.length > 0 && account.images[0]?.url ? (
-                  <Image
-                    src={getImageUrl(account.images[0].url)}
-                    alt={account.images[0].alt || account.title}
-                    width={400}
-                    height={200}
-                    className="w-full h-48 object-cover"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = getPlaceholderUrl(400, 200, 'No Image');
-                    }}
-                  />
-                ) : (
-                  <div className="w-full h-48 bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-                    <Star className="h-16 w-16 text-white" />
-                  </div>
-                )}
-                <div className="absolute top-4 right-4">
-                  <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0 text-xs px-2 py-1 rounded-full shadow-lg">
-                    HOT
-                  </Badge>
-                </div>
-              </div>
+
+
+
+          {/* Scrollable Content */}
+          <div className="max-h-[calc(85vh-160px)] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-500 pr-2">
+                          <div className="p-4 sm:p-6 space-y-6 bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50">
+              {/* Account Info Card - Enhanced */}
               
-              {/* Content Section - Below Image */}
-              <div className="p-6">
-                <h3 className="text-xl font-bold text-gray-800 mb-2">
-                  {account.title}
-                </h3>
-                <p className="text-gray-600 text-sm mb-4 leading-relaxed">
-                  {account.description}
-                </p>
-                <div className="flex items-center gap-3 flex-wrap">
-                  <Badge className="bg-gradient-to-r from-green-500 to-emerald-600 text-white text-base px-4 py-2 rounded-full shadow-lg">
-                    💰 {formatPrice(account.price)}
-                  </Badge>
-                  <Badge variant="outline" className="border border-blue-300 text-blue-700 px-3 py-2 rounded-full bg-blue-50 text-sm">
-                    🏦 Hỗ trợ trả góp
-                  </Badge>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
 
-          {/* Main Content Grid */}
-          <div className="grid lg:grid-cols-2 gap-6">
-            {/* QR Payment Section */}
-            <Card className="border-0 shadow-lg bg-white rounded-xl overflow-hidden">
-              <div className="bg-gradient-to-r from-green-400 to-emerald-500 h-1"></div>
-              <CardContent className="p-6 text-center">
-                <div className="flex items-center justify-center gap-3 mb-4">
-                  <div className="p-2 bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg shadow-lg">
-                    <QrCode className="h-5 w-5 text-white" />
-                  </div>
-                  <h3 className="text-lg font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                    Quét mã QR thanh toán
-                  </h3>
-                </div>
-                
-                <div className="flex flex-col items-center space-y-4">
-                  <div className="relative">
-                    {contactInfo.qrPayment && contactInfo.qrPayment !== "" ? (
-                      <Image
-                        src={contactInfo.qrPayment}
-                        alt="QR Code Thanh toán"
-                        width={160}
-                        height={160}
-                        className="rounded-xl border-2 border-green-200 shadow-lg bg-white p-2 mx-auto"
-                      />
-                    ) : (
-                      <div className="w-40 h-40 bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl border-2 border-green-200 shadow-lg flex items-center justify-center mx-auto">
-                        <QrCode className="h-14 w-14 text-green-400" />
+                             {/* Enhanced Main Content Grid */}
+               <div className="grid lg:grid-cols-2 gap-6">
+                {/* Enhanced QR Payment Section */}
+                <Card className="border-0 shadow-xl bg-white rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-500 group">
+                  <div className="bg-gradient-to-r from-green-400 via-emerald-500 to-teal-500 h-2"></div>
+                  <CardContent className="p-6 sm:p-8 text-center">
+                    <div className="flex items-center justify-center gap-4 mb-6">
+                      <div className="p-3 bg-gradient-to-r from-green-500 via-emerald-600 to-teal-600 rounded-xl shadow-xl group-hover:scale-110 transition-transform duration-300">
+                        <QrCode className="h-6 w-6 text-white" />
                       </div>
-                    )}
-                  </div>
-                  
-                  <div className="text-center space-y-2">
-                    <p className="text-green-700 font-medium text-sm">
-                      Quét mã QR để chuyển khoản trực tiếp
-                    </p>
-                    <Button className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-6 py-2 text-sm rounded-full shadow-lg transition-all duration-300">
-                      💳 Chuyển khoản ngay
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Contact Section */}
-            <Card className="border-0 shadow-lg bg-white rounded-xl overflow-hidden">
-              <div className="bg-gradient-to-r from-purple-400 to-pink-500 h-1"></div>
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 bg-gradient-to-r from-purple-500 to-pink-600 rounded-lg shadow-lg">
-                    <MessageCircle className="h-5 w-5 text-white" />
-                  </div>
-                  <h3 className="text-lg font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                    Liên hệ trực tiếp
-                  </h3>
-                </div>
-
-                <div className="space-y-3">
-                  {/* Phone */}
-                  <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg p-3 border border-blue-200 hover:border-blue-300 transition-all duration-300 shadow-sm hover:shadow-md">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-gradient-to-r from-blue-500 to-cyan-600 rounded-lg shadow-lg flex-shrink-0">
-                        <Phone className="h-4 w-4 text-white" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-bold text-gray-800 text-sm">Hotline</p>
-                        <p className="text-blue-600 font-medium text-xs truncate">{contactInfo.phone}</p>
-                      </div>
-                      <div className="flex gap-1 flex-shrink-0">
-                        <Button
-                          size="sm"
-                          onClick={() => copyToClipboard(contactInfo.phone, "số điện thoại")}
-                          className="bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 px-2 py-1 rounded-lg shadow-lg transition-all duration-300 text-xs h-6"
-                        >
-                          {copiedText === "số điện thoại" ? (
-                            <CheckCircle className="h-3 w-3" />
-                          ) : (
-                            <Copy className="h-3 w-3" />
-                          )}
-                        </Button>
-                        {isMobile && (
-                          <Button
-                            size="sm"
-                            onClick={() => handleContactClick("phone", contactInfo.phone)}
-                            className="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 px-2 py-1 rounded-lg shadow-lg transition-all duration-300 text-xs h-6"
-                          >
-                            <Phone className="h-3 w-3" />
-                          </Button>
+                      <h3 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                        Quét mã QR thanh toán
+                      </h3>
+                    </div>
+                    
+                    <div className="flex flex-col items-center space-y-6">
+                      <div className="relative group">
+                        {contactInfo.qrPayment && contactInfo.qrPayment !== "" ? (
+                          <div className="relative">
+                            <Image
+                              src={contactInfo.qrPayment}
+                              alt="QR Code Thanh toán"
+                              width={200}
+                              height={200}
+                              className="rounded-2xl border-4 border-green-200 shadow-2xl bg-white p-4 mx-auto group-hover:scale-105 transition-transform duration-300"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-green-500/20 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                          </div>
+                        ) : (
+                          <div className="w-48 h-48 bg-gradient-to-br from-green-50 via-emerald-100 to-teal-100 rounded-2xl border-4 border-green-200 shadow-2xl flex items-center justify-center mx-auto group-hover:scale-105 transition-transform duration-300">
+                            <QrCode className="h-16 w-16 text-green-400" />
+                          </div>
                         )}
                       </div>
+                      
+                      <div className="text-center space-y-4">
+                        <p className="text-green-700 font-semibold text-base">
+                          Quét mã QR để chuyển khoản trực tiếp
+                        </p>
+                        <div className="space-y-3">
+                          <Button className="w-full bg-gradient-to-r from-green-500 via-emerald-600 to-teal-600 hover:from-green-600 hover:via-emerald-700 hover:to-teal-700 text-white px-8 py-4 text-base rounded-xl shadow-xl transition-all duration-300 transform hover:scale-105">
+                            <CreditCard className="h-5 w-5 mr-2" />
+                            Chuyển khoản ngay
+                          </Button>
+                          <p className="text-sm text-gray-500">
+                            Hỗ trợ tất cả ngân hàng trong nước
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  </CardContent>
+                </Card>
 
-                  {/* Zalo */}
-                  <div 
-                    className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-3 border border-green-200 hover:border-green-300 transition-all duration-300 shadow-sm hover:shadow-md cursor-pointer"
-                    onClick={() => handleContactClick("zalo", contactInfo.zalo)}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg shadow-lg flex-shrink-0">
-                        <MessageCircle className="h-4 w-4 text-white" />
+                {/* Enhanced Contact Section */}
+                <Card className="border-0 shadow-xl bg-white rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-500">
+                  <div className="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 h-2"></div>
+                  <CardContent className="p-6 sm:p-8">
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="p-3 bg-gradient-to-r from-purple-500 via-pink-600 to-red-600 rounded-xl shadow-xl">
+                        <MessageCircle className="h-6 w-6 text-white" />
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-bold text-gray-800 text-sm">Zalo</p>
-                        <p className="text-green-600 font-medium text-xs">Chat trực tiếp</p>
-                      </div>
+                      <h3 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 bg-clip-text text-transparent">
+                        Liên hệ trực tiếp
+                      </h3>
                     </div>
-                  </div>
 
-                  {/* Facebook */}
-                  <div 
-                    className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg p-3 border border-indigo-200 hover:border-indigo-300 transition-all duration-300 shadow-sm hover:shadow-md cursor-pointer"
-                    onClick={() => handleContactClick("facebook", contactInfo.facebook)}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg shadow-lg flex-shrink-0">
-                        <Facebook className="h-4 w-4 text-white" />
+                    <div className="space-y-4">
+                      {/* Enhanced Phone */}
+                      <div className="bg-gradient-to-r from-blue-50 via-cyan-50 to-sky-50 rounded-xl p-4 border-2 border-blue-200 hover:border-blue-300 transition-all duration-300 shadow-lg hover:shadow-xl group">
+                        <div className="flex items-center gap-4">
+                          <div className="p-3 bg-gradient-to-r from-blue-500 via-cyan-600 to-sky-600 rounded-xl shadow-lg flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+                            <Phone className="h-5 w-5 text-white" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-bold text-gray-800 text-base mb-1">Hotline 24/7</p>
+                            <p className="text-blue-600 font-semibold text-sm">{contactInfo.phone}</p>
+                            <p className="text-gray-500 text-xs">Tư vấn miễn phí</p>
+                          </div>
+                          <div className="flex gap-2 flex-shrink-0">
+                            <Button
+                              size="sm"
+                              onClick={() => copyToClipboard(contactInfo.phone, "số điện thoại")}
+                              className="bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 px-3 py-2 rounded-lg shadow-lg transition-all duration-300 text-sm h-8"
+                            >
+                              {copiedText === "số điện thoại" ? (
+                                <CheckCircle className="h-4 w-4" />
+                              ) : (
+                                <Copy className="h-4 w-4" />
+                              )}
+                            </Button>
+                            {isMobile && (
+                              <Button
+                                size="sm"
+                                onClick={() => handleContactClick("phone", contactInfo.phone)}
+                                className="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 px-3 py-2 rounded-lg shadow-lg transition-all duration-300 text-sm h-8"
+                              >
+                                <Phone className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-bold text-gray-800 text-sm">Facebook</p>
-                        <p className="text-indigo-600 font-medium text-xs">Nhắn tin Messenger</p>
+
+                      {/* Enhanced Zalo */}
+                      <div 
+                        className="bg-gradient-to-r from-green-50 via-emerald-50 to-teal-50 rounded-xl p-4 border-2 border-green-200 hover:border-green-300 transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer group hover:scale-102 transform"
+                        onClick={() => handleContactClick("zalo", contactInfo.zalo)}
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="p-3 bg-gradient-to-r from-green-500 via-emerald-600 to-teal-600 rounded-xl shadow-lg flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+                            <MessageCircle className="h-5 w-5 text-white" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-bold text-gray-800 text-base mb-1">Zalo Chat</p>
+                            <p className="text-green-600 font-semibold text-sm">Chat trực tiếp với admin</p>
+                            <p className="text-gray-500 text-xs">Phản hồi trong 2 phút</p>
+                          </div>
+                          <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-green-600 transition-colors duration-300" />
+                        </div>
+                      </div>
+
+                      {/* Enhanced Facebook */}
+                      <div 
+                        className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 rounded-xl p-4 border-2 border-indigo-200 hover:border-indigo-300 transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer group hover:scale-102 transform"
+                        onClick={() => handleContactClick("facebook", contactInfo.facebook)}
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="p-3 bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-600 rounded-xl shadow-lg flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+                            <Facebook className="h-5 w-5 text-white" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-bold text-gray-800 text-base mb-1">Facebook</p>
+                            <p className="text-indigo-600 font-semibold text-sm">Nhắn tin Messenger</p>
+                            <p className="text-gray-500 text-xs">Hỗ trợ 24/7</p>
+                          </div>
+                          <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-indigo-600 transition-colors duration-300" />
+                        </div>
                       </div>
                     </div>
+
+                    {/* Quick Actions */}
+                    <div className="mt-6 p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-orange-200">
+                      <p className="text-center text-sm text-gray-700 font-medium mb-3">
+                        🚀 Đặt mua nhanh chóng
+                      </p>
+                      <div className="grid grid-cols-2 gap-3">
+                        <Button 
+                          variant="outline" 
+                          className="border-orange-300 text-orange-700 hover:bg-orange-100 rounded-lg text-sm py-2"
+                          onClick={() => handleContactClick("zalo", contactInfo.zalo)}
+                        >
+                          Chat Zalo
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          className="border-blue-300 text-blue-700 hover:bg-blue-100 rounded-lg text-sm py-2"
+                          onClick={() => handleContactClick("facebook", contactInfo.facebook)}
+                        >
+                          Messenger
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Enhanced Trust Badges */}
+              <div className="bg-gradient-to-r from-amber-50 via-orange-50 to-red-50 rounded-2xl p-6 sm:p-8 border-2 border-orange-200 shadow-xl">
+                <div className="text-center mb-6">
+                  <div className="flex items-center justify-center gap-3 mb-3">
+                    <Heart className="h-6 w-6 text-red-500 animate-pulse" />
+                    <p className="text-gray-800 font-bold text-lg sm:text-xl">Cảm ơn bạn đã tin tươngng eFootball Store!</p>
+                    <Heart className="h-6 w-6 text-red-500 animate-pulse" />
+                  </div>
+                  <p className="text-gray-600 text-sm">Hàng ngàn khách hàng đã tin tưởng và lựa chọn chúng tôi</p>
+                </div>
+                
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  <Badge className="bg-gradient-to-r from-green-500 via-emerald-600 to-teal-600 text-white px-4 py-3 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 text-sm font-semibold justify-center hover:scale-105 transform">
+                    <Shield className="h-4 w-4 mr-2" />
+                    Uy tín #1
+                  </Badge>
+                  <Badge className="bg-gradient-to-r from-blue-500 via-cyan-600 to-sky-600 text-white px-4 py-3 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 text-sm font-semibold justify-center hover:scale-105 transform">
+                    <Clock className="h-4 w-4 mr-2" />
+                    Giao nhanh 2h
+                  </Badge>
+                  <Badge className="bg-gradient-to-r from-purple-500 via-pink-600 to-red-600 text-white px-4 py-3 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 text-sm font-semibold justify-center hover:scale-105 transform">
+                    <Award className="h-4 w-4 mr-2" />
+                    Bảo hành vĩnh viễn
+                  </Badge>
+                  <Badge className="bg-gradient-to-r from-orange-500 via-red-600 to-pink-600 text-white px-4 py-3 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 text-sm font-semibold justify-center hover:scale-105 transform">
+                    <Star className="h-4 w-4 mr-2" />
+                    5⭐ Rating
+                  </Badge>
+                </div>
+
+                {/* Stats */}
+                <div className="grid grid-cols-3 gap-4 mt-6 text-center">
+                  <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-lg">
+                    <p className="text-2xl font-bold text-gray-800">10K+</p>
+                    <p className="text-xs text-gray-600">Khách hàng</p>
+                  </div>
+                  <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-lg">
+                    <p className="text-2xl font-bold text-gray-800">99.9%</p>
+                    <p className="text-xs text-gray-600">Hài lòng</p>
+                  </div>
+                  <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-lg">
+                    <p className="text-2xl font-bold text-gray-800">24/7</p>
+                    <p className="text-xs text-gray-600">Hỗ trợ</p>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Trust Badges */}
-          <div className="bg-gradient-to-r from-amber-50 via-orange-50 to-red-50 rounded-xl p-4 border border-orange-200 shadow-lg">
-            <div className="text-center mb-3">
-              <div className="flex items-center justify-center gap-2 mb-2">
-                <Heart className="h-4 w-4 text-red-500 animate-pulse" />
-                <p className="text-gray-800 font-bold text-sm">Cảm ơn bạn đã tin tướng eFootball Store!</p>
               </div>
-            </div>
-            <div className="flex flex-wrap justify-center gap-3">
-              <Badge className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-3 py-1 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-xs">
-                <Shield className="h-3 w-3 mr-1" />
-                Uy tín hàng đầu
-              </Badge>
-              <Badge className="bg-gradient-to-r from-blue-500 to-cyan-600 text-white px-3 py-1 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-xs">
-                <Clock className="h-3 w-3 mr-1" />
-                Giao hàng nhanh
-              </Badge>
-              <Badge className="bg-gradient-to-r from-purple-500 to-pink-600 text-white px-3 py-1 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-xs">
-                <Award className="h-3 w-3 mr-1" />
-                Bảo hành tài khoản
-              </Badge>
-              <Badge className="bg-gradient-to-r from-orange-500 to-red-600 text-white px-3 py-1 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-xs">
-                <Star className="h-3 w-3 mr-1" />
-                Chất lượng cao
-              </Badge>
             </div>
           </div>
         </div>
-      </DialogContent>
+        </DialogPrimitive.Content>
+      </DialogPortal>
     </Dialog>
   );
 }

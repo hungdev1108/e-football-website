@@ -92,7 +92,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       try {
         console.log('🔍 Verifying token with backend...');
         
-        const response = await fetch('http://localhost:5002/api/auth/admin-verify', {
+        const response = await fetch('http://14.225.211.212:5002/api/auth/admin-verify', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -122,7 +122,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     };
 
     verifyAuth();
-  }, [pathname, router]); // Remove authChecked from dependencies to prevent loop
+  }, [pathname, router, adminUser, authChecked, isAdminAuthenticated]); // Add missing dependencies
 
   const handleLogout = () => {
     console.log('🚪 Logging out...');

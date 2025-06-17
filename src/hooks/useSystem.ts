@@ -1,4 +1,3 @@
-import { useQuery } from '@tanstack/react-query';
 import { usePublicSettings, usePublicLogo, usePublicBanners } from './useAdminSystem';
 
 // Main public hooks using new endpoints
@@ -37,7 +36,7 @@ export const useHomeBanners = () => {
   const { data: bannersData, isLoading } = useSystemBanners();
   
   return {
-    banners: bannersData?.data?.filter((banner: any) => banner.isActive) || [],
+    banners: (bannersData?.data as Array<{ isActive: boolean }>)?.filter((banner) => banner.isActive) || [],
     isLoading
   };
 };
@@ -46,9 +45,19 @@ export const useHomeBanners = () => {
 export const usePaymentInfo = () => {
   const { data: settingsData, isLoading } = useSystemSettings();
   
+  const bankingInfo = settingsData?.data?.bankingInfo as {
+    bankName?: string;
+    accountNumber?: string;
+    accountHolder?: string;
+    qrCodeImage?: {
+      url: string;
+      alt: string;
+    };
+  };
+  
   return {
-    bankingInfo: settingsData?.data?.bankingInfo,
-    qrCodeImage: settingsData?.data?.bankingInfo?.qrCodeImage,
+    bankingInfo,
+    qrCodeImage: bankingInfo?.qrCodeImage,
     isLoading
   };
 };

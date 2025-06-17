@@ -3,7 +3,7 @@ import { ApiResponse, PaginatedResponse } from '@/types';
 
 // Create axios instance
 export const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5002/api',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://14.225.211.212:5002/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',

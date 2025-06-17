@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Edit, Trash2, Eye, Save, X, Search, Star } from "lucide-react";
+import { Plus, Edit, Trash2, Save, X, Search, Star } from "lucide-react";
 import { useForm } from "react-hook-form";
 import Image from "next/image";
 import {
@@ -93,6 +93,25 @@ interface NewsApiResponse {
       itemsPerPage: number;
     };
   };
+}
+
+// Define error interface for type safety
+interface ApiError {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+  message?: string;
+}
+
+// Define form render function parameters interface
+interface FormRenderProps {
+  registerFn: ReturnType<typeof useForm<NewsFormData>>['register'];
+  errors: ReturnType<typeof useForm<NewsFormData>>['formState']['errors'];
+  setValue: ReturnType<typeof useForm<NewsFormData>>['setValue'];
+  watch: ReturnType<typeof useForm<NewsFormData>>['watch'];
+  isEdit?: boolean;
 }
 
 export default function AdminNewsPage() {
@@ -242,7 +261,7 @@ export default function AdminNewsPage() {
   
       console.log('✅ Processed data:', newsData);
   
-      const result = await createNewsMutation.mutateAsync(newsData);
+      await createNewsMutation.mutateAsync(newsData);
       
       setIsCreateDialogOpen(false);
       reset();
@@ -253,7 +272,8 @@ export default function AdminNewsPage() {
       console.error("Error creating news:", error);
       
       // Hiển thị error message chi tiết
-      const errorMessage = error.response?.data?.message || error.message || 'Có lỗi xảy ra';
+      const apiError = error as ApiError;
+      const errorMessage = apiError?.response?.data?.message || apiError?.message || 'Có lỗi xảy ra';
       alert(errorMessage);
     }
   };
@@ -301,9 +321,9 @@ export default function AdminNewsPage() {
   };
 
   // Xử lý toggle featured
-  const handleToggleFeatured = async (id: string) => {
+  const handleToggleFeatured = async (id: string, currentFeatured: boolean) => {
     try {
-      await toggleFeaturedMutation.mutateAsync(id);
+      await toggleFeaturedMutation.mutateAsync({ id, featured: !currentFeatured });
     } catch (error) {
       console.error("Error toggling featured:", error);
     }
@@ -377,13 +397,10 @@ export default function AdminNewsPage() {
     return <Badge variant={config?.variant}>{config?.label || status}</Badge>;
   };
 
-  const renderFormContent = (
-    registerFn: any,
-    errors: any,
-    setValue: any,
-    watch: any,
-    isEdit = false
-  ) => (
+  const renderFormContent = (props: FormRenderProps) => {
+    const { registerFn, errors, setValue, watch, isEdit = false } = props;
+    
+    return (
     <Tabs defaultValue="content" className="w-full">
       <TabsList className="grid w-full grid-cols-3">
         <TabsTrigger value="content">Nội dung</TabsTrigger>
@@ -464,7 +481,7 @@ export default function AdminNewsPage() {
                 <Image
                   src={
                     previewImage || 
-                    (isEdit && watch("featuredImage")?.url ? getImageUrl(watch("featuredImage")?.url) : "") ||
+                    (isEdit && watch("featuredImage")?.url ? getImageUrl(watch("featuredImage")?.url || "") : "") ||
                     getPlaceholderUrl(400, 192)
                   }
                   alt="Preview"
@@ -522,7 +539,8 @@ export default function AdminNewsPage() {
         </div>
       </TabsContent>
     </Tabs>
-  );
+    );
+  };
 
   return (
     <div className="space-y-6">
@@ -548,7 +566,7 @@ export default function AdminNewsPage() {
             </DialogHeader>
 
             <form onSubmit={handleSubmit(onSubmitCreate)} className="space-y-6">
-              {renderFormContent(register, errors, setValue, watch)}
+              {renderFormContent({ registerFn: register, errors, setValue, watch, isEdit: false })}
 
               <div className="flex justify-end space-x-2 pt-4 border-t">
                 <Button
@@ -704,7 +722,7 @@ export default function AdminNewsPage() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleToggleFeatured(article._id)}
+                          onClick={() => handleToggleFeatured(article._id, article.featured || article.isFeatured)}
                           disabled={toggleFeaturedMutation.isPending}
                           className={
                             article.featured || article.isFeatured
@@ -800,7 +818,7 @@ export default function AdminNewsPage() {
           </DialogHeader>
 
           <form onSubmit={handleSubmitEdit(onSubmitEdit)} className="space-y-6">
-            {renderFormContent(registerEdit, errorsEdit, setValueEdit, watchEdit, true)}
+            {renderFormContent({ registerFn: registerEdit, errors: errorsEdit, setValue: setValueEdit, watch: watchEdit, isEdit: true })}
 
             <div className="flex justify-end space-x-2 pt-4 border-t">
               <Button

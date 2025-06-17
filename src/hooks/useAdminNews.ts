@@ -1,8 +1,31 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import tokenInterceptor from '@/services/tokenInterceptor';
 
+// Define types
+interface AdminNewsFilters {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: string;
+  featured?: string;
+  [key: string]: string | number | undefined;
+}
+
+interface NewsData {
+  title: string;
+  content: string;
+  excerpt?: string;
+  tags?: string[];
+  status: 'published' | 'draft' | 'archived';
+  featured?: boolean;
+  featuredImage?: {
+    url: string;
+    alt: string;
+  };
+}
+
 // Get all news for admin
-export const useAdminNews = (filters: any) => {
+export const useAdminNews = (filters: AdminNewsFilters) => {
   return useQuery({
     queryKey: ['adminNews', filters],
     queryFn: async () => {
@@ -25,7 +48,7 @@ export const useCreateNews = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (newsData: any) => {
+    mutationFn: async (newsData: NewsData) => {
       const response = await tokenInterceptor.post('/news', newsData);
       return response;
     },
@@ -40,7 +63,7 @@ export const useUpdateNews = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: any }) => {
+    mutationFn: async ({ id, data }: { id: string; data: Partial<NewsData> }) => {
       const response = await tokenInterceptor.put(`/news/${id}`, data);
       return response;
     },
@@ -85,15 +108,8 @@ export const useAdminNewsById = (id: string) => {
   return useQuery({
     queryKey: ['adminNews', id],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE}/news/${id}`, {
-        headers: getAuthHeaders(),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch news');
-      }
-
-      return response.json();
+      const response = await tokenInterceptor.get(`/news/${id}`);
+      return response;
     },
     enabled: !!id,
   });

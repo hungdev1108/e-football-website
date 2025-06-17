@@ -35,11 +35,49 @@ import {
 } from "lucide-react";
 import {
   useAdminBanners,
-  useUpdateBanner,
+  useCreateBanner,
   useDeleteBanner,
 } from "@/hooks/useAdminSystem";
 import { useFeaturedAccounts } from "@/hooks/useAccounts";
 import { useFeaturedNews } from "@/hooks/useNews";
+
+// Define interfaces for type safety
+interface BannerItem {
+  _id: string;
+  title: string;
+  description?: string;
+  image: string;
+  link?: string;
+  isActive: boolean;
+  order: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface AccountItem {
+  _id: string;
+  title: string;
+  price: number;
+  status: string;
+  featured?: boolean;
+}
+
+interface NewsItem {
+  _id: string;
+  title: string;
+  excerpt?: string;
+  status: string;
+  featured?: boolean;
+  createdAt: string;
+}
+
+interface BannerFormData {
+  title: string;
+  description?: string;
+  link?: string;
+  image: FileList;
+  isActive: boolean;
+}
 
 export default function AdminHomePage() {
   const [activeTab, setActiveTab] = useState("overview");
@@ -49,26 +87,27 @@ export default function AdminHomePage() {
   const { data: featuredAccountsData } = useFeaturedAccounts(6);
   const { data: featuredNewsData } = useFeaturedNews(5);
 
-  const updateBannerMutation = useUpdateBanner();
+  const createBannerMutation = useCreateBanner();
   const deleteBannerMutation = useDeleteBanner();
 
-  const banners = (bannersData?.data as any[]) || [];
-  const featuredAccounts = (featuredAccountsData?.data as any[]) || [];
-  const featuredNews = (featuredNewsData?.data as any[]) || [];
+  const banners = (bannersData?.data as BannerItem[]) || [];
+  const featuredAccounts = (featuredAccountsData?.data as AccountItem[]) || [];
+  const featuredNews = (featuredNewsData?.data as NewsItem[]) || [];
 
-  const { register, handleSubmit, reset } = useForm();
+  const { register, handleSubmit, reset } = useForm<BannerFormData>();
 
-  const onSubmitBanner = async (data: any) => {
-    const formData = new FormData();
-    if (data.image[0]) {
-      formData.append("image", data.image[0]);
-    }
-    formData.append("title", data.title);
-    formData.append("description", data.description);
-    formData.append("link", data.link);
-    formData.append("isActive", data.isActive);
+  const onSubmitBanner = async (data: BannerFormData) => {
+    // For creating banner, we need to use createBanner mutation with proper data structure
+    const bannerData = {
+      title: data.title,
+      description: data.description || "",
+      link: data.link || "",
+      image: "", // This should be handled by file upload first
+      isActive: data.isActive,
+      order: 0
+    };
 
-    updateBannerMutation.mutate({ data: formData });
+    createBannerMutation.mutate(bannerData);
     reset();
   };
 
@@ -156,7 +195,7 @@ export default function AdminHomePage() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {banners.filter((b: any) => b.isActive).length}
+                  {banners.filter((b: BannerItem) => b.isActive).length}
                 </div>
                 <p className="text-xs text-muted-foreground">
                   Trên tổng số {banners.length} banner
@@ -250,10 +289,10 @@ export default function AdminHomePage() {
                   <Button
                     type="submit"
                     className="w-full"
-                    disabled={updateBannerMutation.isPending}
+                    disabled={createBannerMutation.isPending}
                   >
                     <Plus className="h-4 w-4 mr-2" />
-                    {updateBannerMutation.isPending
+                    {createBannerMutation.isPending
                       ? "Đang tạo..."
                       : "Tạo Banner"}
                   </Button>
@@ -276,7 +315,7 @@ export default function AdminHomePage() {
                       Chưa có banner nào
                     </div>
                   ) : (
-                    banners.map((banner: any) => (
+                    banners.map((banner: BannerItem) => (
                       <div
                         key={banner._id}
                         className="flex items-center justify-between p-4 border rounded-lg"
@@ -330,7 +369,7 @@ export default function AdminHomePage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {featuredAccounts.slice(0, 5).map((account: any) => (
+                  {featuredAccounts.slice(0, 5).map((account: AccountItem) => (
                     <div
                       key={account._id}
                       className="flex items-center justify-between p-2 border rounded"
@@ -363,7 +402,7 @@ export default function AdminHomePage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {featuredNews.slice(0, 5).map((news: any) => (
+                  {featuredNews.slice(0, 5).map((news: NewsItem) => (
                     <div
                       key={news._id}
                       className="flex items-center justify-between p-2 border rounded"

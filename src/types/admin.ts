@@ -187,7 +187,7 @@ export interface SystemSettingsFormData {
 export interface SystemSetting {
   _id: string;
   key: string;
-  value: any;
+  value: unknown;
   type: string;
   description?: string;
   isPublic: boolean;

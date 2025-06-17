@@ -1,8 +1,38 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import tokenInterceptor from '@/services/tokenInterceptor';
 
+// Define types
+interface AdminAccountFilters {
+  page?: number;
+  limit?: number;
+  search?: string;
+  category?: string;
+  status?: string;
+  featured?: string;
+  platform?: string;
+  [key: string]: string | number | undefined;
+}
+
+interface AccountData {
+  title: string;
+  description: string;
+  price: number;
+  category: string;
+  accountCode: string;
+  collectiveStrength: number;
+  status: 'available' | 'sold' | 'reserved';
+  featured: boolean;
+  accountDetails: {
+    platform: string;
+    coins: number;
+    gp: number;
+    players: string[];
+  };
+  images: Array<{ url: string; alt: string }>;
+}
+
 // Get all accounts for admin
-export const useAdminAccounts = (filters: any) => {
+export const useAdminAccounts = (filters: AdminAccountFilters) => {
   return useQuery({
     queryKey: ['adminAccounts', filters],
     queryFn: async () => {
@@ -25,7 +55,7 @@ export const useCreateAccount = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (accountData: any) => {
+    mutationFn: async (accountData: AccountData) => {
       console.log('Creating account with data:', JSON.stringify(accountData, null, 2));
       
       const response = await tokenInterceptor.post('/accounts/admin/create', accountData);
@@ -42,7 +72,7 @@ export const useUpdateAccount = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: any }) => {
+    mutationFn: async ({ id, data }: { id: string; data: Partial<AccountData> }) => {
       const response = await tokenInterceptor.put(`/accounts/admin/${id}`, data);
       return response;
     },
@@ -88,7 +118,11 @@ export const useAdminCategories = () => {
     queryFn: async () => {
       const data = await tokenInterceptor.get('/accounts/categories');
       // Ensure we return an array
-      return Array.isArray(data) ? data : (data?.data || data?.categories || []);
+      interface CategoriesResponse {
+        data?: unknown[];
+        categories?: unknown[];
+      }
+      return Array.isArray(data) ? data : ((data as CategoriesResponse)?.data || (data as CategoriesResponse)?.categories || []);
     },
   });
 };

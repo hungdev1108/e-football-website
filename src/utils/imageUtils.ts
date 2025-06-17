@@ -2,7 +2,7 @@
  * Utility functions for handling image URLs from backend
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5002/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://14.225.211.212:5002/api';
 const BACKEND_BASE_URL = API_BASE_URL.replace('/api', '');
 
 /**

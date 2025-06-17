@@ -44,12 +44,33 @@ export interface ApiGameAccount {
     level: number;
     coins: number;
     gp: number;
+    players: string[];
   };
   status: 'available' | 'sold' | 'pending';
   featured: boolean;
   views: number;
   createdAt: string;
   updatedAt: string;
+}
+
+// Account Data interface for admin operations
+export interface AccountData {
+  _id?: string;
+  title: string;
+  description: string;
+  price: number;
+  category: string;
+  accountCode: string;
+  collectiveStrength: number;
+  status: "available" | "sold" | "reserved";
+  featured: boolean;
+  accountDetails: {
+    platform: string;
+    coins: number;
+    gp: number;
+    players: string[];
+  };
+  images: { url: string; alt: string }[];
 }
 
 // Legacy GameAccount type for compatibility

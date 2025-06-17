@@ -31,7 +31,7 @@ export const PLATFORMS = [
 ] as const;
 
 // Helper function để get platform label
-export const getPlatformLabel = (platform) => {
+export const getPlatformLabel = (platform: string) => {
   const platformObj = PLATFORMS.find(p => p.value === platform);
   return platformObj ? platformObj.label : platform;
 };

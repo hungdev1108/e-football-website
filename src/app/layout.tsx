@@ -13,6 +13,7 @@ export const metadata: Metadata = {
     default: "EFOOTBALL Store - Chuyên bán tài khoản game EFOOTBALL",
     template: "%s | EFOOTBALL Store",
   },
+  
   description:
     "Chuyên bán tài khoản game EFOOTBALL chất lượng cao, giá tốt nhất thị trường. Giao dịch nhanh chóng, an toàn, uy tín.",
   keywords: [
@@ -24,6 +25,11 @@ export const metadata: Metadata = {
     "pes",
     "konami",
   ],
+  icons: {
+    icon: "/efootball-logo.png",
+    shortcut: "/efootball-logo.png",
+    apple: "/efootball-logo.png", // nếu muốn hỗ trợ Apple touch icon
+  },
   authors: [{ name: "EFOOTBALL Store Team" }],
   creator: "EFOOTBALL Store",
   publisher: "EFOOTBALL Store",
@@ -78,6 +84,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi" suppressHydrationWarning>
+      <link rel="icon" href="/favicon.ico" />
       <body
         className={`${inter.className} antialiased min-h-screen bg-background`}
         suppressHydrationWarning
