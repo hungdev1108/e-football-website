@@ -216,8 +216,8 @@ export default function AccountDetailPage() {
                   <Badge className="absolute top-2 left-2 md:top-4 md:left-4 text-xs md:text-sm" variant="secondary">
                     <span className="md:hidden">{getPlatformIcon(account.accountDetails?.platform || 'mobile')}</span>
                     <span className="hidden md:inline">
-                      {getPlatformIcon(account.accountDetails?.platform || 'mobile')}{" "}
-                      {getPlatformLabel(account.accountDetails?.platform || 'mobile')}
+                    {getPlatformIcon(account.accountDetails?.platform || 'mobile')}{" "}
+                    {getPlatformLabel(account.accountDetails?.platform || 'mobile')}
                     </span>
                   </Badge>
 
@@ -293,8 +293,8 @@ export default function AccountDetailPage() {
                         <p className="font-semibold text-sm md:text-base">
                           <span className="md:hidden">{getPlatformIcon(account.accountDetails?.platform || 'mobile')}</span>
                           <span className="hidden md:inline">
-                            {getPlatformIcon(account.accountDetails?.platform || 'mobile')}{" "}
-                            {getPlatformLabel(account.accountDetails?.platform || 'mobile')}
+                          {getPlatformIcon(account.accountDetails?.platform || 'mobile')}{" "}
+                          {getPlatformLabel(account.accountDetails?.platform || 'mobile')}
                           </span>
                         </p>
                       </div>

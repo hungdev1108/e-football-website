@@ -34,7 +34,7 @@ export const useAuth = () => {
     try {
       console.log('🔄 Refreshing admin token...');
       
-      const response = await fetch('http://14.225.211.212:5002/api/auth/admin-refresh-token', {
+      const response = await fetch('https://api.hieptranefootball.com/api/auth/admin-refresh-token', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -94,7 +94,7 @@ export const useAuth = () => {
   const handleLogout = useCallback(async () => {
     try {
       if (adminToken) {
-        await fetch('http://14.225.211.212:5002/api/auth/admin-logout', {
+        await fetch('https://api.hieptranefootball.com/api/auth/admin-logout', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${adminToken}`
@@ -118,7 +118,7 @@ export const useAuth = () => {
   // Enhanced login with token expiry tracking
   const enhancedLogin = useCallback(async (credentials) => {
     try {
-      const response = await fetch('http://14.225.211.212:5002/api/auth/admin-login', {
+      const response = await fetch('https://api.hieptranefootball.com/api/auth/admin-login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

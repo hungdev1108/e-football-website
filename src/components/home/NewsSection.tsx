@@ -4,6 +4,7 @@ import { memo, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Clock, ArrowRight, LoaderIcon } from "lucide-react";
 import { useFeaturedNews } from "@/hooks/useNews";
 import { ApiNews } from "@/types";
@@ -29,9 +30,9 @@ export const NewsSection = memo(function NewsSection({
   }, [featuredNewsData?.data]);
 
   return (
-    <section className={`py-20 px-4 lg:px-6 ${className || ""}`}>
+    <section className={`py-8 md:py-20 px-4 lg:px-6 ${className || ""}`}>
       <div className="container mx-auto">
-        <div className="text-center mb-8">
+        <div className="text-center mb-6 md:mb-8">
           <h3 className="text-2xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent mb-2">
             Tin tức hot
           </h3>
@@ -45,12 +46,27 @@ export const NewsSection = memo(function NewsSection({
             <LoaderIcon className="w-8 h-8 animate-spin" />
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
             {hotNews.map((news: ApiNews) => (
               <NewsCard key={news._id} news={news} />
             ))}
           </div>
         )}
+
+        <div className="text-center mt-8 md:mt-12">
+          <Button
+            size="sm"
+            variant="outline"
+            className="bg-white/80 backdrop-blur-sm hover:bg-white border-2 text-sm md:text-lg px-4 py-2 md:px-8 md:py-6"
+            asChild
+          >
+            <Link href="/news">
+              <span className="hidden md:inline">Xem tất cả tin tức</span>
+              <span className="md:hidden">Xem tất cả</span>
+              <ArrowRight className="ml-2 w-4 h-4 md:w-5 md:h-5" />
+            </Link>
+          </Button>
+        </div>
       </div>
     </section>
   );
@@ -75,7 +91,7 @@ const NewsCard = memo(function NewsCard({ news }: { news: ApiNews }) {
             className="w-full h-32 md:h-48 object-cover image-scale-smooth"
           />
           <div className="absolute top-2 right-2 md:top-4 md:right-4">
-            <div className="bg-red-600 text-white px-2 py-1 rounded-md text-xs md:text-sm font-bold">
+            <div className="bg-red-600 text-white px-1.5 py-0.5 md:px-2 md:py-1 rounded-md text-xs md:text-sm font-bold">
               Hot
             </div>
           </div>

@@ -164,7 +164,7 @@ export default function AccountsPage() {
     if (!pagination || pagination.totalPages <= 1) return null;
 
     const pageNumbers = [];
-    const maxVisiblePages = window.innerWidth < 768 ? 3 : 5;
+    const maxVisiblePages = 3; // Always show 3 pages for consistency
     const startPage = Math.max(
       1,
       currentPage - Math.floor(maxVisiblePages / 2)
@@ -185,9 +185,10 @@ export default function AccountsPage() {
           size="sm"
           disabled={currentPage === 1}
           onClick={() => setCurrentPage(currentPage - 1)}
-          className="text-xs md:text-sm px-2 md:px-4"
+          className="text-xs md:text-sm px-2 md:px-3"
         >
-          Trước
+          <span className="hidden md:inline">Trước</span>
+          <span className="md:hidden">‹</span>
         </Button>
 
         {pageNumbers.map((page) => (
@@ -196,7 +197,7 @@ export default function AccountsPage() {
             variant={currentPage === page ? "default" : "outline"}
             size="sm"
             onClick={() => setCurrentPage(page)}
-            className="text-xs md:text-sm px-2 md:px-4 min-w-[32px] md:min-w-[40px]"
+            className="text-xs md:text-sm px-2 md:px-3 min-w-[32px] md:min-w-[40px]"
           >
             {page}
           </Button>
@@ -207,9 +208,10 @@ export default function AccountsPage() {
           size="sm"
           disabled={currentPage === pagination.totalPages}
           onClick={() => setCurrentPage(currentPage + 1)}
-          className="text-xs md:text-sm px-2 md:px-4"
+          className="text-xs md:text-sm px-2 md:px-3"
         >
-          Sau
+          <span className="hidden md:inline">Sau</span>
+          <span className="md:hidden">›</span>
         </Button>
       </div>
     );
@@ -217,107 +219,107 @@ export default function AccountsPage() {
 
   const FiltersContent = () => (
     <CardContent className="space-y-6 md:space-y-8">
-      {/* Category Filter */}
-      <div className="space-y-3">
+                {/* Category Filter */}
+                <div className="space-y-3">
         <Label className="text-sm md:text-base font-medium">Danh mục</Label>
-        {loadingCategories ? (
-          <div className="flex items-center justify-center h-10">
-            <LoaderIcon className="w-4 h-4 animate-spin" />
-          </div>
-        ) : (
-          <Select
-            value={filters.category || "all"}
-            onValueChange={(value) =>
-              handleFilterChange("category", value)
-            }
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Chọn danh mục" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Tất cả danh mục</SelectItem>
-              {categories.map((category: ApiCategory) => (
-                <SelectItem key={category._id} value={category._id}>
-                  {category.icon} {category.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
-      </div>
+                  {loadingCategories ? (
+                    <div className="flex items-center justify-center h-10">
+                      <LoaderIcon className="w-4 h-4 animate-spin" />
+                    </div>
+                  ) : (
+                    <Select
+                      value={filters.category || "all"}
+                      onValueChange={(value) =>
+                        handleFilterChange("category", value)
+                      }
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Chọn danh mục" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Tất cả danh mục</SelectItem>
+                        {categories.map((category: ApiCategory) => (
+                          <SelectItem key={category._id} value={category._id}>
+                            {category.icon} {category.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
 
-      {/* Platform Filter */}
-      <div className="space-y-3">
+                {/* Platform Filter */}
+                <div className="space-y-3">
         <Label className="text-sm md:text-base font-medium">Nền tảng</Label>
-        <Select
-          value={filters.platform || "all"}
-          onValueChange={(value) =>
-            handleFilterChange("platform", value)
-          }
-        >
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Chọn nền tảng" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tất cả nền tảng</SelectItem>
-            <SelectItem value="steam">💻 Steam PC</SelectItem>
-            <SelectItem value="mobile">📱 Mobile</SelectItem>
-            <SelectItem value="ps4">🎮 PlayStation 4</SelectItem>
-            <SelectItem value="ps5">🎮 PlayStation 5</SelectItem>
-            <SelectItem value="xbox">🎮 Xbox</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+                  <Select
+                    value={filters.platform || "all"}
+                    onValueChange={(value) =>
+                      handleFilterChange("platform", value)
+                    }
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Chọn nền tảng" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Tất cả nền tảng</SelectItem>
+                      <SelectItem value="steam">💻 Steam PC</SelectItem>
+                      <SelectItem value="mobile">📱 Mobile</SelectItem>
+                      <SelectItem value="ps4">🎮 PlayStation 4</SelectItem>
+                      <SelectItem value="ps5">🎮 PlayStation 5</SelectItem>
+                      <SelectItem value="xbox">🎮 Xbox</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
-      {/* Sort Filter */}
-      <div className="space-y-3">
+                {/* Sort Filter */}
+                <div className="space-y-3">
         <Label className="text-sm md:text-base font-medium">Sắp xếp</Label>
-        <Select
-          value={filters.sort}
-          onValueChange={(value) => handleFilterChange("sort", value)}
-        >
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Sắp xếp theo" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="-createdAt">Mới nhất</SelectItem>
-            <SelectItem value="createdAt">Cũ nhất</SelectItem>
-            <SelectItem value="price">Giá thấp đến cao</SelectItem>
-            <SelectItem value="-price">Giá cao đến thấp</SelectItem>
-            <SelectItem value="-collectiveStrength">
-              Rating cao nhất
-            </SelectItem>
-            <SelectItem value="-views">Phổ biến nhất</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+                  <Select
+                    value={filters.sort}
+                    onValueChange={(value) => handleFilterChange("sort", value)}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Sắp xếp theo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="-createdAt">Mới nhất</SelectItem>
+                      <SelectItem value="createdAt">Cũ nhất</SelectItem>
+                      <SelectItem value="price">Giá thấp đến cao</SelectItem>
+                      <SelectItem value="-price">Giá cao đến thấp</SelectItem>
+                      <SelectItem value="-collectiveStrength">
+                        Rating cao nhất
+                      </SelectItem>
+                      <SelectItem value="-views">Phổ biến nhất</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
-      {/* Price Range */}
-      <div className="space-y-3">
+                {/* Price Range */}
+                <div className="space-y-3">
         <Label className="text-sm md:text-base font-medium">Khoảng giá</Label>
-        <div className="space-y-4">
-          <Slider
-            value={[filters.minPrice, filters.maxPrice]}
-            onValueChange={handlePriceRangeChange}
-            max={30000000}
-            step={50000}
-            className="w-full"
-          />
+                  <div className="space-y-4">
+                    <Slider
+                      value={[filters.minPrice, filters.maxPrice]}
+                      onValueChange={handlePriceRangeChange}
+                      max={30000000}
+                      step={50000}
+                      className="w-full"
+                    />
           <div className="flex justify-between text-xs md:text-sm text-gray-500">
-            <span>{formatPrice(filters.minPrice)}</span>
-            <span>{formatPrice(filters.maxPrice)}</span>
-          </div>
-        </div>
-      </div>
+                      <span>{formatPrice(filters.minPrice)}</span>
+                      <span>{formatPrice(filters.maxPrice)}</span>
+                    </div>
+                  </div>
+                </div>
 
-      <Button
-        className="w-full mt-4"
+                <Button
+                  className="w-full mt-4"
         onClick={clearFilters}
-        variant="outline"
-      >
-        Xóa bộ lọc
-      </Button>
-    </CardContent>
+                  variant="outline"
+                >
+                  Xóa bộ lọc
+                </Button>
+              </CardContent>
   );
 
   return (
@@ -385,50 +387,53 @@ export default function AccountsPage() {
             </Card>
 
             {/* Mobile Filter Button & Toolbar */}
-            <div className="flex items-center justify-between mb-4 md:mb-6">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-col gap-3 mb-4 md:mb-6 md:flex-row md:items-center md:justify-between">
+              <div className="flex items-center gap-2 md:gap-3">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setShowMobileFilters(true)}
-                  className="lg:hidden text-sm"
+                  className="lg:hidden text-sm px-3 py-2"
                 >
                   <Filter className="h-4 w-4 mr-2" />
-                  Lọc
+                  Bộ lọc
                 </Button>
-                <div className="text-xs md:text-sm text-gray-600">
-                  {pagination && (
-                    <>
-                      <span className="hidden md:inline">
-                        Hiển thị {accounts.length} trong {pagination.totalItems} tài khoản
-                      </span>
-                      <span className="md:hidden">
-                        {accounts.length}/{pagination.totalItems}
-                      </span>
-                      <span className="hidden sm:inline">
-                        {" "}(Trang {pagination.currentPage}/{pagination.totalPages})
-                      </span>
-                    </>
-                  )}
-                </div>
+                {pagination && (
+                  <div className="text-xs md:text-sm text-gray-600">
+                    <span className="hidden md:inline">
+                      Hiển thị {accounts.length} trong {pagination.totalItems} tài khoản
+                    </span>
+                    <span className="md:hidden text-xs">
+                      {accounts.length}/{pagination.totalItems} tài khoản
+                    </span>
+                  </div>
+                )}
               </div>
-              <div className="flex items-center gap-1 md:gap-2">
+              
+              <div className="flex items-center justify-between md:justify-end md:gap-4">
+                {pagination && (
+                  <div className="text-xs text-gray-500 md:hidden">
+                    Trang {pagination.currentPage}/{pagination.totalPages}
+                  </div>
+                )}
+                <div className="flex items-center gap-1 md:gap-2">
                 <Button
                   variant={viewMode === "grid" ? "default" : "outline"}
                   size="sm"
                   onClick={() => setViewMode("grid")}
-                  className="px-2 md:px-3"
+                    className="px-2 md:px-3"
                 >
-                  <Grid className="h-3 w-3 md:h-4 md:w-4" />
+                    <Grid className="h-3 w-3 md:h-4 md:w-4" />
                 </Button>
                 <Button
                   variant={viewMode === "list" ? "default" : "outline"}
                   size="sm"
                   onClick={() => setViewMode("list")}
-                  className="px-2 md:px-3"
+                    className="px-2 md:px-3"
                 >
-                  <List className="h-3 w-3 md:h-4 md:w-4" />
+                    <List className="h-3 w-3 md:h-4 md:w-4" />
                 </Button>
+                </div>
               </div>
             </div>
 
@@ -462,13 +467,20 @@ export default function AccountsPage() {
                 className={
                   viewMode === "grid"
                     ? "grid grid-cols-2 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-6"
-                    : "space-y-4"
+                    : "flex flex-col gap-6"
                 }
               >
                 {accounts.map((account: ApiGameAccount) => (
                   <Link key={account._id} href={`/accounts/${account._id}`}>
-                    <Card className="hover:shadow-lg transition-shadow cursor-pointer group overflow-hidden pt-0 rounded-t-lg">
-                      <div className="relative overflow-hidden rounded-t-lg">
+                    <Card className={`group cursor-pointer overflow-hidden border-0 bg-white/95 backdrop-blur-sm shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 rounded-2xl flex flex-col p-0 ${
+                      viewMode === "grid" ? "h-full" : "h-auto"
+                    } ${viewMode === "list" ? "mb-2" : ""}`}>
+                      <div className={`relative overflow-hidden ${
+                        viewMode === "list" ? "md:flex md:w-full" : ""
+                      }`}>
+                        <div className={`relative ${
+                          viewMode === "list" ? "md:w-1/3 md:min-w-0" : "w-full"
+                        }`}>
                         <Image
                           src={
                             getImageUrl(account.images[0]?.url) ||
@@ -477,69 +489,123 @@ export default function AccountsPage() {
                           alt={account.images[0]?.alt || account.title}
                           width={300}
                           height={192}
-                          className="w-full h-32 md:h-48 object-cover rounded-t-lg image-scale-smooth"
-                        />
-                        <Badge
-                          className="absolute top-1 left-1 md:top-2 md:left-2 text-xs md:text-sm"
-                          variant="secondary"
-                        >
-                          <span className="md:hidden">{getPlatformIcon(account.accountDetails.platform)}</span>
-                          <span className="hidden md:inline">
-                            {getPlatformIcon(account.accountDetails.platform)}{" "}
-                            {getPlatformLabel(account.accountDetails.platform)}
-                          </span>
+                            className={`object-cover transition-transform duration-300 group-hover:scale-110 ${
+                              viewMode === "list" 
+                                ? "w-full h-32 md:h-40" 
+                                : "w-full h-32 md:h-48"
+                            }`}
+                          />
+                          {/* Gradient overlay */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                          
+                          {/* Platform badge */}
+                          <div className="absolute top-3 left-3 md:top-4 md:left-4">
+                            <Badge variant="secondary" className="bg-white/95 backdrop-blur-sm text-slate-700 text-xs md:text-sm shadow-md border-0">
+                              <span className="md:hidden">{getPlatformIcon(account.accountDetails.platform)}</span>
+                              <span className="hidden md:inline">
+                          {getPlatformIcon(account.accountDetails.platform)}{" "}
+                          {getPlatformLabel(account.accountDetails.platform)}
+                              </span>
                         </Badge>
-                        <Badge className="absolute top-1 right-1 md:top-2 md:right-2 text-xs md:text-sm">
+                          </div>
+                          
+                          {/* Account code badge */}
+                          <div className="absolute top-3 right-3 md:top-4 md:right-4">
+                            <Badge className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs md:text-sm shadow-md border-0">
                           {account.accountCode}
                         </Badge>
+                          </div>
+                          
+                          {/* Sold overlay */}
                         {account.status === "sold" && (
-                          <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-t-lg">
-                            <Badge
-                              variant="destructive"
-                              className="text-sm md:text-lg px-3 py-1 md:px-4 md:py-2"
-                            >
+                            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center">
+                              <Badge variant="destructive" className="text-sm md:text-lg px-3 py-2 md:px-6 md:py-3 bg-red-600 shadow-lg">
                               ĐÃ BÁN
                             </Badge>
                           </div>
                         )}
+                          
+                          {/* Featured badge */}
                         {account.featured && (
-                          <Badge className="absolute bottom-1 left-1 md:bottom-2 md:left-2 bg-yellow-500 text-xs md:text-sm">
-                            ⭐ <span className="hidden md:inline">Nổi bật</span>
+                            <div className="absolute bottom-3 left-3 md:bottom-4 md:left-4">
+                              <Badge className="bg-gradient-to-r from-yellow-500 to-amber-500 text-white text-xs md:text-sm shadow-md border-0">
+                                ⭐ <span className="hidden md:inline">Nổi bật</span>
                           </Badge>
+                            </div>
                         )}
                       </div>
 
-                      <CardHeader className="pb-2 px-3 md:px-6 pt-3 md:pt-6">
-                        <CardTitle className="text-sm md:text-lg line-clamp-2 group-hover:text-blue-600 transition-colors">
+                        {/* Content area for list view on desktop */}
+                        <div className={`flex flex-col flex-1 ${
+                          viewMode === "list" ? "md:w-2/3 md:p-4" : ""
+                        }`}>
+                          <CardHeader className={`pb-1 pt-3 md:pt-4 ${
+                            viewMode === "list" ? "px-3 md:px-0 md:pb-2" : "px-3 md:px-4"
+                          }`}>
+                            <CardTitle className="text-sm md:text-lg line-clamp-2 text-slate-800 group-hover:text-blue-600 transition-colors duration-300 font-semibold">
                           {account.title}
                         </CardTitle>
-                        <CardDescription className="line-clamp-2 text-xs md:text-sm hidden md:block">
-                          {account.description}
-                        </CardDescription>
+                            <CardDescription 
+                              className={`text-xs md:text-sm text-slate-500 mt-1 leading-relaxed ${
+                                viewMode === "list" ? "block" : "hidden md:block"
+                              }`}
+                              style={{
+                                display: '-webkit-box',
+                                WebkitLineClamp: 2,
+                                WebkitBoxOrient: 'vertical',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                maxHeight: '2.5rem', // Fallback cho browsers không support line-clamp
+                                lineHeight: '1.25rem'
+                              }}
+                            >
+                              {account.description}
+                            </CardDescription>
                       </CardHeader>
 
-                      <CardContent className="pt-0 px-3 md:px-6 pb-3 md:pb-6">
-                        <div className="flex items-center justify-between mb-3 md:mb-4 flex-nowrap">
-                          <div className="flex items-center gap-1 md:gap-2 min-w-0">
-                            <Star className="h-3 w-3 md:h-4 md:w-4 text-yellow-500 fill-current" />
-                            <span className="text-xs md:text-sm font-medium whitespace-nowrap">
+                          <CardContent className={`pt-0 pb-3 md:pb-4 mt-auto ${
+                            viewMode === "list" ? "px-3 md:px-0" : "px-3 md:px-4"
+                          }`}>
+                            {/* Desktop: same row, Mobile: separate rows */}
+                            <div className="hidden md:flex items-center justify-between mb-4 md:mb-5">
+                              <div className="flex items-center gap-1 md:gap-2 bg-amber-50 px-2 py-1 rounded-lg">
+                                <Star className="h-3 w-3 md:h-4 md:w-4 text-amber-500 fill-current" />
+                                <span className="text-xs md:text-sm font-semibold text-amber-700">
                               {account.collectiveStrength}
                             </span>
                           </div>
-                          <div className="text-sm md:text-xl font-bold text-blue-600 whitespace-nowrap">
+                              <div className="text-base md:text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                                {formatPrice(account.price)}
+                              </div>
+                            </div>
+                            
+                            {/* Mobile: separate rows */}
+                            <div className="md:hidden space-y-2 mb-4">
+                              <div className="flex items-center gap-2">
+                                <Star className="h-3 w-3 text-amber-500 fill-current" />
+                                <span className="text-xs font-semibold text-amber-700">
+                                  {account.collectiveStrength}
+                                </span>
+                              </div>
+                              <div className="text-sm font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                             {formatPrice(account.price)}
                           </div>
                         </div>
 
                         <Button
-                          className="w-full mt-2 md:mt-4 group-hover:bg-blue-700 transition-colors text-xs md:text-sm py-2 md:py-3"
+                              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white border-0 shadow-md hover:shadow-lg transition-all duration-300 text-sm md:text-sm py-2.5 md:py-3 rounded-xl font-semibold"
                           disabled={account.status !== "available"}
                         >
-                          {account.status === "available"
-                            ? "Xem chi tiết"
-                            : "Không khả dụng"}
+                              <span className="hidden md:inline">
+                                {account.status === "available" ? "Xem chi tiết" : "Không khả dụng"}
+                              </span>
+                              <span className="md:hidden">
+                                {account.status === "available" ? "Xem chi tiết" : "Hết hàng"}
+                              </span>
                         </Button>
                       </CardContent>
+                        </div>
+                      </div>
                     </Card>
                   </Link>
                 ))}

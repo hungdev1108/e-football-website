@@ -2,8 +2,8 @@
  * Utility functions for handling image URLs from backend
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://14.225.211.212:5002/api';
-const BACKEND_BASE_URL = API_BASE_URL.replace('/api', '');
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.hieptranefootball.com/api';
+const BACKEND_BASE_URL = API_BASE_URL.replace(/\/api\/?$/, '');
 
 /**
  * Convert relative image URL from backend to absolute URL
@@ -15,7 +15,7 @@ export function getImageUrl(imageUrl: string): string {
     return getPlaceholderUrl();
   }
 
-  // If already absolute URL, return as is
+  // Nếu đã là URL đầy đủ thì giữ nguyên
   if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
     return imageUrl;
   }

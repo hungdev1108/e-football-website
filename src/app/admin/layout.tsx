@@ -92,7 +92,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       try {
         console.log('🔍 Verifying token with backend...');
         
-        const response = await fetch('http://14.225.211.212:5002/api/auth/admin-verify', {
+        const response = await fetch('https://api.hieptranefootball.com/api/auth/admin-verify', {
           headers: {
             'Authorization': `Bearer ${token}`
           }

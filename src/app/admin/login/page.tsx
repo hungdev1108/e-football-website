@@ -23,7 +23,7 @@ export default function AdminLogin() {
     setError('');
     
     try {
-      const response = await fetch('http://14.225.211.212:5002/api/auth/admin-login', {
+      const response = await fetch('https://api.hieptranefootball.com/api/auth/admin-login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

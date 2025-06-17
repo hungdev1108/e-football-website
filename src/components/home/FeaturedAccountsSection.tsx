@@ -12,7 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Star, ArrowRight, LoaderIcon } from "lucide-react";
+import { Star } from "lucide-react";
 import { useFeaturedAccounts } from "@/hooks/useAccounts";
 import { ApiGameAccount } from "@/types";
 import { getImageUrl, getPlaceholderUrl } from "@/utils/imageUtils";
@@ -89,12 +89,18 @@ export const FeaturedAccountsSection = memo(function FeaturedAccountsSection({
 
   return (
     <section
-      className={`py-20 px-4 lg:px-6 bg-gradient-to-br from-slate-100/50 to-blue-50/30 ${
+      className={`py-8 md:py-20 px-4 lg:px-6 bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 relative overflow-hidden ${
         className || ""
       }`}
     >
-      <div className="container mx-auto">
-        <div className="text-center mb-8">
+      {/* Background decorative elements */}
+      <div className="absolute inset-0 opacity-30">
+        <div className="absolute top-10 left-1/4 w-64 h-64 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-10 right-1/4 w-80 h-80 bg-indigo-200 rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-1000"></div>
+      </div>
+
+      <div className="container mx-auto relative z-10">
+        <div className="text-center mb-6 md:mb-8">
           <h3
             className="text-2xl md:text-4xl lg:text-5xl font-bold leading-tight py-2 bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent mb-2"
             style={{
@@ -110,26 +116,31 @@ export const FeaturedAccountsSection = memo(function FeaturedAccountsSection({
 
         {loadingAccounts ? (
           <div className="flex items-center justify-center h-64">
-            <LoaderIcon className="w-8 h-8 animate-spin" />
+            <div className="relative">
+              <div className="w-12 h-12 md:w-16 md:h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+            </div>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
             {featuredAccounts.map((account: ApiGameAccount) => (
               <AccountCard key={account._id} account={account} />
             ))}
           </div>
         )}
 
-        <div className="text-center mt-12">
+        <div className="text-center mt-8 md:mt-12">
           <Button
-            size="lg"
+            size="sm"
             variant="outline"
-            className="bg-white/80 backdrop-blur-sm hover:bg-white border-2 text-lg px-8 py-6"
+            className="bg-white/80 backdrop-blur-sm hover:bg-white border-2 text-sm md:text-lg px-4 py-2 md:px-8 md:py-6"
             asChild
           >
             <Link href="/accounts">
-              Xem tất cả tài khoản
-              <ArrowRight className="ml-2 w-5 h-5" />
+              <span className="hidden md:inline">Xem tất cả tài khoản</span>
+              <span className="md:hidden">Xem tất cả</span>
+              <svg className="ml-2 w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
             </Link>
           </Button>
         </div>
@@ -146,7 +157,7 @@ const AccountCard = memo(function AccountCard({
 }) {
   return (
     <Link href={`/accounts/${account._id}`}>
-      <Card className="group cursor-pointer overflow-hidden border-0 bg-white/80 backdrop-blur-sm card-hover-smooth perf-layer pt-0">
+      <Card className="group cursor-pointer overflow-hidden border-0 bg-white/95 backdrop-blur-sm shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 rounded-2xl p-0">
         <div className="relative overflow-hidden">
           <Image
             src={
@@ -155,56 +166,71 @@ const AccountCard = memo(function AccountCard({
             alt={account.images[0]?.alt || account.title}
             width={300}
             height={192}
-            className="w-full h-32 md:h-48 object-cover image-scale-smooth"
+            className="w-full h-32 md:h-48 object-cover transition-transform duration-300 group-hover:scale-110"
           />
-          <div className="absolute top-2 left-2 md:top-4 md:left-4">
-            <Badge variant="secondary" className="bg-white/90 text-slate-700 text-xs md:text-sm">
+          {/* Gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          
+          {/* Platform badge */}
+          <div className="absolute top-3 left-3 md:top-4 md:left-4">
+            <Badge variant="secondary" className="bg-white/95 backdrop-blur-sm text-slate-700 text-xs md:text-sm shadow-md border-0">
               <span className="md:hidden">{getPlatformIcon(account.accountDetails.platform)}</span>
               <span className="hidden md:inline">
-                {getPlatformIcon(account.accountDetails.platform)}{" "}
-                {getPlatformLabel(account.accountDetails.platform)}
+              {getPlatformIcon(account.accountDetails.platform)}{" "}
+              {getPlatformLabel(account.accountDetails.platform)}
               </span>
             </Badge>
           </div>
-          <div className="absolute top-2 right-2 md:top-4 md:right-4">
-            <Badge className="bg-blue-600 text-xs md:text-sm">{account.accountCode}</Badge>
+          
+          {/* Account code badge */}
+          <div className="absolute top-3 right-3 md:top-4 md:right-4">
+            <Badge className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs md:text-sm shadow-md border-0">
+              {account.accountCode}
+            </Badge>
           </div>
+          
+          {/* Sold overlay */}
           {account.status === "sold" && (
-            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-              <Badge variant="destructive" className="text-sm md:text-lg px-2 py-1 md:px-4 md:py-2">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center">
+              <Badge variant="destructive" className="text-sm md:text-lg px-3 py-2 md:px-6 md:py-3 bg-red-600 shadow-lg">
                 ĐÃ BÁN
               </Badge>
             </div>
           )}
         </div>
 
-        <CardHeader className="pb-2 px-3 md:px-6 pt-3 md:pt-6">
-          <CardTitle className="text-sm md:text-lg line-clamp-2 text-hover-smooth group-hover:text-blue-600">
+        <CardHeader className="pb-1 px-3 md:px-4 pt-3 md:pt-4">
+          <CardTitle className="text-sm md:text-lg line-clamp-2 text-slate-800 group-hover:text-blue-600 transition-colors duration-300 font-semibold">
             {account.title}
           </CardTitle>
-          <CardDescription className="line-clamp-2 text-xs md:text-sm hidden md:block">
+          <CardDescription className="line-clamp-2 text-xs md:text-sm text-slate-500 hidden md:block mt-1">
             {account.description}
           </CardDescription>
         </CardHeader>
 
-        <CardContent className="pt-0 px-3 md:px-6 pb-3 md:pb-6">
-          <div className="flex items-center justify-between mb-3 md:mb-4">
-            <div className="flex items-center gap-1 md:gap-2">
-              <Star className="h-3 w-3 md:h-4 md:w-4 text-yellow-500 fill-current" />
-              <span className="text-xs md:text-sm font-medium">
+        <CardContent className="pt-0 px-3 md:px-4 pb-3 md:pb-4">
+          <div className="flex items-center justify-between mb-4 md:mb-5">
+            <div className="flex items-center gap-1 md:gap-2 bg-amber-50 px-2 py-1 rounded-lg">
+              <Star className="h-3 w-3 md:h-4 md:w-4 text-amber-500 fill-current" />
+              <span className="text-xs md:text-sm font-semibold text-amber-700">
                 {account.collectiveStrength}
               </span>
             </div>
-            <div className="text-sm md:text-xl font-bold text-blue-600">
+            <div className="text-base md:text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
               {formatPrice(account.price)}
             </div>
           </div>
 
           <Button
-            className="w-full mt-2 md:mt-4 button-hover-smooth group-hover:bg-blue-700 text-xs md:text-sm py-2 md:py-3"
+            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white border-0 shadow-md hover:shadow-lg transition-all duration-300 text-sm md:text-sm py-2.5 md:py-3 rounded-xl font-semibold"
             disabled={account.status !== "available"}
           >
+            <span className="hidden md:inline">
             {account.status === "available" ? "Xem chi tiết" : "Không khả dụng"}
+            </span>
+            <span className="md:hidden">
+              {account.status === "available" ? "Xem chi tiết" : "Hết hàng"}
+            </span>
           </Button>
         </CardContent>
       </Card>

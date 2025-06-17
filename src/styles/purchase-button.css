@@ -27,7 +27,7 @@
 }
 
 .purchase-button {
-  animation: bounce-gentle 2s infinite, pulse-glow 2s infinite;
+  animation: bounce-gentle 1s infinite, pulse-glow 1s infinite;
   background: linear-gradient(135deg, #3b82f6, #8b5cf6);
   transition: all 0.3s ease;
 }

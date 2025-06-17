@@ -23,6 +23,14 @@ const nextConfig: NextConfig = {
         hostname: '14.225.211.212',
         port: '5002',
       },
+      {
+        protocol: 'https',
+        hostname: 'api.hieptranefootball.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '.hieptranefootball.com',
+      },
     ],
     formats: ['image/webp', 'image/avif'],
   },

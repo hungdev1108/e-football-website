@@ -5,9 +5,9 @@ import { AxiosError } from 'axios';
 const queryConfig: DefaultOptions = {
   queries: {
     // Time in milliseconds after data is considered stale
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 2 * 60 * 1000, // 5 minutes
     // Time in milliseconds that unused/inactive cache data remains in memory
-    gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
+    gcTime: 5 * 60 * 1000, // 10 minutes (formerly cacheTime)
     // Retry failed requests
     retry: (failureCount, error: Error | AxiosError) => {
       // Don't retry for 4xx errors except 429 (rate limit)

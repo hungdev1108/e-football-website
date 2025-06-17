@@ -9,7 +9,7 @@ export const APP_CONFIG = {
 
 // API Configuration
 export const API_CONFIG = {
-  baseUrl: process.env.NEXT_PUBLIC_API_URL || '/api',
+  baseUrl: process.env.NEXT_PUBLIC_API_URL || 'https://api.hieptranefootball.com/api',
   timeout: 10000,
   maxRetries: 3,
 } as const;

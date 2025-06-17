@@ -38,11 +38,11 @@ export const HeroSection = memo(function HeroSection({
 
   const bannerImages = [
     {
-      src: "/Banner_efootball.jpg",
+      src: "/Banner_efootball-new.jpg",
       alt: "eFootball Banner"
     },
     {
-      src: "/Banner_coin.jpg", 
+      src: "/Banner_coin-new.jpg", 
       alt: "Coin Banner"
     }
   ];
@@ -53,12 +53,12 @@ export const HeroSection = memo(function HeroSection({
         <Slider {...settings}>
           {bannerImages.map((banner, index) => (
             <div key={index} className="relative">
-              <div className="relative w-full h-[250px] sm:h-[350px] md:h-[500px] lg:h-[600px] xl:h-[700px] bg-gray-100">
+              <div className="relative w-full h-[250px] sm:h-[280px] md:min-h-screen">
                 <Image
                   src={banner.src}
                   alt={banner.alt}
                   fill
-                  className="w-full h-full object-contain md:object-cover"
+                  className="w-full h-full object-cover"
                   priority={index === 0}
                   sizes="100vw"
                 />

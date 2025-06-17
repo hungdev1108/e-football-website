@@ -14,7 +14,7 @@ class TokenInterceptor {
       return TokenInterceptor.instance;
     }
 
-    this.baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://14.225.211.212:5002/api';
+    this.baseURL = process.env.NEXT_PUBLIC_API_URL || 'https://api.hieptranefootball.com/api';
     this.isRefreshing = false;
     this.failedQueue = [];
     this.refreshPromise = null;

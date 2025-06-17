@@ -13,7 +13,7 @@ export const FeaturesSection = memo(function FeaturesSection({
 }: FeaturesSectionProps) {
   return (
     <section
-      className={`py-20 px-4 lg:px-6 bg-gradient-to-br from-slate-800 via-blue-800 to-indigo-800 relative overflow-hidden ${
+      className={`py-8 md:py-20 px-4 lg:px-6 bg-gradient-to-br from-slate-800 via-blue-800 to-indigo-800 relative overflow-hidden ${
         className || ""
       }`}
     >
@@ -24,22 +24,22 @@ export const FeaturesSection = memo(function FeaturesSection({
       </div>
 
       <div className="container mx-auto relative">
-        <div className="text-center mb-16">
-          <h3 className="text-4xl md:text-5xl font-bold text-white mb-6">
+        <div className="text-center mb-8 md:mb-16">
+          <h3 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white mb-3 md:mb-6">
             Tại sao chọn chúng tôi?
           </h3>
-          <p className="text-xl text-blue-100 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-sm md:text-xl text-blue-100 max-w-3xl mx-auto leading-relaxed px-4">
             Khám phá những ưu điểm vượt trội khi sử dụng dịch vụ của EFOOTBALL
             Store
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
           <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white">
-            <CardContent className="p-8 text-center">
-              <Shield className="w-16 h-16 mx-auto mb-6 text-green-400" />
-              <h4 className="text-2xl font-bold mb-4">Bảo mật tuyệt đối</h4>
-              <p className="text-blue-100 leading-relaxed">
+            <CardContent className="p-4 md:p-8 text-center">
+              <Shield className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-4 md:mb-6 text-green-400" />
+              <h4 className="text-lg md:text-2xl font-bold mb-2 md:mb-4">Bảo mật tuyệt đối</h4>
+              <p className="text-blue-100 leading-relaxed text-sm md:text-base">
                 Cam kết bảo mật thông tin khách hàng 100%. Tài khoản được kiểm
                 tra kỹ lưỡng trước khi giao dịch.
               </p>
@@ -47,10 +47,10 @@ export const FeaturesSection = memo(function FeaturesSection({
           </Card>
 
           <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white">
-            <CardContent className="p-8 text-center">
-              <Zap className="w-16 h-16 mx-auto mb-6 text-yellow-400" />
-              <h4 className="text-2xl font-bold mb-4">Giao dịch tức thì</h4>
-              <p className="text-blue-100 leading-relaxed">
+            <CardContent className="p-4 md:p-8 text-center">
+              <Zap className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-4 md:mb-6 text-yellow-400" />
+              <h4 className="text-lg md:text-2xl font-bold mb-2 md:mb-4">Giao dịch tức thì</h4>
+              <p className="text-blue-100 leading-relaxed text-sm md:text-base">
                 Nhận tài khoản ngay lập tức sau khi thanh toán thành công. Hỗ
                 trợ 24/7 mọi lúc mọi nơi.
               </p>
@@ -58,10 +58,10 @@ export const FeaturesSection = memo(function FeaturesSection({
           </Card>
 
           <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white">
-            <CardContent className="p-8 text-center">
-              <Users className="w-16 h-16 mx-auto mb-6 text-blue-400" />
-              <h4 className="text-2xl font-bold mb-4">Cộng đồng lớn</h4>
-              <p className="text-blue-100 leading-relaxed">
+            <CardContent className="p-4 md:p-8 text-center">
+              <Users className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-4 md:mb-6 text-blue-400" />
+              <h4 className="text-lg md:text-2xl font-bold mb-2 md:mb-4">Cộng đồng lớn</h4>
+              <p className="text-blue-100 leading-relaxed text-sm md:text-base">
                 Hơn 10,000 game thủ tin tưởng và sử dụng dịch vụ của chúng tôi
                 mỗi tháng.
               </p>

@@ -14,7 +14,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Menu, LogIn, UserPlus, Search, LoaderIcon } from "lucide-react";
-import { useLogo } from "@/hooks/useSystem";
+// import { useLogo } from "@/hooks/useSystem";
 
 // Types
 interface LogoInfo {
@@ -32,24 +32,24 @@ const navigationItems = [
 
 export const Header = memo(function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { data: logoData, isLoading: loadingLogo } = useLogo();
+  // const { data: logoData, isLoading: loadingLogo } = useLogo();
 
   // Memoize callback functions
   const closeMenu = useCallback(() => setIsMenuOpen(false), []);
 
-  const logoInfo = logoData?.data;
+  // const logoInfo = logoData?.data;
 
   const logofit = {
     url: "/efootball-logo.png",
     alt: "eFootball Logo",
-  };
+  };  
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
       <div className="container mx-auto px-4 lg:px-6">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <LogoSection logoInfo={logofit} loadingLogo={loadingLogo} />
+          <LogoSection logoInfo={logofit} loadingLogo={false} />
 
           {/* Desktop Navigation */}
           <DesktopNavigation />
@@ -76,21 +76,11 @@ export const Header = memo(function Header() {
             <MobileMenu
               isMenuOpen={isMenuOpen}
               setIsMenuOpen={setIsMenuOpen}
-              logoInfo={logoInfo}
+              logoInfo={logofit}
               closeMenu={closeMenu}
             />
           </div>
         </div>
-      </div>
-
-      {/* Mobile Search Bar */}
-      <div className="md:hidden border-t px-4 py-3">
-        <Button variant="outline" className="w-full justify-start" asChild>
-          <Link href="/accounts">
-            <Search className="h-4 w-4 mr-2" />
-            Tìm kiếm tài khoản...
-          </Link>
-        </Button>
       </div>
     </header>
   );
