@@ -211,10 +211,10 @@ export default function NewsPage() {
                           <span>{article.views}</span>
                         </div>
                       </div>
-                      <div className="text-sm text-gray-600 mt-2">
+                      {/* <div className="text-sm text-gray-600 mt-2">
                         Tác giả:{" "}
                         {article.author.fullName || article.author.username}
-                      </div>
+                      </div> */}
                     </CardContent>
                   </CardImage>
                 </Link>
@@ -347,13 +347,13 @@ export default function NewsPage() {
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between">
+                      {/* <div className="flex items-center justify-between">
                         <div className="text-sm text-gray-600">
                           Tác giả:{" "}
                           {article.author.fullName || article.author.username}
                         </div>
                         <ArrowRight className="w-4 h-4 text-blue-500 group-hover:translate-x-1 transition-transform" />
-                      </div>
+                      </div> */}
                     </CardContent>
                   </Card>
                 </Link>

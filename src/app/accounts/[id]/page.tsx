@@ -45,6 +45,10 @@ export default function AccountDetailPage() {
   const account = accountData?.data as ApiGameAccount;
 
   const formatPrice = (price: number) => {
+    if (price === -1) {
+      return "📞 Liên hệ";
+    }
+    
     const priceStr = price.toString();
     if (priceStr.length <= 3) {
       return `${price} đ`;
@@ -370,8 +374,12 @@ export default function AccountDetailPage() {
               <CardContent className="space-y-4 md:space-y-6 px-3 md:px-6">
                 {/* Price */}
                 <div className="text-center">
-                  <div className="text-2xl md:text-3xl font-bold text-blue-600 mb-2">
-                    {formatPrice(account.price)}
+                  <div className={`text-2xl md:text-3xl font-bold mb-2 ${
+                      account.price === -1 
+                        ? "text-green-600 animate-pulse" 
+                        : "text-blue-600"
+                    }`}>
+                      {formatPrice(account.price)}
                   </div>
                   <Badge variant="secondary" className="text-xs md:text-sm bg-green-100 text-green-800 font-semibold">
                     🏦 Hỗ trợ trả góp

@@ -2,6 +2,7 @@
 
 import { memo } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface FooterSectionProps {
   className?: string;
@@ -188,15 +189,80 @@ export const FooterSection = memo(function FooterSection({
 
             <div className="mt-8">
               <h6 className="font-bold mb-4">Phương thức thanh toán</h6>
-              <div className="flex space-x-3">
-                <div className="w-10 h-8 bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg flex items-center justify-center text-sm font-bold">
-                  💳
+              <div className="flex flex-wrap gap-3">
+                <div 
+                  className="w-12 h-8 bg-white rounded-lg flex items-center justify-center cursor-pointer transform transition-all duration-500 shadow-lg hover:shadow-pink-500/50 hover:shadow-2xl hover:scale-125 hover:rotate-12 p-1"
+                  style={{
+                    animation: 'bounce 2s infinite, pulse 1.5s infinite'
+                  }}
+                >
+                  <Image
+                    src="/momo.png"
+                    alt="Momo"
+                    width={40}
+                    height={32}
+                    className="w-full h-full object-contain"
+                  />
                 </div>
-                <div className="w-10 h-8 bg-gradient-to-r from-red-600 to-red-700 rounded-lg flex items-center justify-center text-sm font-bold">
-                  🏧
+                <div 
+                  className="w-12 h-8 bg-white rounded-lg flex items-center justify-center cursor-pointer transform transition-all duration-500 shadow-lg hover:shadow-green-500/50 hover:shadow-2xl hover:scale-125 hover:-rotate-12 p-1"
+                  style={{
+                    animation: 'pulse 2s infinite, bounce 1.8s infinite',
+                    animationDelay: '0.3s'
+                  }}
+                >
+                  <Image
+                    src="/mbbank.png"
+                    alt="Vietcombank"
+                    width={40}
+                    height={32}
+                    className="w-full h-full object-contain"
+                  />
                 </div>
-                <div className="w-10 h-8 bg-gradient-to-r from-green-600 to-green-700 rounded-lg flex items-center justify-center text-sm font-bold">
-                  💰
+                <div 
+                  className="w-12 h-8 bg-white rounded-lg flex items-center justify-center cursor-pointer transform transition-all duration-500 shadow-lg hover:shadow-blue-500/50 hover:shadow-2xl hover:scale-125 hover:rotate-6 p-1"
+                  style={{
+                    animation: 'bounce 2.2s infinite, pulse 1.8s infinite',
+                    animationDelay: '0.6s'
+                  }}
+                >
+                  <Image
+                    src="/vietcombank.png"
+                    alt="MB Bank"
+                    width={40}
+                    height={32}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <div 
+                  className="w-12 h-8 bg-white rounded-lg flex items-center justify-center cursor-pointer transform transition-all duration-500 shadow-lg hover:shadow-blue-600/50 hover:shadow-2xl hover:scale-125 hover:-rotate-6 p-1"
+                  style={{
+                    animation: 'pulse 2.4s infinite, bounce 2s infinite',
+                    animationDelay: '0.9s'
+                  }}
+                >
+                  <Image
+                    src="/paypal.png"
+                    alt="PayPal"
+                    width={40}
+                    height={32}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <div 
+                  className="w-12 h-8 bg-white rounded-lg flex items-center justify-center cursor-pointer transform transition-all duration-500 shadow-lg hover:shadow-indigo-500/50 hover:shadow-2xl hover:scale-125 hover:rotate-12 p-1"
+                  style={{
+                    animation: 'bounce 2.6s infinite, pulse 2.2s infinite',
+                    animationDelay: '1.2s'
+                  }}
+                >
+                  <Image
+                    src="/visa.png"
+                    alt="Visa"
+                    width={40}
+                    height={32}
+                    className="w-full h-full object-contain"
+                  />
                 </div>
               </div>
             </div>

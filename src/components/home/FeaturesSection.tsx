@@ -35,33 +35,39 @@ export const FeaturesSection = memo(function FeaturesSection({
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
-          <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white">
-            <CardContent className="p-4 md:p-8 text-center">
+          <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white h-64 md:h-80">
+            <CardContent className="p-4 md:p-8 text-center h-full flex flex-col justify-center">
               <Shield className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-4 md:mb-6 text-green-400" />
-              <h4 className="text-lg md:text-2xl font-bold mb-2 md:mb-4">Bảo mật tuyệt đối</h4>
-              <p className="text-blue-100 leading-relaxed text-sm md:text-base">
+              <h4 className="text-lg md:text-2xl font-bold mb-2 md:mb-4">
+                Bảo mật tuyệt đối
+              </h4>
+              <p className="text-blue-100 leading-relaxed text-sm md:text-base line-clamp-3">
                 Cam kết bảo mật thông tin khách hàng 100%. Tài khoản được kiểm
                 tra kỹ lưỡng trước khi giao dịch.
               </p>
             </CardContent>
           </Card>
 
-          <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white">
-            <CardContent className="p-4 md:p-8 text-center">
+          <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white h-64 md:h-80">
+            <CardContent className="p-4 md:p-8 text-center h-full flex flex-col justify-center">
               <Zap className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-4 md:mb-6 text-yellow-400" />
-              <h4 className="text-lg md:text-2xl font-bold mb-2 md:mb-4">Giao dịch tức thì</h4>
-              <p className="text-blue-100 leading-relaxed text-sm md:text-base">
+              <h4 className="text-lg md:text-2xl font-bold mb-2 md:mb-4">
+                Giao dịch tức thì
+              </h4>
+              <p className="text-blue-100 leading-relaxed text-sm md:text-base line-clamp-3">
                 Nhận tài khoản ngay lập tức sau khi thanh toán thành công. Hỗ
                 trợ 24/7 mọi lúc mọi nơi.
               </p>
             </CardContent>
           </Card>
 
-          <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white">
-            <CardContent className="p-4 md:p-8 text-center">
+          <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white h-64 md:h-80">
+            <CardContent className="p-4 md:p-8 text-center h-full flex flex-col justify-center">
               <Users className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-4 md:mb-6 text-blue-400" />
-              <h4 className="text-lg md:text-2xl font-bold mb-2 md:mb-4">Cộng đồng lớn</h4>
-              <p className="text-blue-100 leading-relaxed text-sm md:text-base">
+              <h4 className="text-lg md:text-2xl font-bold mb-2 md:mb-4">
+                Cộng đồng lớn
+              </h4>
+              <p className="text-blue-100 leading-relaxed text-sm md:text-base line-clamp-3">
                 Hơn 10,000 game thủ tin tưởng và sử dụng dịch vụ của chúng tôi
                 mỗi tháng.
               </p>

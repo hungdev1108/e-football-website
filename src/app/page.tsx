@@ -3,6 +3,7 @@
 import { lazy, Suspense } from "react";
 import { Header } from "@/components/layout/Header";
 import { HeroSection } from "@/components/home/HeroSection";
+import { ChatWidget } from "@/components/ui/ChatWidget";
 import { LoaderIcon } from "lucide-react";
 
 // Lazy load các components không cần thiết ngay lập tức
@@ -72,6 +73,9 @@ export default function HomePage() {
       <Suspense fallback={<SectionSkeleton />}>
         <FooterSection />
       </Suspense>
+
+      {/* Chat Widget - Fixed position */}
+      <ChatWidget />
     </div>
   );
 }

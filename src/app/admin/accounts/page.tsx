@@ -243,8 +243,8 @@ export default function AdminAccountsPage() {
         return;
       }
       
-      if (data.price <= 0) {
-        toast.error('Giá phải lớn hơn 0!');
+      if (data.price <= 0 && data.price !== -1) {
+        toast.error('Vui lòng chọn giá bán hợp lệ!');
         return;
       }
 
@@ -419,6 +419,10 @@ export default function AdminAccountsPage() {
   };
 
   const formatPrice = (price: number) => {
+    if (price === -1) {
+      return "📞 Liên hệ";
+    }
+
     const priceStr = price.toString();
     if (priceStr.length <= 3) {
       return `${price} đ`;
@@ -511,39 +515,34 @@ export default function AdminAccountsPage() {
                     <div>
                       <Label htmlFor="price">Giá bán (VND) *</Label>
                       <div className="space-y-2">
-                        <div className="flex gap-2">
-                          <Select onValueChange={(value) => setValue("price", Number(value))}>
-                            <SelectTrigger className="w-[180px]">
-                              <SelectValue placeholder="Chọn nhanh" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="200000">Xxx.xxx (200K)</SelectItem>
-                              <SelectItem value="300000">Xxx.xxx (300K)</SelectItem>
-                              <SelectItem value="500000">Xxx.xxx (500K)</SelectItem>
-                              <SelectItem value="800000">Xxx.xxx (800K)</SelectItem>
-                              <SelectItem value="1000000">Xxx.xxx (1M)</SelectItem>
-                              <SelectItem value="2000000">Xxx.xxx (2M)</SelectItem>
-                              <SelectItem value="3000000">Xxx.xxx (3M)</SelectItem>
-                              <SelectItem value="4000000">Xxx.xxx (4M)</SelectItem>
-                              <SelectItem value="5000000">Xxx.xxx (5M)</SelectItem>
-                              <SelectItem value="6000000">Xxx.xxx (6M)</SelectItem>
-                              <SelectItem value="7000000">Xxx.xxx (7M)</SelectItem>
-                              <SelectItem value="8000000">Xxx.xxx (8M)</SelectItem>
-                              <SelectItem value="9000000">Xxx.xxx (9M)</SelectItem>
-                              <SelectItem value="10000000">Xx.xxx.xxx (10M)</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <Input
-                            id="price"
-                            type="number"
-                            {...register("price", {
-                              required: "Giá bán là bắt buộc",
-                              min: { value: 0, message: "Giá phải lớn hơn 0" },
-                            })}
-                            placeholder="Hoặc nhập thủ công"
-                            className={`flex-1 ${errors.price ? "border-red-500" : ""}`}
-                          />
-                        </div>
+                      <Select onValueChange={(value) => {
+                          if (value === "contact") {
+                            setValue("price", -1);
+                          } else {
+                            setValue("price", Number(value));
+                          }
+                        }}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Chọn giá bán" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="contact">📞 Liên hệ</SelectItem>
+                            <SelectItem value="200000">Xxx.xxx (200K)</SelectItem>
+                            <SelectItem value="300000">Xxx.xxx (300K)</SelectItem>
+                            <SelectItem value="500000">Xxx.xxx (500K)</SelectItem>
+                            <SelectItem value="800000">Xxx.xxx (800K)</SelectItem>
+                            <SelectItem value="1000000">Xxx.xxx (1M)</SelectItem>
+                            <SelectItem value="2000000">Xxx.xxx (2M)</SelectItem>
+                            <SelectItem value="3000000">Xxx.xxx (3M)</SelectItem>
+                            <SelectItem value="4000000">Xxx.xxx (4M)</SelectItem>
+                            <SelectItem value="5000000">Xxx.xxx (5M)</SelectItem>
+                            <SelectItem value="6000000">Xxx.xxx (6M)</SelectItem>
+                            <SelectItem value="7000000">Xxx.xxx (7M)</SelectItem>
+                            <SelectItem value="8000000">Xxx.xxx (8M)</SelectItem>
+                            <SelectItem value="9000000">Xxx.xxx (9M)</SelectItem>
+                            <SelectItem value="10000000">Xx.xxx.xxx (10M)</SelectItem>
+                          </SelectContent>
+                        </Select>
                         {errors.price && (
                           <p className="text-red-500 text-sm mt-1">
                             {errors.price.message}
@@ -1105,39 +1104,37 @@ export default function AdminAccountsPage() {
                   <div>
                     <Label htmlFor="edit-price">Giá bán (VND) *</Label>
                     <div className="space-y-2">
-                      <div className="flex gap-2">
-                        <Select onValueChange={(value) => setValueEdit("price", Number(value))}>
-                          <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder="Chọn nhanh" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="200000">Xxx.xxx (200K)</SelectItem>
-                            <SelectItem value="300000">Xxx.xxx (300K)</SelectItem>
-                            <SelectItem value="500000">Xxx.xxx (500K)</SelectItem>
-                            <SelectItem value="800000">Xxx.xxx (800K)</SelectItem>
-                            <SelectItem value="1000000">Xxx.xxx (1M)</SelectItem>
-                            <SelectItem value="2000000">Xxx.xxx (2M)</SelectItem>
-                            <SelectItem value="3000000">Xxx.xxx (3M)</SelectItem>
-                            <SelectItem value="4000000">Xxx.xxx (4M)</SelectItem>
-                            <SelectItem value="5000000">Xxx.xxx (5M)</SelectItem>
-                            <SelectItem value="6000000">Xxx.xxx (6M)</SelectItem>
-                            <SelectItem value="7000000">Xxx.xxx (7M)</SelectItem>
-                            <SelectItem value="8000000">Xxx.xxx (8M)</SelectItem>
-                            <SelectItem value="9000000">Xxx.xxx (9M)</SelectItem>
-                            <SelectItem value="10000000">Xx.xxx.xxx (10M)</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <Input
-                          id="edit-price"
-                          type="number"
-                          {...registerEdit("price", {
-                            required: "Giá bán là bắt buộc",
-                            min: { value: 0, message: "Giá phải lớn hơn 0" },
-                          })}
-                          placeholder="Hoặc nhập thủ công"
-                          className={`flex-1 ${errorsEdit.price ? "border-red-500" : ""}`}
-                        />
-                      </div>
+                    <Select 
+                        value={watchEdit("price") === -1 ? "contact" : watchEdit("price")?.toString()}
+                        onValueChange={(value) => {
+                          if (value === "contact") {
+                            setValueEdit("price", -1);
+                          } else {
+                            setValueEdit("price", Number(value));
+                          }
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Chọn giá bán" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="contact">📞 Liên hệ</SelectItem>
+                          <SelectItem value="200000">Xxx.xxx (200K)</SelectItem>
+                          <SelectItem value="300000">Xxx.xxx (300K)</SelectItem>
+                          <SelectItem value="500000">Xxx.xxx (500K)</SelectItem>
+                          <SelectItem value="800000">Xxx.xxx (800K)</SelectItem>
+                          <SelectItem value="1000000">Xxx.xxx (1M)</SelectItem>
+                          <SelectItem value="2000000">Xxx.xxx (2M)</SelectItem>
+                          <SelectItem value="3000000">Xxx.xxx (3M)</SelectItem>
+                          <SelectItem value="4000000">Xxx.xxx (4M)</SelectItem>
+                          <SelectItem value="5000000">Xxx.xxx (5M)</SelectItem>
+                          <SelectItem value="6000000">Xxx.xxx (6M)</SelectItem>
+                          <SelectItem value="7000000">Xxx.xxx (7M)</SelectItem>
+                          <SelectItem value="8000000">Xxx.xxx (8M)</SelectItem>
+                          <SelectItem value="9000000">Xxx.xxx (9M)</SelectItem>
+                          <SelectItem value="10000000">Xx.xxx.xxx (10M)</SelectItem>
+                        </SelectContent>
+                      </Select>
                       {errorsEdit.price && (
                         <p className="text-red-500 text-sm mt-1">
                           {errorsEdit.price.message}
