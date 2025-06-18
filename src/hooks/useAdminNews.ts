@@ -22,6 +22,7 @@ interface NewsData {
     url: string;
     alt: string;
   };
+  // ✅ LOẠI BỎ: author?: string;
 }
 
 // Get all news for admin
@@ -48,9 +49,10 @@ export const useCreateNews = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (newsData: NewsData) => {
+    mutationFn: async (newsData: any) => {
+      console.log('🔍 Frontend sending data:', newsData);
       const response = await tokenInterceptor.post('/news', newsData);
-      return response;
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['adminNews'] });

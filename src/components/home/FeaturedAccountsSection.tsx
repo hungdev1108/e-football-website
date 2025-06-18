@@ -23,6 +23,10 @@ interface FeaturedAccountsSectionProps {
 
 // Memoized helper functions outside component
 const formatPrice = (price: number): string => {
+  if (price === -1) {
+    return "📞 Liên hệ";
+  }
+  
   const priceStr = price.toString();
   if (priceStr.length <= 3) {
     return `${price} đ`;
@@ -80,7 +84,7 @@ export const FeaturedAccountsSection = memo(function FeaturedAccountsSection({
   className,
 }: FeaturedAccountsSectionProps) {
   const { data: featuredAccountsData, isLoading: loadingAccounts } =
-    useFeaturedAccounts(6);
+    useFeaturedAccounts(8);
 
   // Memoize the accounts array
   const featuredAccounts = useMemo(() => {
@@ -216,7 +220,11 @@ const AccountCard = memo(function AccountCard({
                 {account.collectiveStrength}
               </span>
             </div>
-            <div className="text-base md:text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            <div className={`text-base md:text-xl font-bold ${
+              account.price === -1 
+                ? "bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent animate-pulse" 
+                : "bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
+            }`}>
               {formatPrice(account.price)}
             </div>
           </div>

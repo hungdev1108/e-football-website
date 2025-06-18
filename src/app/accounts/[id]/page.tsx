@@ -45,25 +45,29 @@ export default function AccountDetailPage() {
   const account = accountData?.data as ApiGameAccount;
 
   const formatPrice = (price: number) => {
-    const priceStr = price.toString();
-    if (priceStr.length <= 3) {
-      return `${price} đ`;
+  if (price === -1) {
+    return "📞 Liên hệ";
+  }
+  
+  const priceStr = price.toString();
+  if (priceStr.length <= 3) {
+    return `${price} đ`;
+  }
+  
+  const firstDigit = priceStr[0];
+  const remainingStr = priceStr.slice(1);
+  
+  // Tạo pattern từ phải sang trái theo chuẩn định dạng tiền tệ
+  let pattern = '';
+  for (let i = 0; i < remainingStr.length; i++) {
+    if (i > 0 && (remainingStr.length - i) % 3 === 0) {
+      pattern += '.';
     }
-    
-    const firstDigit = priceStr[0];
-    const remainingStr = priceStr.slice(1);
-    
-    // Tạo pattern từ phải sang trái theo chuẩn định dạng tiền tệ
-    let pattern = '';
-    for (let i = 0; i < remainingStr.length; i++) {
-      if (i > 0 && (remainingStr.length - i) % 3 === 0) {
-        pattern += '.';
-      }
-      pattern += 'x';
-    }
-    
-    return `${firstDigit}${pattern} đ`;
-  };
+    pattern += 'x';
+  }
+  
+  return `${firstDigit}${pattern} đ`;
+};
 
   const formatDate = (dateString: string) => {
     if (!dateString) return "Không xác định";
@@ -370,7 +374,11 @@ export default function AccountDetailPage() {
               <CardContent className="space-y-4 md:space-y-6 px-3 md:px-6">
                 {/* Price */}
                 <div className="text-center">
-                  <div className="text-2xl md:text-3xl font-bold text-blue-600 mb-2">
+                  <div className={`text-2xl md:text-3xl font-bold mb-2 ${
+                    account.price === -1 
+                      ? "text-green-600 animate-pulse" 
+                      : "text-blue-600"
+                  }`}>
                     {formatPrice(account.price)}
                   </div>
                   <Badge variant="secondary" className="text-xs md:text-sm bg-green-100 text-green-800 font-semibold">

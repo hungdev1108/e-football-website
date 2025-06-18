@@ -81,6 +81,10 @@ export default function AccountsPage() {
   console.log('📄 pagination:', pagination);
 
   const formatPrice = (price: number) => {
+    if (price === -1) {
+      return "📞 Liên hệ";
+    }
+    
     const priceStr = price.toString();
     
     // Định dạng số với dấu chấm phân cách mỗi 3 chữ số từ phải sang trái
@@ -574,7 +578,11 @@ export default function AccountsPage() {
                               {account.collectiveStrength}
                             </span>
                           </div>
-                              <div className="text-base md:text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                              <div className={`text-base md:text-xl font-bold ${
+                                account.price === -1 
+                                  ? "bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent animate-pulse" 
+                                  : "bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
+                              }`}>
                                 {formatPrice(account.price)}
                               </div>
                             </div>
@@ -587,7 +595,11 @@ export default function AccountsPage() {
                                   {account.collectiveStrength}
                                 </span>
                               </div>
-                              <div className="text-sm font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                              <div className={`text-sm font-bold ${
+                                account.price === -1 
+                                  ? "bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent animate-pulse" 
+                                  : "bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
+                              }`}>
                             {formatPrice(account.price)}
                           </div>
                         </div>

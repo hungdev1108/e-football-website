@@ -365,4 +365,23 @@ export interface AdminStats {
   topSellingAccounts: GameAccount[];
   userGrowth: Array<{ date: string; count: number }>;
   revenueGrowth: Array<{ date: string; amount: number }>;
-} 
+}
+
+
+export interface News {
+  _id: string;
+  title: string;
+  content: string;
+  excerpt?: string;
+  status: 'published' | 'draft' | 'archived';
+  featured: boolean;
+  featuredImage?: {
+    url: string;
+    alt: string;
+  };
+  tags: string[];
+  publishedAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+  // ✅ LOẠI BỎ: author: User;
+}
