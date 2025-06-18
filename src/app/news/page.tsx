@@ -26,7 +26,6 @@ import {
   Calendar,
   Eye,
   Clock,
-  ArrowRight,
   LoaderIcon,
   Newspaper,
 } from "lucide-react";

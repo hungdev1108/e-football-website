@@ -18,6 +18,7 @@ interface NewsData {
   tags?: string[];
   status: 'published' | 'draft' | 'archived';
   featured?: boolean;
+  isFeatured?: boolean;
   featuredImage?: {
     url: string;
     alt: string;
@@ -48,7 +49,7 @@ export const useCreateNews = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (newsData: any) => {
+    mutationFn: async (newsData: NewsData) => {
       console.log('🔍 Frontend sending data:', newsData);
       const response = await tokenInterceptor.post('/news', newsData);
       return response.data;
