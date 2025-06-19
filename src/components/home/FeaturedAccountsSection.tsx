@@ -93,7 +93,7 @@ export const FeaturedAccountsSection = memo(function FeaturedAccountsSection({
 
   return (
     <section
-      className={`py-8 md:py-20 px-4 lg:px-6 bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 relative overflow-hidden ${
+      className={`container mx-auto py-2 md:py-10 px-4 lg:px-6 bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 relative overflow-hidden ${
         className || ""
       }`}
     >
@@ -171,7 +171,7 @@ const AccountCard = memo(function AccountCard({
 }) {
   return (
     <Link href={`/accounts/${account._id}`}>
-      <Card className="group cursor-pointer overflow-hidden border-0 bg-white/95 backdrop-blur-sm shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 rounded-2xl p-0 h-[280px] md:h-[350px] flex flex-col">
+      <Card className="group cursor-pointer overflow-hidden border-0 bg-white/95 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-1 rounded-2xl h-[320px] md:h-[380px] flex flex-col p-0">
         <div className="relative overflow-hidden">
           <Image
             src={
@@ -180,7 +180,7 @@ const AccountCard = memo(function AccountCard({
             alt={account.images[0]?.alt || account.title}
             width={300}
             height={192}
-            className="w-full h-32 md:h-48 object-cover transition-transform duration-300 group-hover:scale-110"
+            className="w-full h-40 md:h-56 object-cover transition-transform duration-200 group-hover:scale-105"
           />
           {/* Gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -221,11 +221,11 @@ const AccountCard = memo(function AccountCard({
           )}
         </div>
 
-        <CardHeader className="pb-1 px-3 md:px-4 pt-3 md:pt-4">
-          <CardTitle className="text-sm md:text-lg line-clamp-2 md:line-clamp-1 text-slate-800 group-hover:text-blue-600 transition-colors duration-300 font-semibold">
+        <CardHeader className="pb-1 px-3 md:px-4 pt-2 md:pt-3">
+          <CardTitle className="text-sm md:text-lg line-clamp-1 text-slate-800 group-hover:text-blue-600 transition-colors duration-200 font-semibold h-4 md:h-7">
             {account.title}
           </CardTitle>
-          <CardDescription className="line-clamp-2 text-xs md:text-sm text-slate-500 mt-1 overflow-hidden text-ellipsis">
+          <CardDescription className="line-clamp-2 text-xs md:text-sm text-slate-500 mt-1 overflow-hidden text-ellipsis h-8 md:h-10 leading-4 md:leading-5">
             {account.description}
           </CardDescription>
         </CardHeader>
@@ -248,7 +248,7 @@ const AccountCard = memo(function AccountCard({
           </div>
 
           <Button
-            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white border-0 shadow-md hover:shadow-lg transition-all duration-300 text-xs md:text-sm py-1.5 md:py-3 px-2 md:px-4 rounded-lg md:rounded-xl font-semibold mt-auto cursor-pointer"
+            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white border-0 shadow-md hover:shadow-lg transition-all duration-200 text-xs md:text-sm py-1.5 md:py-3 px-2 md:px-4 rounded-lg md:rounded-xl font-semibold mt-auto cursor-pointer"
             disabled={account.status !== "available"}
           >
             <span className="hidden md:inline">

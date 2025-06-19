@@ -23,7 +23,7 @@ export const FeaturesSection = memo(function FeaturesSection({
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl animate-pulse delay-1000"></div>
       </div>
 
-      <div className="container mx-auto relative">
+      <div className="container mx-auto px-4 lg:px-6 relative">
         <div className="text-center mb-8 md:mb-16">
           <h3 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white mb-3 md:mb-6">
             Tại sao chọn chúng tôi?

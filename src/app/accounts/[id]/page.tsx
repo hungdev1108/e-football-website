@@ -188,7 +188,7 @@ export default function AccountDetailPage() {
           <div className="lg:col-span-2">
             <CardImage className="mb-4 md:mb-6">
               <CardContent className="p-0">
-                <div className="relative overflow-hidden group">
+                <div className="relative overflow-hidden">
                   <Image
                     src={
                       account.images[selectedImageIndex]?.url
@@ -200,7 +200,7 @@ export default function AccountDetailPage() {
                     }
                     width={600}
                     height={384}
-                    className="w-full h-64 md:h-96 object-cover rounded-t-lg image-scale-smooth"
+                    className="w-full h-80 md:h-[480px] object-cover rounded-t-lg"
                     priority
                   />
 
@@ -246,7 +246,7 @@ export default function AccountDetailPage() {
                         <button
                           key={index}
                           onClick={() => setSelectedImageIndex(index)}
-                          className={`group flex-shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-lg overflow-hidden border-2 transition-colors ${
+                          className={`flex-shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-lg overflow-hidden border-2 transition-colors duration-200 hover:border-blue-400 ${
                             selectedImageIndex === index
                               ? "border-blue-500"
                               : "border-gray-200"
@@ -257,7 +257,7 @@ export default function AccountDetailPage() {
                             alt={image.alt}
                             width={80}
                             height={80}
-                            className="w-full h-full object-cover image-scale-smooth"
+                            className="w-full h-full object-cover"
                           />
                         </button>
                       ))}

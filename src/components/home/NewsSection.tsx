@@ -30,7 +30,7 @@ export const NewsSection = memo(function NewsSection({
   }, [featuredNewsData?.data]);
 
   return (
-    <section className={`py-8 md:py-20 px-4 lg:px-6 ${className || ""}`}>
+    <section className={`container mx-auto py-8 md:py-20 px-4 lg:px-6 ${className || ""}`}>
       <div className="container mx-auto">
         <div className="text-center mb-6 md:mb-8">
           <h3 className="text-2xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent mb-2">

@@ -321,7 +321,7 @@ export default function AccountsPage() {
     <div className="min-h-screen bg-gray-50">
       <Header />
 
-      <div className="container mx-auto px-4 py-4 md:py-8">
+      <div className="container mx-auto px-4 py-4 md:py-8 lg:px-6">
         <div className="flex flex-col lg:flex-row gap-4 md:gap-8">
           {/* Desktop Sidebar Filters */}
           <div className="hidden lg:block lg:w-1/4">
@@ -475,7 +475,7 @@ export default function AccountsPage() {
                 {accounts.map((account: ApiGameAccount) => (
                   <Link key={account._id} href={`/accounts/${account._id}`}>
                     <Card
-                      className={`group cursor-pointer overflow-hidden border-0 bg-white/95 backdrop-blur-sm shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 rounded-2xl flex flex-col p-0 ${
+                      className={`group cursor-pointer overflow-hidden border-0 bg-white/95 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-1 rounded-2xl flex flex-col p-0 ${
                         viewMode === "grid" ? "h-full" : "h-auto"
                       } ${viewMode === "list" ? "mb-2" : ""}`}
                     >
@@ -499,10 +499,10 @@ export default function AccountsPage() {
                             alt={account.images[0]?.alt || account.title}
                             width={300}
                             height={192}
-                            className={`object-cover transition-transform duration-300 group-hover:scale-110 ${
+                            className={`object-cover transition-transform duration-200 group-hover:scale-105 ${
                               viewMode === "list"
-                                ? "w-full h-32 md:h-40"
-                                : "w-full h-32 md:h-48"
+                                ? "w-full h-40 md:h-48"
+                                : "w-full h-40 md:h-56"
                             }`}
                           />
                           {/* Gradient overlay */}
@@ -569,30 +569,23 @@ export default function AccountsPage() {
                           }`}
                         >
                           <CardHeader
-                            className={`pb-1 pt-3 md:pt-4 ${
+                            className={`pb-1 pt-2 md:pt-3 ${
                               viewMode === "list"
                                 ? "px-3 md:px-0 md:pb-2"
                                 : "px-3 md:px-4"
                             }`}
                           >
-                            <CardTitle className="text-sm md:text-lg line-clamp-2 text-slate-800 group-hover:text-blue-600 transition-colors duration-300 font-semibold">
+                            <CardTitle className={`text-sm md:text-lg line-clamp-1 text-slate-800 group-hover:text-blue-600 transition-colors duration-200 font-semibold ${
+                              viewMode === "grid" ? "h-4 md:h-7" : ""
+                            }`}>
                               {account.title}
                             </CardTitle>
                             <CardDescription
-                              className={`text-xs md:text-sm text-slate-500 mt-1 leading-relaxed ${
+                              className={`text-xs md:text-sm text-slate-500 mt-1 leading-4 md:leading-5 ${
                                 viewMode === "list"
-                                  ? "block"
-                                  : "hidden md:block"
-                              }`}
-                              style={{
-                                display: "-webkit-box",
-                                WebkitLineClamp: 2,
-                                WebkitBoxOrient: "vertical",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                maxHeight: "2.5rem", // Fallback cho browsers không support line-clamp
-                                lineHeight: "1.25rem",
-                              }}
+                                  ? "line-clamp-2"
+                                  : "hidden md:block line-clamp-2 h-8 md:h-10"
+                              } overflow-hidden text-ellipsis`}
                             >
                               {account.description}
                             </CardDescription>
@@ -640,7 +633,7 @@ export default function AccountsPage() {
                             </div>
 
                             <Button
-                              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white border-0 shadow-md hover:shadow-lg transition-all duration-300 text-sm md:text-sm py-2.5 md:py-3 rounded-xl font-semibold"
+                              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white border-0 shadow-md hover:shadow-lg transition-all duration-200 text-sm md:text-sm py-2.5 md:py-3 rounded-xl font-semibold"
                               disabled={account.status !== "available"}
                             >
                               <span className="hidden md:inline">

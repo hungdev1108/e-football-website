@@ -15,7 +15,7 @@ export const CategoriesSection = memo(function CategoriesSection({
   //   useCategories();
 
   return (
-    <section className={`py-8 md:py-20 px-4 lg:px-6 ${className || ""}`}>
+    <section className={`container mx-auto py-8 md:py-20 px-4 lg:px-6 ${className || ""}`}>
       <div className="container mx-auto">
         <div className="text-center mb-6 md:mb-8">
           <h3

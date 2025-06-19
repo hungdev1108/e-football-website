@@ -30,7 +30,7 @@ export const HeroSection = memo(function HeroSection({
         breakpoint: 768,
         settings: {
           arrows: false,
-          dots: false,
+          dots: true,  // ← Thay đổi từ false thành true
         }
       }
     ]
@@ -38,40 +38,44 @@ export const HeroSection = memo(function HeroSection({
 
   const bannerImages = [
     {
-      src: "/Banner_efootball-new.jpg",
+      src: "/Banner_1.png",
       alt: "eFootball Banner"
     },
     {
-      src: "/Banner_coin-new.jpg", 
+      src: "/Banner_2.png", 
       alt: "Coin Banner"
     }
   ];
 
   return (
-    <section className={`relative w-full ${className || ""}`}>
-      <div className="hero-slider">
-        <Slider {...settings}>
-          {bannerImages.map((banner, index) => (
-            <div key={index} className="relative">
-              <div className="relative w-full h-[250px] sm:h-[280px] md:min-h-screen">
-                <Image
-                  src={banner.src}
-                  alt={banner.alt}
-                  fill
-                  className="w-full h-full object-cover"
-                  priority={index === 0}
-                  sizes="100vw"
-                />
-              </div>
-            </div>
-          ))}
-        </Slider>
+    <section className={`relative w-full py-4 md:pt-8 ${className || ""}`}>
+      <div className="container mx-auto px-4 lg:px-6">
+        <div className="hero-slider relative pb-2 md:pb-2">
+          <div className="rounded-xl md:rounded-2xl">
+            <Slider {...settings}>
+              {bannerImages.map((banner, index) => (
+                <div key={index} className="relative">
+                  <div className="relative w-full h-[200px] sm:h-[250px] md:h-[350px] lg:h-[400px] xl:h-[460px]">
+                    <Image
+                      src={banner.src}
+                      alt={banner.alt}
+                      fill
+                      className="w-full h-full object-cover rounded-xl"
+                      priority={index === 0}
+                      sizes="(max-width: 640px) 100vw, (max-width: 768px) 100vw, (max-width: 1024px) 100vw, 100vw"
+                    />
+                  </div>
+                </div>
+              ))}
+            </Slider>
+          </div>
+        </div>
       </div>
 
       <style jsx global>{`
         .hero-slider {
           width: 100%;
-          overflow: hidden;
+          position: relative;
         }
         
         .hero-slider .slick-slide {
@@ -83,90 +87,106 @@ export const HeroSection = memo(function HeroSection({
         }
         
         .hero-slider .slick-dots {
-          bottom: 15px;
+          bottom: -25px;
+          position: absolute;
           z-index: 10;
+          display: flex !important;
+          justify-content: center;
+          width: 100%;
+          left: 50%;
+          transform: translateX(-50%);
+          gap: 8px;
+        }
+        
+        .hero-slider .slick-dots li {
+          margin: 0;
+          width: auto;
+          height: auto;
+        }
+        
+        .hero-slider .slick-dots li button {
+          width: 40px;
+          height: 4px;
+          padding: 0;
+          border: none;
+          border-radius: 2px;
+          background: #e2e8f0;
+          transition: all 0.3s ease;
+          cursor: pointer;
         }
         
         .hero-slider .slick-dots li button:before {
-          font-size: 10px;
-          color: white;
-          opacity: 0.7;
+          display: none;
         }
         
-        .hero-slider .slick-dots li.slick-active button:before {
-          opacity: 1;
-          color: #fbbf24;
+        .hero-slider .slick-dots li.slick-active button {
+          background: #1e293b;
+          width: 40px;
+          height: 4px;
         }
         
-        .hero-slider .slick-prev,
-        .hero-slider .slick-next {
-          z-index: 10;
-          width: 30px;
-          height: 30px;
+        .hero-slider .slick-dots li button:hover {
+          background: #64748b;
         }
         
-        .hero-slider .slick-prev {
-          left: 10px;
+        .hero-slider .slick-dots li.slick-active button:hover {
+          background: #0f172a;
         }
         
-        .hero-slider .slick-next {
-          right: 10px;
+        
+        /* Mobile optimizations */
+        @media (max-width: 640px) {
+          .hero-slider .slick-dots {
+            bottom: -20px;
+            gap: 6px;
+          }
+          
+          .hero-slider .slick-dots li button {
+            width: 30px;
+            height: 3px;
+          }
+          
+          .hero-slider .slick-dots li.slick-active button {
+            width: 30px;
+            height: 3px;
+          }
+          
         }
         
-        .hero-slider .slick-prev:before,
-        .hero-slider .slick-next:before {
-          font-size: 18px;
-          color: white;
-          opacity: 0.8;
-        }
-        
-        .hero-slider .slick-prev:hover:before,
-        .hero-slider .slick-next:hover:before {
-          opacity: 1;
-          color: #fbbf24;
-        }
-        
+        /* Tablet và Desktop */
         @media (min-width: 768px) {
           .hero-slider .slick-dots {
-            bottom: 20px;
+            bottom: -35px;
+            gap: 10px;
           }
           
-          .hero-slider .slick-dots li button:before {
-            font-size: 12px;
+          .hero-slider .slick-dots li button {
+            width: 45px;
+            height: 4px;
           }
           
-          .hero-slider .slick-prev,
-          .hero-slider .slick-next {
-            width: 40px;
-            height: 40px;
-          }
-          
-          .hero-slider .slick-prev {
-            left: 20px;
-          }
-          
-          .hero-slider .slick-next {
-            right: 20px;
-          }
-          
-          .hero-slider .slick-prev:before,
-          .hero-slider .slick-next:before {
-            font-size: 24px;
+          .hero-slider .slick-dots li.slick-active button {
+            width: 45px;
+            height: 4px;
           }
         }
         
-        @media (max-width: 480px) {
+        @media (min-width: 1024px) {
           .hero-slider .slick-dots {
-            bottom: 10px;
+            bottom: -20px;
+            gap: 12px;
           }
           
-          .hero-slider .slick-dots li {
-            margin: 0 2px;
+          .hero-slider .slick-dots li button {
+            width: 50px;
+            height: 4px;
           }
           
-          .hero-slider .slick-dots li button:before {
-            font-size: 8px;
+          .hero-slider .slick-dots li.slick-active button {
+            width: 50px;
+            height: 4px;
           }
+
         }
       `}</style>
     </section>

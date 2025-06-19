@@ -133,7 +133,7 @@ export default function NewsPage() {
     <div className="min-h-screen bg-gray-50">
       <Header />
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 lg:px-6 py-8">
         {/* Header Section */}
         <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-3 mb-4">
@@ -301,7 +301,7 @@ export default function NewsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {news.map((article: ApiNews) => (
                 <Link key={article._id} href={`/news/${article._id}`}>
-                  <Card className="hover:shadow-lg transition-all cursor-pointer group h-full">
+                  <Card className="hover:shadow-lg transition-all cursor-pointer group h-full rounded-2xl p-0">
                     <div className="relative overflow-hidden">
                       <Image
                         src={
@@ -312,7 +312,7 @@ export default function NewsPage() {
                         alt={article.featuredImage.alt}
                         width={400}
                         height={192}
-                        className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="rounded-tl-2xl rounded-tr-2xl w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                       {article.featured && (
                         <Badge className="absolute top-4 right-4 bg-yellow-500">
