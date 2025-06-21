@@ -6,7 +6,6 @@ import { Dialog, DialogPortal, DialogOverlay } from "@/components/ui/dialog";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
   Phone,
   MessageCircle,
@@ -15,10 +14,6 @@ import {
   CheckCircle,
   QrCode,
   Heart,
-  Star,
-  Shield,
-  Clock,
-  Award,
   Sparkles,
   X,
   ChevronRight,
@@ -381,7 +376,7 @@ PurchaseModalProps) {
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  {/* <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                     <Badge className="bg-gradient-to-r from-green-500 via-emerald-600 to-teal-600 text-white px-4 py-3 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 text-sm font-semibold justify-center hover:scale-105 transform">
                       <Shield className="h-4 w-4 mr-2" />
                       Uy tín #1
@@ -398,7 +393,7 @@ PurchaseModalProps) {
                       <Star className="h-4 w-4 mr-2" />
                       5⭐ Rating
                     </Badge>
-                  </div>
+                  </div> */}
 
                   {/* Stats */}
                   <div className="grid grid-cols-3 gap-4 mt-6 text-center">
