@@ -130,7 +130,7 @@ PurchaseModalProps) {
                 variant="ghost"
                 size="sm"
                 onClick={onClose}
-                className="absolute top-6 right-6 text-white hover:bg-white/20 h-10 w-10 p-0 rounded-full transition-all duration-300 backdrop-blur-sm z-100"
+                className="absolute top-3 right-3 text-white hover:bg-white/20 h-10 w-10 p-0 rounded-full transition-all duration-300 backdrop-blur-sm z-100"
               >
                 <X className="h-5 w-5" />
               </Button>
@@ -144,7 +144,7 @@ PurchaseModalProps) {
                     Thanh toán & Liên hệ
                   </h2>
                   <p className="text-sm text-white/90">
-                    Quét mã QR hoặc liên hệ trực tiếp để mua tài khoản premium
+                    Quét mã QR hoặc liên hệ trực tiếp để mua tài khoản chất lượng nhé!
                   </p>
                 </div>
               </div>
@@ -396,17 +396,17 @@ PurchaseModalProps) {
                   </div> */}
 
                   {/* Stats */}
-                  <div className="grid grid-cols-3 gap-4 mt-6 text-center">
-                    <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-lg">
-                      <p className="text-2xl font-bold text-gray-800">10K+</p>
+                  <div className="grid grid-cols-3 gap-2 sm:gap-4 mt-6 text-center">
+                    <div className="bg-white/80 backdrop-blur-sm rounded-xl p-2 sm:p-4 shadow-lg">
+                      <p className="text-lg sm:text-2xl font-bold text-gray-800">10K+</p>
                       <p className="text-xs text-gray-600">Khách hàng</p>
                     </div>
-                    <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-lg">
-                      <p className="text-2xl font-bold text-gray-800">99.9%</p>
+                    <div className="bg-white/80 backdrop-blur-sm rounded-xl p-2 sm:p-4 shadow-lg">
+                      <p className="text-lg sm:text-2xl font-bold text-gray-800">99.9%</p>
                       <p className="text-xs text-gray-600">Hài lòng</p>
                     </div>
-                    <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-lg">
-                      <p className="text-2xl font-bold text-gray-800">24/7</p>
+                    <div className="bg-white/80 backdrop-blur-sm rounded-xl p-2 sm:p-4 shadow-lg">
+                      <p className="text-lg sm:text-2xl font-bold text-gray-800">24/7</p>
                       <p className="text-xs text-gray-600">Hỗ trợ</p>
                     </div>
                   </div>

@@ -445,7 +445,7 @@ export default function AccountDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 overflow-x-hidden">
       {/* Sticky Header */}
       <div
         className={`sticky top-0 z-40 transition-all duration-300 ${
@@ -501,7 +501,7 @@ export default function AccountDetailPage() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-6 space-y-6">
+      <div className="container mx-auto px-4 py-6 space-y-6 overflow-x-hidden">
         {/* Hero Section with Image Carousel */}
         <div className="space-y-4">
           <ImageCarousel images={account.images || []} title={account.title} />
@@ -581,37 +581,41 @@ export default function AccountDetailPage() {
                 </div>
 
                 <div className="lg:hidden order-1">
-            <CardDetail className="">
-              <CardContentDetail className="">
+            <CardDetail className="overflow-x-hidden">
+              <CardContentDetail className="overflow-x-hidden">
                 <div className="text-center space-y-4">
                   {/* Enhanced Action Buttons - Mobile */}
                   <div className="space-y-3 pt-2">
                     <div className="relative">
-                      {account.status === "available" && (
-                        <div className="absolute inset-0 bg-gradient-to-r from-red-500 via-pink-500 to-orange-500 rounded-2xl blur-lg opacity-75 animate-pulse"></div>
-                      )}
                       <Button
-                        className={`relative w-full h-14 text-xl font-black rounded-2xl shadow-2xl transform transition-all duration-500 border-2 ${
+                        className={`relative w-full h-14 text-xl font-black rounded-2xl shadow-2xl transform transition-all duration-500 border-2 overflow-hidden ${
                           account.status === "available"
-                            ? "bg-gradient-to-r from-red-500 via-pink-500 to-orange-500 hover:from-red-600 hover:via-pink-600 hover:to-orange-600 text-white border-red-300 hover:scale-110 hover:shadow-3xl hover:shadow-red-500/50 animate-pulse"
+                            ? "bg-gradient-to-r from-red-500 via-pink-500 to-orange-500 hover:from-red-600 hover:via-pink-600 hover:to-orange-600 text-white border-red-300 hover:scale-105 hover:shadow-3xl hover:shadow-red-500/50"
                             : "bg-gray-400 cursor-not-allowed text-white border-gray-300"
                         }`}
                         onClick={handlePurchase}
                         disabled={account.status !== "available"}
                       >
-                        <div className="flex items-center justify-center space-x-3">
-                          <div className="relative">
-                            <ShoppingCart className="h-6 w-6 animate-bounce" />
+                        {/* Background Glow Effect */}
+                        {account.status === "available" && (
+                          <div className="absolute -inset-1 bg-gradient-to-r from-red-500/30 via-pink-500/30 to-orange-500/30 rounded-2xl blur-md animate-pulse -z-10"></div>
+                        )}
+                        
+                        <div className="relative z-10 flex items-center justify-center space-x-3">
+                          <div className="relative overflow-hidden">
+                            <ShoppingCart className="h-5 w-5 animate-bounce" />
                             {account.status === "available" && (
-                              <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-ping"></div>
+                              <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-yellow-400 rounded-full animate-ping"></div>
                             )}
                           </div>
-                          <span className="bg-gradient-to-r from-yellow-200 to-white bg-clip-text text-transparent">
+                          <span className="bg-gradient-to-r from-yellow-200 to-white bg-clip-text text-transparent font-black">
                             {account.status === "available"
                               ? "🔥 MUA NGAY - GIẢM SỐC! 🔥"
                               : "❌ Không khả dụng"}
                           </span>
                         </div>
+                        
+                        {/* Shine Effect */}
                         {account.status === "available" && (
                           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 transform translate-x-full animate-shine"></div>
                         )}
@@ -714,28 +718,27 @@ export default function AccountDetailPage() {
                   {/* Enhanced Action Buttons - Desktop */}
                   <div className="space-y-4 pt-4">
                     <div className="relative">
-                      {account.status === "available" && (
-                        <>
-                          <div className="absolute inset-0 bg-gradient-to-r from-red-500 via-pink-500 to-orange-500 rounded-2xl blur-xl opacity-75 animate-pulse"></div>
-                          <div className="absolute -inset-2 bg-gradient-to-r from-red-400 via-pink-400 to-orange-400 rounded-3xl blur-2xl opacity-50 animate-pulse delay-300"></div>
-                        </>
-                      )}
                       <Button
-                        className={`relative w-full h-16 md:h-20 text-xl md:text-2xl font-black rounded-2xl shadow-2xl transform transition-all duration-500 border-3 overflow-hidden ${
+                        className={`relative w-full h-16 md:h-20 text-xl md:text-2xl font-black rounded-2xl shadow-2xl transform transition-all duration-500 border-2 overflow-hidden ${
                           account.status === "available"
-                            ? "bg-gradient-to-r from-red-500 via-pink-500 to-orange-500 hover:from-red-600 hover:via-pink-600 hover:to-orange-600 text-white border-red-300 hover:scale-110 hover:shadow-4xl hover:shadow-red-500/60 animate-pulse"
+                            ? "bg-gradient-to-r from-red-500 via-pink-500 to-orange-500 hover:from-red-600 hover:via-pink-600 hover:to-orange-600 text-white border-red-300 hover:scale-105 hover:shadow-4xl hover:shadow-red-500/60"
                             : "bg-gray-400 cursor-not-allowed text-white border-gray-300"
                         }`}
                         onClick={handlePurchase}
                         disabled={account.status !== "available"}
                       >
-                        <div className="flex items-center justify-center space-x-4">
-                          <div className="relative">
+                        {/* Background Glow Effect */}
+                        {account.status === "available" && (
+                          <div className="absolute -inset-1 bg-gradient-to-r from-red-500/30 via-pink-500/30 to-orange-500/30 rounded-2xl blur-md animate-pulse -z-10"></div>
+                        )}
+                        
+                        <div className="relative z-10 flex items-center justify-center space-x-4">
+                          <div className="relative overflow-hidden">
                             <ShoppingCart className="h-8 w-8 animate-bounce" />
                             {account.status === "available" && (
                               <>
-                                <div className="absolute -top-2 -right-2 w-4 h-4 bg-yellow-400 rounded-full animate-ping"></div>
-                                <div className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-300 rounded-full animate-pulse"></div>
+                                <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-ping"></div>
+                                <div className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-yellow-300 rounded-full animate-pulse"></div>
                               </>
                             )}
                           </div>
@@ -752,12 +755,10 @@ export default function AccountDetailPage() {
                             )}
                           </div>
                         </div>
+                        
+                        {/* Shine Effect */}
                         {account.status === "available" && (
-                          <>
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent skew-x-12 transform translate-x-full animate-shine"></div>
-                            <div className="absolute top-2 right-2 w-2 h-2 bg-yellow-300 rounded-full animate-ping delay-500"></div>
-                            <div className="absolute bottom-2 left-2 w-1 h-1 bg-white rounded-full animate-pulse delay-700"></div>
-                          </>
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent skew-x-12 transform translate-x-full animate-shine"></div>
                         )}
                       </Button>
                     </div>

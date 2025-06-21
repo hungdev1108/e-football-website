@@ -34,7 +34,7 @@
 
 .purchase-button:hover {
   animation: none;
-  transform: scale(1.05) translateY(-2px);
+  transform: scale(1.02) translateY(-2px);
   box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
 }
 
@@ -75,6 +75,18 @@
   box-shadow: 0 35px 60px -12px rgba(0, 0, 0, 0.35);
 }
 
+/* Container overflow prevention */
+.button-container {
+  overflow: hidden;
+  position: relative;
+}
+
+/* Prevent horizontal overflow on mobile */
+.no-overflow {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
 /* Glow effects */
 .hover\:shadow-red-500\/50:hover {
   box-shadow: 0 20px 25px -5px rgba(239, 68, 68, 0.5), 0 10px 10px -5px rgba(239, 68, 68, 0.4);
@@ -94,7 +106,7 @@
 }
 
 .purchase-button-enhanced:hover {
-  transform: scale(1.1) translateY(-2px);
+  transform: scale(1.05) translateY(-2px);
   box-shadow: 0 25px 50px -12px rgba(239, 68, 68, 0.6);
 }
 
