@@ -2,7 +2,6 @@
 
 import { memo, useMemo } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -125,7 +124,7 @@ export const FeaturedAccountsSection = memo(function FeaturedAccountsSection({
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
             {featuredAccounts.map((account: ApiGameAccount) => (
               <AccountCard key={account._id} account={account} />
             ))}
@@ -171,17 +170,18 @@ const AccountCard = memo(function AccountCard({
 }) {
   return (
     <Link href={`/accounts/${account._id}`}>
-      <Card className="group cursor-pointer overflow-hidden border-0 bg-white/95 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-1 rounded-2xl h-[320px] md:h-[380px] flex flex-col p-0">
-        <div className="relative overflow-hidden">
-          <Image
-            src={
-              getImageUrl(account.images[0]?.url) || getPlaceholderUrl(300, 200)
-            }
-            alt={account.images[0]?.alt || account.title}
-            width={300}
-            height={192}
-            className="w-full h-40 md:h-56 object-cover transition-transform duration-200 group-hover:scale-105"
-          />
+      <Card className="group cursor-pointer overflow-hidden border-0 bg-white/95 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-1 rounded-2xl h-[380px] md:h-[420px] flex flex-col p-0">
+        <div
+          className="relative overflow-hidden bg-gray-100 h-40 md:h-44 bg-cover bg-center transition-transform duration-200 group-hover:scale-105"
+          style={{
+            backgroundImage: `url(${
+              getImageUrl(account.images[0]?.url) || getPlaceholderUrl(640, 295)
+            })`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+          }}
+        >
           {/* Gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
@@ -221,43 +221,42 @@ const AccountCard = memo(function AccountCard({
           )}
         </div>
 
-        <CardHeader className="pb-1 px-3 md:px-4 pt-2 md:pt-3">
-          <CardTitle className="text-sm md:text-lg line-clamp-1 text-slate-800 group-hover:text-blue-600 transition-colors duration-200 font-semibold h-4 md:h-7">
+        <CardHeader className="pb-1 px-3 md:px-4 pt-3 md:pt-3">
+          <CardTitle className="text-base md:text-lg line-clamp-1 text-slate-800 group-hover:text-blue-600 transition-colors duration-200 font-semibold h-5 md:h-7">
             {account.title}
           </CardTitle>
-          <CardDescription className="line-clamp-2 text-xs md:text-sm text-slate-500 mt-1 overflow-hidden text-ellipsis h-8 md:h-10 leading-4 md:leading-5">
+          <CardDescription className="line-clamp-2 text-sm md:text-sm text-slate-500 mt-1 overflow-hidden text-ellipsis h-10 md:h-10 leading-5 md:leading-5">
             {account.description}
           </CardDescription>
         </CardHeader>
 
-        <CardContent className="pt-0 px-3 md:px-4 pb-3 md:pb-4 flex-1 flex flex-col justify-between">
-          <div className="flex items-center justify-between mb-4 md:mb-5">
-            <div className="flex items-center gap-1 md:gap-2 bg-amber-50 px-2 py-1 rounded-lg">
+        <CardContent className="pt-0 px-3 md:px-4 pb-4 md:pb-4 flex-1 flex flex-col justify-between">
+          <div className="flex items-center justify-between mb-3 md:mb-5 gap-2">
+            <div className="flex items-center gap-1 md:gap-2 bg-amber-50 px-1.5 md:px-2 py-1 rounded-lg flex-shrink-0">
               <Star className="h-3 w-3 md:h-4 md:w-4 text-amber-500 fill-current" />
               <span className="text-xs md:text-sm font-semibold text-amber-700">
                 {account.collectiveStrength}
               </span>
             </div>
-            <div className={`text-base md:text-xl font-bold ${
-              account.price === -1 
-                ? "bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent animate-pulse" 
-                : "bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
-            }`}>
+            <div
+              className={`text-sm md:text-xl font-bold text-right flex-shrink-0 ${
+                account.price === -1
+                  ? "bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent animate-pulse"
+                  : "bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
+              }`}
+            >
               {formatPrice(account.price)}
             </div>
           </div>
 
           <Button
-            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white border-0 shadow-md hover:shadow-lg transition-all duration-200 text-xs md:text-sm py-1.5 md:py-3 px-2 md:px-4 rounded-lg md:rounded-xl font-semibold mt-auto cursor-pointer"
+            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white border-0 shadow-md hover:shadow-lg transition-all duration-200 text-sm md:text-sm py-2.5 md:py-3 px-4 md:px-4 rounded-lg md:rounded-xl font-semibold mt-auto cursor-pointer"
             disabled={account.status !== "available"}
           >
-            <span className="hidden md:inline">
+            <span className="inline">
               {account.status === "available"
                 ? "Xem chi tiết"
                 : "Không khả dụng"}
-            </span>
-            <span className="md:hidden">
-              {account.status === "available" ? "Xem chi tiết" : "Hết hàng"}
             </span>
           </Button>
         </CardContent>

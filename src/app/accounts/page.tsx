@@ -36,7 +36,7 @@ export default function AccountsPage() {
   const [filters, setFilters] = useState({
     category: "",
     platform: "",
-    minPrice: 0,
+    minPrice: -1,
     maxPrice: 30000000,
     sort: "-createdAt",
   });
@@ -156,7 +156,7 @@ export default function AccountsPage() {
     setFilters({
       category: "",
       platform: "",
-      minPrice: 0,
+      minPrice: -1,
       maxPrice: 30000000,
       sort: "-createdAt",
     });
@@ -300,6 +300,7 @@ export default function AccountsPage() {
           <Slider
             value={[filters.minPrice, filters.maxPrice]}
             onValueChange={handlePriceRangeChange}
+            min={-1}
             max={30000000}
             step={50000}
             className="w-full"
@@ -575,9 +576,11 @@ export default function AccountsPage() {
                                 : "px-3 md:px-4"
                             }`}
                           >
-                            <CardTitle className={`text-sm md:text-lg line-clamp-1 text-slate-800 group-hover:text-blue-600 transition-colors duration-200 font-semibold ${
-                              viewMode === "grid" ? "h-4 md:h-7" : ""
-                            }`}>
+                            <CardTitle
+                              className={`text-sm md:text-lg line-clamp-1 text-slate-800 group-hover:text-blue-600 transition-colors duration-200 font-semibold ${
+                                viewMode === "grid" ? "h-4 md:h-7" : ""
+                              }`}
+                            >
                               {account.title}
                             </CardTitle>
                             <CardDescription
@@ -606,11 +609,13 @@ export default function AccountsPage() {
                                   {account.collectiveStrength}
                                 </span>
                               </div>
-                              <div className={`text-base md:text-xl font-bold ${
-                                account.price === -1 
-                                  ? "bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent animate-pulse" 
-                                  : "bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
-                              }`}>
+                              <div
+                                className={`text-base md:text-xl font-bold ${
+                                  account.price === -1
+                                    ? "bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent animate-pulse"
+                                    : "bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
+                                }`}
+                              >
                                 {formatPrice(account.price)}
                               </div>
                             </div>
@@ -623,11 +628,13 @@ export default function AccountsPage() {
                                   {account.collectiveStrength}
                                 </span>
                               </div>
-                              <div className={`text-sm font-bold ${
-                                account.price === -1 
-                                  ? "bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent animate-pulse" 
-                                  : "bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
-                              }`}>
+                              <div
+                                className={`text-sm font-bold ${
+                                  account.price === -1
+                                    ? "bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent animate-pulse"
+                                    : "bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
+                                }`}
+                              >
                                 {formatPrice(account.price)}
                               </div>
                             </div>

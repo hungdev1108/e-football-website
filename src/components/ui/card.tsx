@@ -15,6 +15,19 @@ function Card({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+function CardDetail({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-detail"
+      className={cn(
+        "flex flex-col gap-2",
+        className
+      )}
+      {...props}
+    />
+  );
+}
+
 function CardImage({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -84,6 +97,16 @@ function CardContent({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+function CardContentDetail({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-content-detail"
+      className={cn("px-0", className)}
+      {...props}
+    />
+  );
+}
+
 function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -103,4 +126,6 @@ export {
   CardAction,
   CardDescription,
   CardContent,
+  CardDetail,
+  CardContentDetail
 };
