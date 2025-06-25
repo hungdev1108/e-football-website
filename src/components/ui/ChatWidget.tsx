@@ -35,9 +35,9 @@ export const ChatWidget = memo(function ChatWidget() {
     {
       id: "phone",
       icon: "📞",
-      title: "0845397989",
+      title: "0395860670",
       action: () => {
-        window.open("tel:0845397989", "_blank");
+        window.open("tel:0395860670", "_blank");
       },
     },
   ];
@@ -48,7 +48,7 @@ export const ChatWidget = memo(function ChatWidget() {
       <div className="fixed bottom-6 right-6 z-[9999]">
         {/* Pulse animation - behind button */}
         <div className="absolute inset-0 w-14 h-14 rounded-full bg-blue-600 animate-ping opacity-20 pointer-events-none"></div>
-        
+
         <Button
           onClick={() => setIsOpen(true)}
           className="relative w-14 h-14 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 cursor-pointer"
@@ -64,12 +64,10 @@ export const ChatWidget = memo(function ChatWidget() {
           <VisuallyHidden>
             <DialogTitle>Tùy chọn liên hệ</DialogTitle>
           </VisuallyHidden>
-          
+
           {/* Header */}
           <DialogHeader className="p-4 pb-2">
-            <h3 className="text-lg font-semibold text-white">
-              Chúng tôi trên
-            </h3>
+            <h3 className="text-lg font-semibold text-white">Chúng tôi trên</h3>
           </DialogHeader>
 
           {/* Contact Options */}
@@ -116,4 +114,4 @@ export const ChatWidget = memo(function ChatWidget() {
       </Dialog>
     </>
   );
-}); 
+});

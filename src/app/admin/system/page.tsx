@@ -69,7 +69,8 @@ export default function AdminSystemPage() {
   const [previewImage, setPreviewImage] = useState<string>("");
 
   // Data hooks
-  const { data: settingsData, isLoading: settingsLoading } = useAdminSystemSettings();
+  const { data: settingsData, isLoading: settingsLoading } =
+    useAdminSystemSettings();
   const { data: bannersData, isLoading: bannersLoading } = useAdminBanners();
 
   // Mutation hooks
@@ -81,7 +82,7 @@ export default function AdminSystemPage() {
   const deleteBannerMutation = useDeleteBanner();
   const toggleBannerMutation = useToggleBannerStatus();
 
-  // Data extraction  
+  // Data extraction
   interface SystemSettingsData {
     siteName?: string;
     siteDescription?: string;
@@ -131,55 +132,58 @@ export default function AdminSystemPage() {
       height: number;
     };
   }
-  
-  const settings = useMemo(() => settingsData?.data as SystemSettingsData || {}, [settingsData]);
-  const banners = bannersData?.data as Banner[] || [];
+
+  const settings = useMemo(
+    () => (settingsData?.data as SystemSettingsData) || {},
+    [settingsData]
+  );
+  const banners = (bannersData?.data as Banner[]) || [];
 
   // Form hooks
-  const { 
-    register: registerSettings, 
-    handleSubmit: handleSubmitSettings, 
-    reset: resetSettings
+  const {
+    register: registerSettings,
+    handleSubmit: handleSubmitSettings,
+    reset: resetSettings,
   } = useForm<SystemSettingsFormData>();
 
-  const { 
-    register: registerBanner, 
-    handleSubmit: handleSubmitBanner, 
-    reset: resetBanner, 
-    setValue: setValueBanner 
+  const {
+    register: registerBanner,
+    handleSubmit: handleSubmitBanner,
+    reset: resetBanner,
+    setValue: setValueBanner,
   } = useForm<BannerFormData>();
 
   // Reset form when settings data loads
   useEffect(() => {
     if (settings && Object.keys(settings).length > 0) {
       resetSettings({
-        siteName: settings.siteName || 'eFootball Shop',
-        siteDescription: settings.siteDescription || '',
-        siteKeywords: settings.siteKeywords || '',
-        siteUrl: settings.siteUrl || '',
+        siteName: settings.siteName || "eFootball Shop",
+        siteDescription: settings.siteDescription || "",
+        siteKeywords: settings.siteKeywords || "",
+        siteUrl: settings.siteUrl || "",
         contactInfo: {
-          email: settings.contactInfo?.email || '',
-          phone: settings.contactInfo?.phone || '',
-          address: settings.contactInfo?.address || '',
-          workingHours: settings.contactInfo?.workingHours || '',
+          email: settings.contactInfo?.email || "",
+          phone: settings.contactInfo?.phone || "",
+          address: settings.contactInfo?.address || "",
+          workingHours: settings.contactInfo?.workingHours || "",
         },
         socialMedia: {
-          facebook: settings.socialMedia?.facebook || '',
-          telegram: settings.socialMedia?.telegram || '',
-          zalo: settings.socialMedia?.zalo || '',
-          youtube: settings.socialMedia?.youtube || '',
-          discord: settings.socialMedia?.discord || '',
+          facebook: settings.socialMedia?.facebook || "",
+          telegram: settings.socialMedia?.telegram || "",
+          zalo: settings.socialMedia?.zalo || "",
+          youtube: settings.socialMedia?.youtube || "",
+          discord: settings.socialMedia?.discord || "",
         },
         bankingInfo: {
-          bankName: settings.bankingInfo?.bankName || '',
-          accountNumber: settings.bankingInfo?.accountNumber || '',
-          accountHolder: settings.bankingInfo?.accountHolder || '',
+          bankName: settings.bankingInfo?.bankName || "",
+          accountNumber: settings.bankingInfo?.accountNumber || "",
+          accountHolder: settings.bankingInfo?.accountHolder || "",
         },
         seoSettings: {
-          metaTitle: settings.seoSettings?.metaTitle || '',
-          metaDescription: settings.seoSettings?.metaDescription || '',
-          metaKeywords: settings.seoSettings?.metaKeywords || '',
-          ogImage: settings.seoSettings?.ogImage || '',
+          metaTitle: settings.seoSettings?.metaTitle || "",
+          metaDescription: settings.seoSettings?.metaDescription || "",
+          metaKeywords: settings.seoSettings?.metaKeywords || "",
+          ogImage: settings.seoSettings?.ogImage || "",
         },
         features: {
           enableRegistration: settings.features?.enableRegistration || false,
@@ -188,7 +192,7 @@ export default function AdminSystemPage() {
           maintenanceMode: settings.features?.maintenanceMode || false,
           enableNotifications: settings.features?.enableNotifications || false,
         },
-        maintenanceMessage: settings.maintenanceMessage || '',
+        maintenanceMessage: settings.maintenanceMessage || "",
       });
     }
   }, [settings, resetSettings]);
@@ -200,7 +204,7 @@ export default function AdminSystemPage() {
       ...data,
       contactInfo: {
         ...data.contactInfo,
-        workingHours: data.contactInfo?.workingHours || ""
+        workingHours: data.contactInfo?.workingHours || "",
       },
       bankingInfo: {
         bankName: data.bankingInfo?.bankName || "",
@@ -208,21 +212,21 @@ export default function AdminSystemPage() {
         accountHolder: data.bankingInfo?.accountHolder || "",
         qrCodeImage: {
           url: "",
-          alt: "QR Code"
-        }
-      },
-              seoSettings: {
-          metaTitle: data.seoSettings?.metaTitle || "",
-          metaDescription: data.seoSettings?.metaDescription || "",
-          metaKeywords: data.seoSettings?.metaKeywords || "",
-          ogImage: data.seoSettings?.ogImage || "",
+          alt: "QR Code",
         },
-        features: {
-          enableRegistration: data.features?.enableRegistration || false,
-          enableCart: data.features?.enableCart || false,
-          enableReviews: data.features?.enableReviews || false,
-          maintenanceMode: data.features?.maintenanceMode || false,
-        }
+      },
+      seoSettings: {
+        metaTitle: data.seoSettings?.metaTitle || "",
+        metaDescription: data.seoSettings?.metaDescription || "",
+        metaKeywords: data.seoSettings?.metaKeywords || "",
+        ogImage: data.seoSettings?.ogImage || "",
+      },
+      features: {
+        enableRegistration: data.features?.enableRegistration || false,
+        enableCart: data.features?.enableCart || false,
+        enableReviews: data.features?.enableReviews || false,
+        maintenanceMode: data.features?.maintenanceMode || false,
+      },
     };
     updateSettingsMutation.mutate(processedData);
   };
@@ -261,7 +265,7 @@ export default function AdminSystemPage() {
   const handleBannerImageUpload = async (file: File) => {
     const url = await handleImageUpload(file);
     if (url) {
-      setValueBanner('image', url);
+      setValueBanner("image", url);
       setPreviewImage(url);
     }
   };
@@ -271,7 +275,7 @@ export default function AdminSystemPage() {
     resetBanner({
       title: banner.title,
       image: banner.image,
-      link: banner.link || '',
+      link: banner.link || "",
       order: banner.order,
     });
     setPreviewImage(banner.image);
@@ -279,7 +283,7 @@ export default function AdminSystemPage() {
   };
 
   const handleDeleteBanner = (id: string) => {
-    if (confirm('Bạn có chắc chắn muốn xóa banner này?')) {
+    if (confirm("Bạn có chắc chắn muốn xóa banner này?")) {
       deleteBannerMutation.mutate(id);
     }
   };
@@ -297,11 +301,17 @@ export default function AdminSystemPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Quản lý Website</h1>
-          <p className="text-gray-600">Cập nhật thông tin và nội dung website</p>
+          <p className="text-gray-600">
+            Cập nhật thông tin và nội dung website
+          </p>
         </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="space-y-4"
+      >
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="settings">
             <Settings className="h-4 w-4 mr-2" />
@@ -326,7 +336,9 @@ export default function AdminSystemPage() {
           <Card>
             <CardHeader>
               <CardTitle>Thông tin chung Website</CardTitle>
-              <CardDescription>Cập nhật thông tin cơ bản của website</CardDescription>
+              <CardDescription>
+                Cập nhật thông tin cơ bản của website
+              </CardDescription>
             </CardHeader>
             <CardContent>
               {settingsLoading ? (
@@ -335,7 +347,10 @@ export default function AdminSystemPage() {
                   <p className="mt-2">Đang tải cài đặt...</p>
                 </div>
               ) : (
-                <form onSubmit={handleSubmitSettings(onSubmitSettings)} className="space-y-6">
+                <form
+                  onSubmit={handleSubmitSettings(onSubmitSettings)}
+                  className="space-y-6"
+                >
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-4">
                       <h3 className="text-lg font-medium">Thông tin cơ bản</h3>
@@ -382,7 +397,7 @@ export default function AdminSystemPage() {
                         <Input
                           id="contactPhone"
                           {...registerSettings("contactInfo.phone")}
-                          placeholder="0123456789"
+                          placeholder="0395860670"
                         />
                       </div>
                       <div>
@@ -451,7 +466,9 @@ export default function AdminSystemPage() {
                     </div>
 
                     <div className="space-y-4">
-                      <h3 className="text-lg font-medium">Thông tin thanh toán</h3>
+                      <h3 className="text-lg font-medium">
+                        Thông tin thanh toán
+                      </h3>
                       <div>
                         <Label htmlFor="bankName">Tên ngân hàng</Label>
                         <Input
@@ -479,13 +496,15 @@ export default function AdminSystemPage() {
                     </div>
                   </div>
 
-                  <Button 
-                    type="submit" 
+                  <Button
+                    type="submit"
                     className="w-full"
                     disabled={updateSettingsMutation.isPending}
                   >
                     <Save className="h-4 w-4 mr-2" />
-                    {updateSettingsMutation.isPending ? 'Đang lưu...' : 'Lưu thông tin'}
+                    {updateSettingsMutation.isPending
+                      ? "Đang lưu..."
+                      : "Lưu thông tin"}
                   </Button>
                 </form>
               )}
@@ -518,31 +537,33 @@ export default function AdminSystemPage() {
                         className="cursor-pointer"
                       />
                       <p className="text-sm text-gray-500 mt-1">
-                        Định dạng: PNG, JPG, SVG. Kích thước khuyến nghị: 200x60px (tối đa 2MB)
+                        Định dạng: PNG, JPG, SVG. Kích thước khuyến nghị:
+                        200x60px (tối đa 2MB)
                       </p>
                     </div>
-                    
+
                     {updateLogoMutation.isPending && (
-                       <div className="flex items-center space-x-2 text-blue-600">
-                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                         <span className="text-sm">Đang upload logo...</span>
-                       </div>
-                     )}
+                      <div className="flex items-center space-x-2 text-blue-600">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                        <span className="text-sm">Đang upload logo...</span>
+                      </div>
+                    )}
                   </div>
-                  
+
                   {settings.logo?.url && (
                     <div>
                       <Label>Logo hiện tại</Label>
                       <div className="mt-2 p-4 border rounded-lg bg-gray-50">
-                        <Image 
-                          src={settings.logo.url} 
+                        <Image
+                          src={settings.logo.url}
                           alt={settings.logo.alt || "Logo website"}
                           width={settings.logo.width || 200}
                           height={64}
                           className="max-w-full h-16 object-contain mx-auto"
                         />
                         <p className="text-sm text-gray-600 text-center mt-2">
-                          Logo hiện tại ({settings.logo.width}x{settings.logo.height}px)
+                          Logo hiện tại ({settings.logo.width}x
+                          {settings.logo.height}px)
                         </p>
                       </div>
                     </div>
@@ -558,15 +579,22 @@ export default function AdminSystemPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle>Quản lý Banner</CardTitle>
-                  <CardDescription>Banner hiển thị trên trang chủ (tối đa 3 banner)</CardDescription>
+                  <CardDescription>
+                    Banner hiển thị trên trang chủ (tối đa 3 banner)
+                  </CardDescription>
                 </div>
-                <Dialog open={isBannerDialogOpen} onOpenChange={setIsBannerDialogOpen}>
+                <Dialog
+                  open={isBannerDialogOpen}
+                  onOpenChange={setIsBannerDialogOpen}
+                >
                   <DialogTrigger asChild>
-                    <Button onClick={() => {
-                      resetBanner();
-                      setEditingBanner(null);
-                      setPreviewImage("");
-                    }}>
+                    <Button
+                      onClick={() => {
+                        resetBanner();
+                        setEditingBanner(null);
+                        setPreviewImage("");
+                      }}
+                    >
                       <Plus className="h-4 w-4 mr-2" />
                       Thêm Banner
                     </Button>
@@ -574,19 +602,26 @@ export default function AdminSystemPage() {
                   <DialogContent className="max-w-2xl">
                     <DialogHeader>
                       <DialogTitle>
-                        {editingBanner ? 'Chỉnh sửa Banner' : 'Thêm Banner mới'}
+                        {editingBanner ? "Chỉnh sửa Banner" : "Thêm Banner mới"}
                       </DialogTitle>
                       <DialogDescription>
-                        {editingBanner ? 'Cập nhật thông tin banner' : 'Tạo banner mới cho trang chủ'}
+                        {editingBanner
+                          ? "Cập nhật thông tin banner"
+                          : "Tạo banner mới cho trang chủ"}
                       </DialogDescription>
                     </DialogHeader>
 
-                    <form onSubmit={handleSubmitBanner(onSubmitBanner)} className="space-y-6">
+                    <form
+                      onSubmit={handleSubmitBanner(onSubmitBanner)}
+                      className="space-y-6"
+                    >
                       <div>
                         <Label htmlFor="title">Tiêu đề *</Label>
                         <Input
                           id="title"
-                          {...registerBanner("title", { required: "Tiêu đề là bắt buộc" })}
+                          {...registerBanner("title", {
+                            required: "Tiêu đề là bắt buộc",
+                          })}
                           placeholder="Nhập tiêu đề banner"
                         />
                       </div>
@@ -647,12 +682,15 @@ export default function AdminSystemPage() {
                         >
                           Hủy
                         </Button>
-                        <Button 
+                        <Button
                           type="submit"
-                          disabled={createBannerMutation.isPending || updateBannerMutation.isPending}
+                          disabled={
+                            createBannerMutation.isPending ||
+                            updateBannerMutation.isPending
+                          }
                         >
                           <Save className="h-4 w-4 mr-2" />
-                          {editingBanner ? 'Cập nhật' : 'Tạo Banner'}
+                          {editingBanner ? "Cập nhật" : "Tạo Banner"}
                         </Button>
                       </div>
                     </form>
@@ -685,10 +723,12 @@ export default function AdminSystemPage() {
                   <TableBody>
                     {banners.map((banner: Banner) => (
                       <TableRow key={banner._id}>
-                        <TableCell className="font-medium">{banner.title}</TableCell>
+                        <TableCell className="font-medium">
+                          {banner.title}
+                        </TableCell>
                         <TableCell>
-                          <Image 
-                            src={banner.image} 
+                          <Image
+                            src={banner.image}
                             alt={banner.title}
                             width={64}
                             height={40}
@@ -697,9 +737,9 @@ export default function AdminSystemPage() {
                         </TableCell>
                         <TableCell>
                           {banner.link ? (
-                            <a 
-                              href={banner.link} 
-                              target="_blank" 
+                            <a
+                              href={banner.link}
+                              target="_blank"
                               rel="noopener noreferrer"
                               className="text-blue-600 hover:underline"
                             >
@@ -711,7 +751,9 @@ export default function AdminSystemPage() {
                         </TableCell>
                         <TableCell>{banner.order}</TableCell>
                         <TableCell>
-                          <Badge variant={banner.isActive ? "default" : "secondary"}>
+                          <Badge
+                            variant={banner.isActive ? "default" : "secondary"}
+                          >
                             {banner.isActive ? "Hoạt động" : "Tắt"}
                           </Badge>
                         </TableCell>
@@ -720,7 +762,9 @@ export default function AdminSystemPage() {
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => toggleBannerMutation.mutate(banner._id)}
+                              onClick={() =>
+                                toggleBannerMutation.mutate(banner._id)
+                              }
                               disabled={toggleBannerMutation.isPending}
                             >
                               <Eye className="h-4 w-4" />
@@ -754,7 +798,10 @@ export default function AdminSystemPage() {
 
         {/* Contact & QR Tab */}
         <TabsContent value="contact" className="space-y-6">
-          <form onSubmit={handleSubmitSettings(onSubmitSettings)} className="space-y-6">
+          <form
+            onSubmit={handleSubmitSettings(onSubmitSettings)}
+            className="space-y-6"
+          >
             {/* Contact Information */}
             <Card>
               <CardHeader>
@@ -762,7 +809,9 @@ export default function AdminSystemPage() {
                   <MapPin className="h-5 w-5" />
                   Thông tin liên hệ
                 </CardTitle>
-                <CardDescription>Thông tin liên hệ hiển thị trên website</CardDescription>
+                <CardDescription>
+                  Thông tin liên hệ hiển thị trên website
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
@@ -785,7 +834,7 @@ export default function AdminSystemPage() {
                     <Input
                       id="contactPhone"
                       {...registerSettings("contactInfo.phone")}
-                      placeholder="0123456789"
+                      placeholder="0395860670"
                       className="pl-10"
                     />
                   </div>
@@ -836,24 +885,24 @@ export default function AdminSystemPage() {
                       type="file"
                       accept="image/*"
                       onChange={(e) => {
-                         const file = e.target.files?.[0];
-                         if (file) {
-                           handleQRUpload(file);
-                         }
-                       }}
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          handleQRUpload(file);
+                        }
+                      }}
                       className="cursor-pointer"
                     />
                     <p className="text-sm text-gray-500 mt-1">
                       Chọn file ảnh QR code thanh toán (PNG, JPG - tối đa 5MB)
                     </p>
                   </div>
-                  
+
                   {settings.bankingInfo?.qrCodeImage?.url && (
                     <div>
                       <Label>QR Code hiện tại</Label>
                       <div className="mt-2 p-4 border rounded-lg bg-gray-50">
-                        <Image 
-                          src={settings.bankingInfo.qrCodeImage.url} 
+                        <Image
+                          src={settings.bankingInfo.qrCodeImage.url}
                           alt="QR Code thanh toán"
                           width={192}
                           height={192}
@@ -906,20 +955,25 @@ export default function AdminSystemPage() {
               </CardContent>
             </Card>
 
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               className="w-full"
               disabled={updateSettingsMutation.isPending}
             >
               <Save className="h-4 w-4 mr-2" />
-              {updateSettingsMutation.isPending ? 'Đang lưu...' : 'Lưu thông tin liên hệ'}
+              {updateSettingsMutation.isPending
+                ? "Đang lưu..."
+                : "Lưu thông tin liên hệ"}
             </Button>
           </form>
         </TabsContent>
 
         {/* Advanced Settings Tab */}
         <TabsContent value="advanced" className="space-y-6">
-          <form onSubmit={handleSubmitSettings(onSubmitSettings)} className="space-y-6">
+          <form
+            onSubmit={handleSubmitSettings(onSubmitSettings)}
+            className="space-y-6"
+          >
             {/* SEO Settings */}
             <Card>
               <CardHeader>
@@ -981,7 +1035,9 @@ export default function AdminSystemPage() {
                   <Settings className="h-5 w-5" />
                   Tính năng Website
                 </CardTitle>
-                <CardDescription>Bật/tắt các tính năng của website</CardDescription>
+                <CardDescription>
+                  Bật/tắt các tính năng của website
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -992,7 +1048,9 @@ export default function AdminSystemPage() {
                       {...registerSettings("features.enableRegistration")}
                       className="rounded"
                     />
-                    <Label htmlFor="enableRegistration">Cho phép đăng ký tài khoản</Label>
+                    <Label htmlFor="enableRegistration">
+                      Cho phép đăng ký tài khoản
+                    </Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <input
@@ -1031,7 +1089,7 @@ export default function AdminSystemPage() {
                     <Label htmlFor="maintenanceMode">Chế độ bảo trì</Label>
                   </div>
                 </div>
-                
+
                 <div>
                   <Label htmlFor="maintenanceMessage">Thông báo bảo trì</Label>
                   <Textarea
@@ -1044,13 +1102,15 @@ export default function AdminSystemPage() {
               </CardContent>
             </Card>
 
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               className="w-full"
               disabled={updateSettingsMutation.isPending}
             >
               <Save className="h-4 w-4 mr-2" />
-              {updateSettingsMutation.isPending ? 'Đang lưu...' : 'Lưu cài đặt nâng cao'}
+              {updateSettingsMutation.isPending
+                ? "Đang lưu..."
+                : "Lưu cài đặt nâng cao"}
             </Button>
           </form>
         </TabsContent>

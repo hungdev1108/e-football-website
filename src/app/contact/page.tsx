@@ -7,16 +7,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Header } from "@/components/layout/Header";
-import { 
-  Phone, 
-  Mail, 
-  MessageCircle, 
-  MapPin, 
-  Clock, 
+import {
+  Phone,
+  Mail,
+  MessageCircle,
+  MapPin,
+  Clock,
   Send,
   CheckCircle,
   Facebook,
-  Star
+  Star,
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 
@@ -26,18 +26,18 @@ const ContactInfo = memo(function ContactInfo() {
     {
       icon: Phone,
       title: "Hotline",
-      value: "0123 456 789",
+      value: "0395860670",
       description: "Gọi ngay để được hỗ trợ",
-      action: () => window.open("tel:0123456789", "_self"),
-      gradient: "from-green-500 to-emerald-600"
+      action: () => window.open("tel:0395860670", "_self"),
+      gradient: "from-green-500 to-emerald-600",
     },
     {
       icon: MessageCircle,
       title: "Zalo",
       value: "Chat với Admin",
       description: "Phản hồi trong 2 phút",
-      action: () => window.open("https://zalo.me/0123456789", "_blank"),
-      gradient: "from-blue-500 to-cyan-600"
+      action: () => window.open("https://zalo.me/0395860670", "_blank"),
+      gradient: "from-blue-500 to-cyan-600",
     },
     {
       icon: Facebook,
@@ -45,7 +45,7 @@ const ContactInfo = memo(function ContactInfo() {
       value: "Messenger",
       description: "Hỗ trợ 24/7",
       action: () => window.open("https://m.me/efootballstore", "_blank"),
-      gradient: "from-indigo-500 to-purple-600"
+      gradient: "from-indigo-500 to-purple-600",
     },
     {
       icon: Mail,
@@ -53,8 +53,8 @@ const ContactInfo = memo(function ContactInfo() {
       value: "support@efootball.com",
       description: "Phản hồi trong 24h",
       action: () => window.open("mailto:support@efootball.com", "_self"),
-      gradient: "from-orange-500 to-red-600"
-    }
+      gradient: "from-orange-500 to-red-600",
+    },
   ];
 
   return (
@@ -62,20 +62,28 @@ const ContactInfo = memo(function ContactInfo() {
       {contactMethods.map((method, index) => {
         const IconComponent = method.icon;
         return (
-          <Card 
+          <Card
             key={index}
             className="group cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-0 bg-white/80 backdrop-blur-sm"
             onClick={method.action}
           >
             <CardContent className="p-4 lg:p-6">
               <div className="flex items-center gap-4">
-                <div className={`p-3 rounded-xl bg-gradient-to-r ${method.gradient} shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                <div
+                  className={`p-3 rounded-xl bg-gradient-to-r ${method.gradient} shadow-lg group-hover:scale-110 transition-transform duration-300`}
+                >
                   <IconComponent className="h-5 w-5 lg:h-6 lg:w-6 text-white" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-gray-800 text-sm lg:text-base">{method.title}</h3>
-                  <p className="text-blue-600 font-medium text-sm lg:text-base">{method.value}</p>
-                  <p className="text-gray-500 text-xs lg:text-sm">{method.description}</p>
+                  <h3 className="font-semibold text-gray-800 text-sm lg:text-base">
+                    {method.title}
+                  </h3>
+                  <p className="text-blue-600 font-medium text-sm lg:text-base">
+                    {method.value}
+                  </p>
+                  <p className="text-gray-500 text-xs lg:text-sm">
+                    {method.description}
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -92,13 +100,13 @@ const BusinessInfo = memo(function BusinessInfo() {
     {
       icon: MapPin,
       title: "Địa chỉ",
-      value: "Hồ Chí Minh"
+      value: "Hồ Chí Minh",
     },
     {
       icon: Clock,
       title: "Giờ làm việc",
-      value: "8:00 - 22:00 (Thứ 2 - Chủ nhật)"
-    }
+      value: "8:00 - 22:00 (Thứ 2 - Chủ nhật)",
+    },
   ];
 
   return (
@@ -111,7 +119,9 @@ const BusinessInfo = memo(function BusinessInfo() {
               <IconComponent className="h-4 w-4 lg:h-5 lg:w-5 text-blue-600" />
             </div>
             <div>
-              <h4 className="font-medium text-gray-800 text-sm lg:text-base">{info.title}</h4>
+              <h4 className="font-medium text-gray-800 text-sm lg:text-base">
+                {info.title}
+              </h4>
               <p className="text-gray-600 text-sm lg:text-base">{info.value}</p>
             </div>
           </div>
@@ -128,13 +138,15 @@ const ContactForm = memo(function ContactForm() {
     email: "",
     phone: "",
     subject: "",
-    message: ""
+    message: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -143,17 +155,19 @@ const ContactForm = memo(function ContactForm() {
 
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      toast.success("Tin nhắn đã được gửi thành công! Chúng tôi sẽ liên hệ lại trong 24h.");
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      toast.success(
+        "Tin nhắn đã được gửi thành công! Chúng tôi sẽ liên hệ lại trong 24h."
+      );
+
       // Reset form
       setFormData({
         name: "",
         email: "",
         phone: "",
         subject: "",
-        message: ""
+        message: "",
       });
     } catch {
       toast.error("Có lỗi xảy ra. Vui lòng thử lại sau.");
@@ -166,7 +180,9 @@ const ContactForm = memo(function ContactForm() {
     <form onSubmit={handleSubmit} className="space-y-4 lg:space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="name" className="text-sm lg:text-base">Họ và tên *</Label>
+          <Label htmlFor="name" className="text-sm lg:text-base">
+            Họ và tên *
+          </Label>
           <Input
             id="name"
             name="name"
@@ -178,7 +194,9 @@ const ContactForm = memo(function ContactForm() {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="phone" className="text-sm lg:text-base">Số điện thoại *</Label>
+          <Label htmlFor="phone" className="text-sm lg:text-base">
+            Số điện thoại *
+          </Label>
           <Input
             id="phone"
             name="phone"
@@ -192,7 +210,9 @@ const ContactForm = memo(function ContactForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="email" className="text-sm lg:text-base">Email</Label>
+        <Label htmlFor="email" className="text-sm lg:text-base">
+          Email
+        </Label>
         <Input
           id="email"
           name="email"
@@ -205,7 +225,9 @@ const ContactForm = memo(function ContactForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="subject" className="text-sm lg:text-base">Chủ đề *</Label>
+        <Label htmlFor="subject" className="text-sm lg:text-base">
+          Chủ đề *
+        </Label>
         <Input
           id="subject"
           name="subject"
@@ -218,7 +240,9 @@ const ContactForm = memo(function ContactForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="message" className="text-sm lg:text-base">Nội dung *</Label>
+        <Label htmlFor="message" className="text-sm lg:text-base">
+          Nội dung *
+        </Label>
         <Textarea
           id="message"
           name="message"
@@ -257,7 +281,7 @@ export default function ContactPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40">
       <Header />
-      
+
       <div className="container mx-auto px-4 py-6 lg:py-12">
         {/* Header Section */}
         <div className="text-center mb-8 lg:mb-12">
@@ -265,13 +289,13 @@ export default function ContactPage() {
             Liên hệ với chúng tôi
           </h1>
           <p className="text-gray-600 text-sm lg:text-lg max-w-2xl mx-auto">
-            Chúng tôi luôn sẵn sàng hỗ trợ bạn. Hãy liên hệ ngay để được tư vấn tốt nhất!
+            Chúng tôi luôn sẵn sàng hỗ trợ bạn. Hãy liên hệ ngay để được tư vấn
+            tốt nhất!
           </p>
         </div>
 
         {/* Quick Contact Methods */}
         <div className="mb-8 lg:mb-12">
-          
           <ContactInfo />
         </div>
 
@@ -320,22 +344,27 @@ export default function ContactPage() {
                   <h3 className="font-semibold text-gray-900 mb-2 text-sm lg:text-base">
                     Cam kết chất lượng
                   </h3>
-                    <div className="space-y-2 text-gray-600 text-xs lg:text-sm mb-3">
-                     <div className="flex items-center justify-center gap-2">
-                       <span>Tài khoản chính hãng</span>
-                     </div>
-                     <div className="flex items-center justify-center gap-2">
-                       <span>Hỗ trợ 24/7</span>
-                     </div>
-                     <div className="flex items-center justify-center gap-2">
-                       <span>Bảo hành trọn đời</span>
-                     </div>
-                   </div>
+                  <div className="space-y-2 text-gray-600 text-xs lg:text-sm mb-3">
+                    <div className="flex items-center justify-center gap-2">
+                      <span>Tài khoản chính hãng</span>
+                    </div>
+                    <div className="flex items-center justify-center gap-2">
+                      <span>Hỗ trợ 24/7</span>
+                    </div>
+                    <div className="flex items-center justify-center gap-2">
+                      <span>Bảo hành trọn đời</span>
+                    </div>
+                  </div>
                   <div className="flex items-center justify-center gap-1">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="h-3 w-3 lg:h-4 lg:w-4 text-yellow-400 fill-current" />
+                      <Star
+                        key={i}
+                        className="h-3 w-3 lg:h-4 lg:w-4 text-yellow-400 fill-current"
+                      />
                     ))}
-                    <span className="text-xs lg:text-sm text-gray-600 ml-2">5.0/5</span>
+                    <span className="text-xs lg:text-sm text-gray-600 ml-2">
+                      5.0/5
+                    </span>
                   </div>
                 </div>
               </CardContent>
@@ -356,28 +385,26 @@ export default function ContactPage() {
                 {[
                   {
                     q: "Tài khoản có đảm bảo an toàn không?",
-                    a: "Chúng tôi cam kết 100% tài khoản chính hãng và an toàn tuyệt đối."
+                    a: "Chúng tôi cam kết 100% tài khoản chính hãng và an toàn tuyệt đối.",
                   },
                   {
                     q: "Thời gian giao hàng bao lâu?",
-                    a: "Tài khoản được giao trong vòng 5-15 phút sau khi thanh toán."
+                    a: "Tài khoản được giao trong vòng 5-15 phút sau khi thanh toán.",
                   },
                   {
                     q: "Có hỗ trợ sau bán hàng không?",
-                    a: "Có, chúng tôi hỗ trợ 24/7 và bảo hành trọn đời tài khoản."
+                    a: "Có, chúng tôi hỗ trợ 24/7 và bảo hành trọn đời tài khoản.",
                   },
                   {
                     q: "Thanh toán như thế nào?",
-                    a: "Hỗ trợ thanh toán qua Banking, Momo, Zalo Pay và thẻ cào."
-                  }
+                    a: "Hỗ trợ thanh toán qua Banking, Momo, Zalo Pay và thẻ cào.",
+                  },
                 ].map((faq, index) => (
                   <div key={index} className="p-3 lg:p-4 bg-gray-50 rounded-lg">
                     <h4 className="font-medium text-gray-900 mb-2 text-sm lg:text-base">
                       {faq.q}
                     </h4>
-                    <p className="text-gray-600 text-xs lg:text-sm">
-                      {faq.a}
-                    </p>
+                    <p className="text-gray-600 text-xs lg:text-sm">{faq.a}</p>
                   </div>
                 ))}
               </div>
@@ -387,4 +414,4 @@ export default function ContactPage() {
       </div>
     </div>
   );
-} 
+}
