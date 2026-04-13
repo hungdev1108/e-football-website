@@ -199,7 +199,7 @@ export function MusicToggle({ className }: { className?: string }) {
       </button>
 
       {showVolume && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-44 rounded-xl border border-border/60 bg-popover/95 p-3 shadow-xl backdrop-blur-xl">
+        <div className="absolute right-0 top-full z-50 w-44 rounded-xl border border-border/60 bg-popover/95 p-3 pt-4 shadow-xl backdrop-blur-xl">
           <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground">
             <span>Âm lượng</span>
             <span>{Math.round(volume * 100)}%</span>
