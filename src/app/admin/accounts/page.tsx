@@ -117,6 +117,7 @@ export default function AdminAccountsPage() {
   });
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [previewImages, setPreviewImages] = useState<string[]>([]);
+  const [deletingAccountId, setDeletingAccountId] = useState<string | null>(null);
 
   // ✅ TẤT CẢ HOOKS PHẢI Ở ĐẦU - KHÔNG ĐƯỢC EARLY RETURN TRƯỚC HOOKS
   // API hooks
@@ -269,10 +270,7 @@ export default function AdminAccountsPage() {
         images: imagesData,
       };
 
-      // Debug: Log dữ liệu được gửi
-      console.log('Sending account data:', JSON.stringify(accountData, null, 2));
-
-      await createAccountMutation.mutateAsync(accountData);
+      // Debug: Log dữ liệu được gửi      await createAccountMutation.mutateAsync(accountData);
       toast.success("Tạo tài khoản thành công!");
       setIsCreateDialogOpen(false);
       reset();
@@ -304,7 +302,7 @@ export default function AdminAccountsPage() {
         imagesData = [...imagesData, ...(uploadedImages || [])];
       }
 
-      const updatedData = {
+      const updatedData: Record<string, unknown> = {
         ...data,
         price: Number(data.price),
         collectiveStrength: Number(data.collectiveStrength),
@@ -316,6 +314,11 @@ export default function AdminAccountsPage() {
         },
         images: imagesData,
       };
+
+      // Remove empty/invalid category to avoid ObjectId cast error
+      if (!updatedData.category || updatedData.category === 'null' || updatedData.category === '') {
+        delete updatedData.category;
+      }
 
       await updateAccountMutation.mutateAsync({
         id: editingAccount!._id,
@@ -333,16 +336,26 @@ export default function AdminAccountsPage() {
     }
   };
 
-  // Xử lý xóa tài khoản
-  const handleDeleteAccount = async (id: string) => {
-    if (confirm("Bạn có chắc chắn muốn xóa tài khoản này?")) {
-      try {
-        await deleteAccountMutation.mutateAsync(id);
-        toast.success("Xóa tài khoản thành công!");
-      } catch (error) {
-        console.error("Error deleting account:", error);
-        toast.error("Có lỗi xảy ra khi xóa tài khoản!");
-      }
+  // Xử lý xóa tài khoản — mở dialog xác nhận
+  const handleDeleteAccount = (id: string) => {
+    setDeletingAccountId(id);
+  };
+
+  const confirmDeleteAccount = async () => {
+    if (!deletingAccountId) return;
+    const id = deletingAccountId;
+    setDeletingAccountId(null);
+    try {
+      await deleteAccountMutation.mutateAsync(id);
+      toast.success("Xóa tài khoản thành công!");
+    } catch (error) {
+      console.error("[delete account] error:", error);
+      const msg =
+        (error as { data?: { message?: string }; message?: string })?.data
+          ?.message ||
+        (error as Error)?.message ||
+        "Có lỗi xảy ra khi xóa tài khoản!";
+      toast.error(msg);
     }
   };
 
@@ -355,7 +368,7 @@ export default function AdminAccountsPage() {
     // Handle category - it might be an object with _id or just a string
     const categoryValue: string = typeof account.category === 'object' && account.category?._id 
       ? account.category._id 
-      : String(account.category);
+      : (account.category && account.category !== 'null') ? String(account.category) : '';
     
     resetEdit({
       title: account.title,
@@ -957,7 +970,9 @@ export default function AdminAccountsPage() {
                             {typeof account.category === 'object' && account.category?.icon && `${account.category.icon} `}
                             {typeof account.category === 'object' && account.category?.name 
                               ? account.category.name 
-                              : String(account.category)}
+                              : (account.category && account.category !== 'null' && String(account.category) !== 'null')
+                                ? String(account.category)
+                                : 'Chưa phân loại'}
                           </Badge>
                         </TableCell>
                         <TableCell className="min-w-[80px]">
@@ -991,11 +1006,11 @@ export default function AdminAccountsPage() {
                               <Edit className="h-3 w-3" />
                             </Button>
                             <Button
+                              type="button"
                               variant="outline"
                               size="sm"
                               className="text-red-600 hover:text-red-700 h-8 w-8 p-0"
                               onClick={() => handleDeleteAccount(account._id)}
-                              disabled={deleteAccountMutation.isPending}
                             >
                               <Trash2 className="h-3 w-3" />
                             </Button>
@@ -1395,6 +1410,38 @@ export default function AdminAccountsPage() {
               </Button>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete confirmation dialog */}
+      <Dialog
+        open={deletingAccountId !== null}
+        onOpenChange={(open) => !open && setDeletingAccountId(null)}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Xác nhận xóa tài khoản</DialogTitle>
+            <DialogDescription>
+              Bạn có chắc chắn muốn xóa tài khoản này? Hành động này không thể hoàn tác.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setDeletingAccountId(null)}
+            >
+              Hủy
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={confirmDeleteAccount}
+              disabled={deleteAccountMutation.isPending}
+            >
+              {deleteAccountMutation.isPending ? "Đang xóa..." : "Xóa"}
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,6 +44,11 @@ import {
   Globe,
   QrCode,
   CreditCard,
+  Music2,
+  Upload,
+  Play,
+  Pause,
+  X,
 } from "lucide-react";
 import {
   useAdminSystemSettings,
@@ -55,7 +60,12 @@ import {
   useToggleBannerStatus,
   useUpdateLogo,
   useUpdateQRCode,
+  useBackgroundMusic,
+  useUpdateBackgroundMusic,
+  useDeleteBackgroundMusic,
+  useDeleteBackgroundMusicTrack,
 } from "@/hooks/useAdminSystem";
+import type { BackgroundMusicConfig } from "@/hooks/useAdminSystem";
 import type {
   SystemSettingsFormData,
   BannerFormData,
@@ -81,6 +91,19 @@ export default function AdminSystemPage() {
   const updateBannerMutation = useUpdateBanner();
   const deleteBannerMutation = useDeleteBanner();
   const toggleBannerMutation = useToggleBannerStatus();
+  
+  // Music hooks
+  const { data: musicData } = useBackgroundMusic();
+  const updateMusicMutation = useUpdateBackgroundMusic();
+  const deleteMusicMutation = useDeleteBackgroundMusic();
+  const deleteMusicTrackMutation = useDeleteBackgroundMusicTrack();
+
+  // Music state
+  const [musicVolume, setMusicVolume] = useState(30);
+  const [musicEnabled, setMusicEnabled] = useState(false);
+  const [musicFiles, setMusicFiles] = useState<File[]>([]);
+  const [previewingUrl, setPreviewingUrl] = useState<string | null>(null);
+  const previewAudioRef = useRef<HTMLAudioElement | null>(null);
 
   // Data extraction
   interface SystemSettingsData {
@@ -197,6 +220,69 @@ export default function AdminSystemPage() {
     }
   }, [settings, resetSettings]);
 
+  // Sync music state from API data
+  useEffect(() => {
+    if (musicData?.data) {
+      const mc = musicData.data as BackgroundMusicConfig;
+      setMusicVolume(mc.volume ?? 30);
+      setMusicEnabled(mc.enabled || false);
+    }
+  }, [musicData]);
+
+  // Cleanup preview audio on unmount
+  useEffect(() => {
+    return () => {
+      if (previewAudioRef.current) {
+        previewAudioRef.current.pause();
+        previewAudioRef.current = null;
+      }
+    };
+  }, []);
+
+  // Music handlers
+  const handleMusicSave = () => {
+    const formData = new FormData();
+    formData.append('enabled', String(musicEnabled));
+    formData.append('volume', String(musicVolume));
+    musicFiles.forEach((f) => formData.append('music', f));
+
+    updateMusicMutation.mutate(formData, {
+      onSuccess: () => setMusicFiles([]),
+    });
+  };
+
+  const handleMusicDeleteAll = () => {
+    if (!confirm('Bạn có chắc chắn muốn xóa toàn bộ nhạc nền?')) return;
+    deleteMusicMutation.mutate();
+    setMusicFiles([]);
+    if (previewAudioRef.current) {
+      previewAudioRef.current.pause();
+      setPreviewingUrl(null);
+    }
+  };
+
+  const handleDeleteTrack = (trackId: string) => {
+    if (!confirm('Xóa bài nhạc này?')) return;
+    deleteMusicTrackMutation.mutate(trackId);
+  };
+
+  const togglePreview = (url: string) => {
+    if (previewingUrl === url) {
+      previewAudioRef.current?.pause();
+      setPreviewingUrl(null);
+      return;
+    }
+    if (!previewAudioRef.current) {
+      previewAudioRef.current = new Audio();
+    }
+    previewAudioRef.current.src = url;
+    previewAudioRef.current.volume = musicVolume / 100;
+    previewAudioRef.current
+      .play()
+      .then(() => setPreviewingUrl(url))
+      .catch(() => setPreviewingUrl(null));
+  };
+
   // Handlers
   const onSubmitSettings = async (data: SystemSettingsFormData) => {
     // Fix type compatibility by ensuring all required fields are defined
@@ -245,9 +331,7 @@ export default function AdminSystemPage() {
 
   const handleImageUpload = async (file: File): Promise<string | null> => {
     try {
-      // TODO: Implement image upload when useUploadImage is fixed
-      console.log("Image upload disabled temporarily:", file);
-      return null;
+      // TODO: Implement image upload when useUploadImage is fixed      return null;
     } catch (error) {
       console.error("Error uploading image:", error);
       return null;
@@ -312,7 +396,7 @@ export default function AdminSystemPage() {
         onValueChange={setActiveTab}
         className="space-y-4"
       >
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="settings">
             <Settings className="h-4 w-4 mr-2" />
             Thông tin Website
@@ -325,9 +409,13 @@ export default function AdminSystemPage() {
             <Globe className="h-4 w-4 mr-2" />
             Liên hệ & QR
           </TabsTrigger>
+          <TabsTrigger value="music">
+            <Music2 className="h-4 w-4 mr-2" />
+            Nhạc nền
+          </TabsTrigger>
           <TabsTrigger value="advanced">
             <Settings className="h-4 w-4 mr-2" />
-            Cài đặt nâng cao
+            Nâng cao
           </TabsTrigger>
         </TabsList>
 
@@ -966,6 +1054,222 @@ export default function AdminSystemPage() {
                 : "Lưu thông tin liên hệ"}
             </Button>
           </form>
+        </TabsContent>
+
+        {/* Background Music Tab */}
+        <TabsContent value="music" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Music2 className="h-5 w-5" />
+                    Quản lý Nhạc Nền
+                  </CardTitle>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Upload một hoặc nhiều file MP3 để làm playlist nhạc nền website
+                  </p>
+                </div>
+                {(musicData?.data as BackgroundMusicConfig | undefined)?.tracks?.length ? (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={handleMusicDeleteAll}
+                    disabled={deleteMusicMutation.isPending}
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Xóa tất cả
+                  </Button>
+                ) : null}
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Upload Section */}
+              <div className="space-y-4 p-4 rounded-lg border border-blue-200 bg-blue-50/30">
+                <div>
+                  <Label htmlFor="musicFiles" className="flex items-center gap-2">
+                    <Upload className="h-4 w-4 text-blue-500" />
+                    Chọn file nhạc (có thể chọn nhiều)
+                  </Label>
+                  <Input
+                    id="musicFiles"
+                    type="file"
+                    multiple
+                    accept=".mp3,.wav,.ogg,audio/*"
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files || []);
+                      if (files.length) {
+                        setMusicFiles((prev) => [...prev, ...files]);
+                      }
+                      e.target.value = '';
+                    }}
+                    className="cursor-pointer mt-1"
+                  />
+                  <p className="text-sm text-gray-500 mt-1">
+                    Định dạng: MP3, WAV, OGG · Tối đa 15MB / file · Tối đa 20 file mỗi lần
+                  </p>
+                </div>
+
+                {/* Pending uploads (chưa lưu) */}
+                {musicFiles.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-xs font-medium text-gray-600">
+                      Sẽ upload {musicFiles.length} file mới:
+                    </p>
+                    {musicFiles.map((f, idx) => (
+                      <div
+                        key={`${f.name}-${idx}`}
+                        className="flex items-center gap-2 p-2 bg-white rounded border text-sm"
+                      >
+                        <Music2 className="h-4 w-4 text-blue-500 shrink-0" />
+                        <span className="flex-1 min-w-0 truncate">{f.name}</span>
+                        <span className="text-xs text-gray-500 shrink-0">
+                          {(f.size / (1024 * 1024)).toFixed(2)} MB
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setMusicFiles((prev) => prev.filter((_, i) => i !== idx))
+                          }
+                          className="p-1 rounded hover:bg-gray-100 shrink-0 cursor-pointer"
+                          aria-label="Bỏ file"
+                        >
+                          <X className="h-4 w-4 text-gray-500" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Existing playlist */}
+              {(() => {
+                const tracks =
+                  (musicData?.data as BackgroundMusicConfig | undefined)?.tracks || [];
+                if (tracks.length === 0) {
+                  return (
+                    <div className="text-center py-6 text-sm text-gray-500 border-2 border-dashed rounded-lg">
+                      Chưa có bài nhạc nào trong playlist
+                    </div>
+                  );
+                }
+                return (
+                  <div className="space-y-2">
+                    <Label className="text-base font-medium">
+                      Playlist hiện tại ({tracks.length} bài)
+                    </Label>
+                    <div className="space-y-2">
+                      {tracks.map((t, idx) => (
+                        <div
+                          key={t._id}
+                          className="flex items-center gap-3 p-3 bg-white rounded-lg border"
+                        >
+                          <span className="text-xs font-medium text-gray-400 w-6 text-center">
+                            {idx + 1}
+                          </span>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => togglePreview(t.url)}
+                            className="shrink-0"
+                          >
+                            {previewingUrl === t.url ? (
+                              <Pause className="h-4 w-4" />
+                            ) : (
+                              <Play className="h-4 w-4" />
+                            )}
+                          </Button>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate">
+                              {t.title || t.originalName || 'Bài nhạc'}
+                            </p>
+                            {t.originalName && t.title && t.title !== t.originalName && (
+                              <p className="text-xs text-gray-500 truncate">
+                                {t.originalName}
+                              </p>
+                            )}
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteTrack(t._id)}
+                            disabled={deleteMusicTrackMutation.isPending}
+                            className="shrink-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Common Settings */}
+              <div className="space-y-4 p-4 rounded-lg border bg-gray-50/50">
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <Label>Âm lượng mặc định</Label>
+                    <span className="text-sm font-medium text-gray-600">
+                      {musicVolume}%
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min={0}
+                    max={100}
+                    step={5}
+                    value={musicVolume}
+                    onChange={(e) => setMusicVolume(Number(e.target.value))}
+                    className="w-full h-2 cursor-pointer appearance-none rounded-full bg-gray-200 accent-blue-600"
+                  />
+                  <div className="flex justify-between text-xs text-gray-400 mt-1">
+                    <span>0%</span>
+                    <span>50%</span>
+                    <span>100%</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between p-3 bg-white rounded-lg border">
+                  <div>
+                    <Label htmlFor="musicEnabled" className="font-medium">
+                      Bật nhạc nền
+                    </Label>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      Khi bật, nút nhạc sẽ hiện trên website
+                    </p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      id="musicEnabled"
+                      checked={musicEnabled}
+                      onChange={(e) => setMusicEnabled(e.target.checked)}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                  </label>
+                </div>
+              </div>
+
+              {/* Save Button */}
+              <Button
+                type="button"
+                className="w-full"
+                onClick={handleMusicSave}
+                disabled={updateMusicMutation.isPending}
+              >
+                <Save className="h-4 w-4 mr-2" />
+                {updateMusicMutation.isPending
+                  ? 'Đang lưu...'
+                  : musicFiles.length > 0
+                  ? `Upload ${musicFiles.length} file & lưu cài đặt`
+                  : 'Lưu cài đặt nhạc nền'}
+              </Button>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* Advanced Settings Tab */}

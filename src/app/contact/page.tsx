@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Header } from "@/components/layout/Header";
+import { FooterSection } from "@/components/home/FooterSection";
 import {
   Phone,
   Mail,
@@ -64,7 +65,7 @@ const ContactInfo = memo(function ContactInfo() {
         return (
           <Card
             key={index}
-            className="group cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-0 bg-white/80 backdrop-blur-sm"
+            className="group glass border border-border/60 cursor-pointer transition-all duration-300 hover:shadow-[0_20px_50px_-20px_rgb(var(--neon-violet)/0.5)] hover:-translate-y-1"
             onClick={method.action}
           >
             <CardContent className="p-4 lg:p-6">
@@ -75,13 +76,13 @@ const ContactInfo = memo(function ContactInfo() {
                   <IconComponent className="h-5 w-5 lg:h-6 lg:w-6 text-white" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-gray-800 text-sm lg:text-base">
+                  <h3 className="font-semibold text-foreground text-sm lg:text-base">
                     {method.title}
                   </h3>
-                  <p className="text-blue-600 font-medium text-sm lg:text-base">
+                  <p className="text-[rgb(var(--neon-cyan))] font-medium text-sm lg:text-base">
                     {method.value}
                   </p>
-                  <p className="text-gray-500 text-xs lg:text-sm">
+                  <p className="text-muted-foreground text-xs lg:text-sm">
                     {method.description}
                   </p>
                 </div>
@@ -115,14 +116,14 @@ const BusinessInfo = memo(function BusinessInfo() {
         const IconComponent = info.icon;
         return (
           <div key={index} className="flex items-start gap-3">
-            <div className="p-2 bg-blue-100 rounded-lg flex-shrink-0">
-              <IconComponent className="h-4 w-4 lg:h-5 lg:w-5 text-blue-600" />
+            <div className="p-2 bg-[rgb(var(--neon-cyan)/0.15)] rounded-lg flex-shrink-0">
+              <IconComponent className="h-4 w-4 lg:h-5 lg:w-5 text-[rgb(var(--neon-cyan))]" />
             </div>
             <div>
-              <h4 className="font-medium text-gray-800 text-sm lg:text-base">
+              <h4 className="font-medium text-foreground text-sm lg:text-base">
                 {info.title}
               </h4>
-              <p className="text-gray-600 text-sm lg:text-base">{info.value}</p>
+              <p className="text-muted-foreground text-sm lg:text-base">{info.value}</p>
             </div>
           </div>
         );
@@ -190,7 +191,7 @@ const ContactForm = memo(function ContactForm() {
             onChange={handleInputChange}
             placeholder="Nhập họ và tên"
             required
-            className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+            className="bg-background/40 border-border/60 focus:border-[rgb(var(--neon-violet))] focus:ring-[rgb(var(--neon-violet))]"
           />
         </div>
         <div className="space-y-2">
@@ -204,7 +205,7 @@ const ContactForm = memo(function ContactForm() {
             onChange={handleInputChange}
             placeholder="Nhập số điện thoại"
             required
-            className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+            className="bg-background/40 border-border/60 focus:border-[rgb(var(--neon-violet))] focus:ring-[rgb(var(--neon-violet))]"
           />
         </div>
       </div>
@@ -220,7 +221,7 @@ const ContactForm = memo(function ContactForm() {
           value={formData.email}
           onChange={handleInputChange}
           placeholder="Nhập địa chỉ email"
-          className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+          className="bg-background/40 border-border/60 focus:border-[rgb(var(--neon-violet))] focus:ring-[rgb(var(--neon-violet))]"
         />
       </div>
 
@@ -235,7 +236,7 @@ const ContactForm = memo(function ContactForm() {
           onChange={handleInputChange}
           placeholder="Nhập chủ đề liên hệ"
           required
-          className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+          className="bg-background/40 border-border/60 focus:border-[rgb(var(--neon-violet))] focus:ring-[rgb(var(--neon-violet))]"
         />
       </div>
 
@@ -251,14 +252,16 @@ const ContactForm = memo(function ContactForm() {
           placeholder="Nhập nội dung tin nhắn..."
           rows={5}
           required
-          className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 resize-none"
+          className="bg-background/40 border-border/60 focus:border-[rgb(var(--neon-violet))] focus:ring-[rgb(var(--neon-violet))] resize-none"
         />
       </div>
 
       <Button
         type="submit"
         disabled={isSubmitting}
-        className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl"
+        variant="neon"
+        size="lg"
+        className="w-full"
       >
         {isSubmitting ? (
           <div className="flex items-center gap-2">
@@ -279,16 +282,16 @@ const ContactForm = memo(function ContactForm() {
 // Main contact page component
 export default function ContactPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40">
+    <div className="relative min-h-screen">
       <Header />
 
       <div className="container mx-auto px-4 py-6 lg:py-12">
         {/* Header Section */}
         <div className="text-center mb-8 lg:mb-12">
-          <h1 className="text-2xl lg:text-4xl font-bold text-gray-900 mb-3 lg:mb-4">
+          <h1 className="text-2xl lg:text-4xl font-bold text-foreground mb-3 lg:mb-4">
             Liên hệ với chúng tôi
           </h1>
-          <p className="text-gray-600 text-sm lg:text-lg max-w-2xl mx-auto">
+          <p className="text-muted-foreground text-sm lg:text-lg max-w-2xl mx-auto">
             Chúng tôi luôn sẵn sàng hỗ trợ bạn. Hãy liên hệ ngay để được tư vấn
             tốt nhất!
           </p>
@@ -303,12 +306,12 @@ export default function ContactPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Contact Form */}
           <div className="lg:col-span-2">
-            <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm">
+            <Card className="glass border border-border/60 shadow-[0_20px_50px_-20px_rgb(var(--neon-violet)/0.4)]">
               <CardHeader className="pb-4 lg:pb-6">
-                <CardTitle className="text-lg lg:text-xl text-gray-900">
+                <CardTitle className="text-lg lg:text-xl text-foreground">
                   Gửi tin nhắn cho chúng tôi
                 </CardTitle>
-                <p className="text-gray-600 text-sm lg:text-base">
+                <p className="text-muted-foreground text-sm lg:text-base">
                   Điền thông tin bên dưới và chúng tôi sẽ liên hệ lại trong 24h
                 </p>
               </CardHeader>
@@ -321,9 +324,9 @@ export default function ContactPage() {
           {/* Business Info & Trust Signals */}
           <div className="space-y-6">
             {/* Business Information */}
-            <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm">
+            <Card className="glass border border-border/60 shadow-[0_20px_50px_-20px_rgb(var(--neon-violet)/0.4)]">
               <CardHeader className="pb-4">
-                <CardTitle className="text-lg text-gray-900">
+                <CardTitle className="text-lg text-foreground">
                   Thông tin liên hệ
                 </CardTitle>
               </CardHeader>
@@ -333,18 +336,18 @@ export default function ContactPage() {
             </Card>
 
             {/* Trust Signals */}
-            <Card className="border-0 shadow-xl bg-gradient-to-br from-green-50 to-emerald-50">
+            <Card className="glass border border-[rgb(var(--neon-emerald)/0.3)] shadow-[0_20px_50px_-20px_rgb(var(--neon-emerald)/0.4)]">
               <CardContent className="p-4 lg:p-6">
                 <div className="text-center">
                   <div className="flex justify-center mb-3">
-                    <div className="p-3 bg-green-100 rounded-full">
-                      <CheckCircle className="h-6 w-6 lg:h-8 lg:w-8 text-green-600" />
+                    <div className="p-3 bg-[rgb(var(--neon-emerald)/0.15)] rounded-full border border-[rgb(var(--neon-emerald)/0.3)]">
+                      <CheckCircle className="h-6 w-6 lg:h-8 lg:w-8 text-[rgb(var(--neon-emerald))]" />
                     </div>
                   </div>
-                  <h3 className="font-semibold text-gray-900 mb-2 text-sm lg:text-base">
+                  <h3 className="font-semibold text-foreground mb-2 text-sm lg:text-base">
                     Cam kết chất lượng
                   </h3>
-                  <div className="space-y-2 text-gray-600 text-xs lg:text-sm mb-3">
+                  <div className="space-y-2 text-muted-foreground text-xs lg:text-sm mb-3">
                     <div className="flex items-center justify-center gap-2">
                       <span>Tài khoản chính hãng</span>
                     </div>
@@ -362,7 +365,7 @@ export default function ContactPage() {
                         className="h-3 w-3 lg:h-4 lg:w-4 text-yellow-400 fill-current"
                       />
                     ))}
-                    <span className="text-xs lg:text-sm text-gray-600 ml-2">
+                    <span className="text-xs lg:text-sm text-muted-foreground ml-2">
                       5.0/5
                     </span>
                   </div>
@@ -374,9 +377,9 @@ export default function ContactPage() {
 
         {/* FAQ Section */}
         <div className="mt-8 lg:mt-16">
-          <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm">
+          <Card className="glass border border-border/60 shadow-[0_20px_50px_-20px_rgb(var(--neon-violet)/0.4)]">
             <CardHeader className="text-center">
-              <CardTitle className="text-lg lg:text-2xl text-gray-900">
+              <CardTitle className="text-lg lg:text-2xl text-foreground">
                 Câu hỏi thường gặp
               </CardTitle>
             </CardHeader>
@@ -400,11 +403,11 @@ export default function ContactPage() {
                     a: "Hỗ trợ thanh toán qua Banking, Momo, Zalo Pay và thẻ cào.",
                   },
                 ].map((faq, index) => (
-                  <div key={index} className="p-3 lg:p-4 bg-gray-50 rounded-lg">
-                    <h4 className="font-medium text-gray-900 mb-2 text-sm lg:text-base">
+                  <div key={index} className="p-3 lg:p-4 bg-background/40 border border-border/50 rounded-lg">
+                    <h4 className="font-medium text-foreground mb-2 text-sm lg:text-base">
                       {faq.q}
                     </h4>
-                    <p className="text-gray-600 text-xs lg:text-sm">{faq.a}</p>
+                    <p className="text-muted-foreground text-xs lg:text-sm">{faq.a}</p>
                   </div>
                 ))}
               </div>
@@ -412,6 +415,7 @@ export default function ContactPage() {
           </Card>
         </div>
       </div>
+      <FooterSection />
     </div>
   );
 }

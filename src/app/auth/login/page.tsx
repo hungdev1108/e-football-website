@@ -81,18 +81,26 @@ export default function LoginPage() {
   // ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 relative overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 opacity-20">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl animate-pulse"></div>
-        <div className="absolute top-40 right-10 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl animate-pulse delay-700"></div>
-        <div className="absolute -bottom-32 left-20 w-80 h-80 bg-indigo-500 rounded-full mix-blend-multiply filter blur-xl animate-pulse delay-1000"></div>
+    <div className="relative min-h-screen overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 -z-10 opacity-60 dark:opacity-80">
+        <div
+          className="aurora-blob absolute left-10 top-20 h-72 w-72 rounded-full blur-3xl"
+          style={{ background: "radial-gradient(circle, rgb(var(--neon-violet) / 0.6), transparent 65%)" }}
+        />
+        <div
+          className="aurora-blob absolute right-10 top-40 h-96 w-96 rounded-full blur-3xl"
+          style={{ background: "radial-gradient(circle, rgb(var(--neon-cyan) / 0.55), transparent 65%)", animationDelay: "4s" }}
+        />
+        <div
+          className="aurora-blob absolute -bottom-32 left-20 h-80 w-80 rounded-full blur-3xl"
+          style={{ background: "radial-gradient(circle, rgb(var(--neon-pink) / 0.45), transparent 65%)", animationDelay: "8s" }}
+        />
       </div>
 
       <div className="relative z-10 min-h-screen flex">
         {/* Left Side - Branding */}
         <div className="hidden lg:flex lg:w-1/3 items-center justify-center p-12">
-          <div className="max-w-md text-white text-center">
+          <div className="max-w-md text-foreground text-center">
             <div className="flex items-center justify-center mb-8">
               <div className="relative">
                 <div className="w-20 h-20 bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 rounded-3xl flex items-center justify-center shadow-2xl">
@@ -102,39 +110,39 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <h1 className="text-5xl font-black mb-4 bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 bg-clip-text text-transparent">
+            <h1 className="neon-text-tri mb-4 text-5xl font-black">
               EFOOTBALL
             </h1>
-            <p className="text-xl font-semibold text-slate-300 mb-8">
+            <p className="text-xl font-semibold text-muted-foreground mb-8">
               Premium Store
             </p>
 
             <div className="space-y-6">
-              <div className="flex items-center space-x-4 p-4 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20">
+              <div className="flex items-center space-x-4 p-4 glass rounded-2xl border border-border/60">
                 <Shield className="w-8 h-8 text-green-400" />
                 <div className="text-left">
                   <p className="font-semibold">An toàn & Bảo mật</p>
-                  <p className="text-sm text-slate-300">
+                  <p className="text-sm text-muted-foreground">
                     Giao dịch được bảo vệ 100%
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center space-x-4 p-4 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20">
+              <div className="flex items-center space-x-4 p-4 glass rounded-2xl border border-border/60">
                 <Zap className="w-8 h-8 text-yellow-400" />
                 <div className="text-left">
                   <p className="font-semibold">Giao hàng tức thì</p>
-                  <p className="text-sm text-slate-300">
+                  <p className="text-sm text-muted-foreground">
                     Nhận tài khoản ngay sau thanh toán
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center space-x-4 p-4 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20">
+              <div className="flex items-center space-x-4 p-4 glass rounded-2xl border border-border/60">
                 <Star className="w-8 h-8 text-orange-400" />
                 <div className="text-left">
                   <p className="font-semibold">Chất lượng cao</p>
-                  <p className="text-sm text-slate-300">
+                  <p className="text-sm text-muted-foreground">
                     Tài khoản premium với rating cao
                   </p>
                 </div>
@@ -152,7 +160,7 @@ export default function LoginPage() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-white/80 hover:text-white hover:bg-white/10 transition-all duration-300"
+                  className="text-muted-foreground hover:text-foreground hover:bg-accent/40 transition-all duration-300"
                 >
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Về trang chủ
@@ -170,22 +178,22 @@ export default function LoginPage() {
                   <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-green-400 to-emerald-400 rounded-full animate-pulse"></div>
                 </div>
                 <div>
-                  <h1 className="text-2xl font-black bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 bg-clip-text text-transparent">
+                  <h1 className="neon-text-tri text-2xl font-black">
                     EFOOTBALL
                   </h1>
-                  <p className="text-xs font-medium text-slate-400 -mt-1">
+                  <p className="text-xs font-medium text-muted-foreground -mt-1">
                     Premium Store
                   </p>
                 </div>
               </div>
             </div>
 
-            <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-2xl">
+            <Card className="glass border border-border/60 shadow-[0_30px_80px_-20px_rgb(var(--neon-violet)/0.5)]">
               <CardHeader className="space-y-2 pb-6">
-                <CardTitle className="text-2xl lg:text-3xl font-black text-center bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+                <CardTitle className="text-2xl lg:text-3xl font-black text-center neon-text-tri">
                   Chào mừng trở lại
                 </CardTitle>
-                <CardDescription className="text-center text-slate-600 text-base">
+                <CardDescription className="text-center text-muted-foreground text-base">
                   Đăng nhập để tiếp tục mua sắm tài khoản game
                 </CardDescription>
               </CardHeader>
@@ -195,12 +203,12 @@ export default function LoginPage() {
                   <div className="space-y-2">
                     <Label
                       htmlFor="email"
-                      className="text-sm font-semibold text-slate-700"
+                      className="text-sm font-semibold text-foreground/90"
                     >
                       Địa chỉ Email
                     </Label>
                     <div className="relative group">
-                      <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                      <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-[rgb(var(--neon-violet))] transition-colors" />
                       <Input
                         id="email"
                         name="email"
@@ -208,7 +216,7 @@ export default function LoginPage() {
                         placeholder="your@email.com"
                         value={formData.email}
                         onChange={handleInputChange}
-                        className="pl-12 pr-4 py-3 h-12 text-base border-2 border-slate-200 focus:border-blue-500 rounded-xl transition-all duration-300 focus:ring-4 focus:ring-blue-500/20"
+                        className="pl-12 pr-4 py-3 h-12 text-base border-2 bg-background/40 border-border/60 focus:border-[rgb(var(--neon-violet))] rounded-xl transition-all duration-300 focus:ring-4 focus:ring-[rgb(var(--neon-violet)/0.25)]"
                         required
                       />
                     </div>
@@ -217,12 +225,12 @@ export default function LoginPage() {
                   <div className="space-y-2">
                     <Label
                       htmlFor="password"
-                      className="text-sm font-semibold text-slate-700"
+                      className="text-sm font-semibold text-foreground/90"
                     >
                       Mật khẩu
                     </Label>
                     <div className="relative group">
-                      <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                      <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-[rgb(var(--neon-violet))] transition-colors" />
                       <Input
                         id="password"
                         name="password"
@@ -230,13 +238,13 @@ export default function LoginPage() {
                         placeholder="••••••••"
                         value={formData.password}
                         onChange={handleInputChange}
-                        className="pl-12 pr-12 py-3 h-12 text-base border-2 border-slate-200 focus:border-blue-500 rounded-xl transition-all duration-300 focus:ring-4 focus:ring-blue-500/20"
+                        className="pl-12 pr-12 py-3 h-12 text-base border-2 bg-background/40 border-border/60 focus:border-[rgb(var(--neon-violet))] rounded-xl transition-all duration-300 focus:ring-4 focus:ring-[rgb(var(--neon-violet)/0.25)]"
                         required
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400 hover:text-slate-600 transition-colors"
+                        className="absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground hover:text-muted-foreground transition-colors"
                       >
                         {showPassword ? (
                           <EyeOff className="h-5 w-5" />
@@ -262,14 +270,14 @@ export default function LoginPage() {
                       />
                       <Label
                         htmlFor="rememberMe"
-                        className="text-sm font-medium text-slate-600"
+                        className="text-sm font-medium text-muted-foreground"
                       >
                         Ghi nhớ đăng nhập
                       </Label>
                     </div>
                     <Link
                       href="/auth/forgot-password"
-                      className="text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors"
+                      className="text-sm font-semibold text-[rgb(var(--neon-cyan))] hover:text-[rgb(var(--neon-violet))] transition-colors"
                     >
                       Quên mật khẩu?
                     </Link>
@@ -277,7 +285,9 @@ export default function LoginPage() {
 
                   <Button
                     type="submit"
-                    className="w-full h-12 text-base font-semibold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
+                    variant="neon"
+                    size="xl"
+                    className="w-full"
                     disabled={isLoading}
                   >
                     {isLoading ? (
@@ -293,10 +303,10 @@ export default function LoginPage() {
 
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-slate-300" />
+                    <span className="w-full border-t border-border/60" />
                   </div>
                   <div className="relative flex justify-center text-sm">
-                    <span className="bg-white px-4 text-slate-500 font-medium">
+                    <span className="bg-card/80 backdrop-blur px-4 text-muted-foreground font-medium">
                       Hoặc đăng nhập với
                     </span>
                   </div>
@@ -304,8 +314,8 @@ export default function LoginPage() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <Button
-                    variant="outline"
-                    className="h-12 border-2 hover:bg-slate-50 transition-all duration-300 hover:scale-[1.02]"
+                    variant="glass"
+                    className="h-12 transition-all duration-300 hover:scale-[1.02]"
                   >
                     <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
                       <path
@@ -328,8 +338,8 @@ export default function LoginPage() {
                     Google
                   </Button>
                   <Button
-                    variant="outline"
-                    className="h-12 border-2 hover:bg-slate-50 transition-all duration-300 hover:scale-[1.02]"
+                    variant="glass"
+                    className="h-12 transition-all duration-300 hover:scale-[1.02]"
                   >
                     <svg
                       className="h-5 w-5 mr-2"
@@ -343,11 +353,11 @@ export default function LoginPage() {
                 </div>
 
                 <div className="text-center pt-6">
-                  <p className="text-slate-600">
+                  <p className="text-muted-foreground">
                     Chưa có tài khoản?{" "}
                     <Link
                       href="/auth/register"
-                      className="font-semibold text-blue-600 hover:text-blue-800 transition-colors"
+                      className="font-semibold text-[rgb(var(--neon-cyan))] hover:text-[rgb(var(--neon-violet))] transition-colors"
                     >
                       Đăng ký ngay
                     </Link>

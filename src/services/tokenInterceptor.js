@@ -61,19 +61,18 @@ class TokenInterceptor {
     return (expiryTime - now) <= oneHour;
   }
 
-  // Refresh admin token
   async refreshToken() {
     const refreshToken = this.getRefreshToken();
     const currentToken = this.getToken();
     
     if (!refreshToken || !currentToken) {
-      throw new Error('No refresh token available');
+      console.warn('❌ TokenInterceptor: No refresh token available, redirecting to login');
+      this.logout();
+      // Return a pending promise to halt execution while the browser redirects
+      return new Promise(() => {});
     }
 
-    try {
-      console.log('🔄 TokenInterceptor: Refreshing token...');
-      
-      const response = await fetch(`${this.baseURL}/auth/admin-refresh-token`, {
+    try {      const response = await fetch(`${this.baseURL}/auth/admin-refresh-token`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -95,27 +94,14 @@ class TokenInterceptor {
         
         // Update expiry time (24 hours from now)
         const newExpiry = Date.now() + (24 * 60 * 60 * 1000);
-        localStorage.setItem('admin_token_expiry', newExpiry.toString());
-        
-        console.log('✅ TokenInterceptor: Token refreshed successfully');
-        return data.accessToken;
+        localStorage.setItem('admin_token_expiry', newExpiry.toString());        return data.accessToken;
       } else {
         throw new Error(data.message || 'Token refresh failed');
       }
     } catch (error) {
       console.error('❌ TokenInterceptor: Token refresh failed:', error);
-      
-      // Clear all tokens on refresh failure
-      localStorage.removeItem('admin_token');
-      localStorage.removeItem('admin_refresh_token');
-      localStorage.removeItem('admin_token_expiry');
-      
-      // Redirect to login
-      if (typeof window !== 'undefined') {
-        window.location.href = '/admin/login';
-      }
-      
-      throw error;
+      this.logout();
+      return new Promise(() => {});
     }
   }
 
@@ -159,27 +145,17 @@ class TokenInterceptor {
       headers
     };
 
-    try {
-      console.log(`🌐 API Request: ${options.method || 'GET'} ${fullUrl}`);
-      
-      const response = await fetch(fullUrl, requestOptions);
+    try {      const response = await fetch(fullUrl, requestOptions);
       
       // Handle 401 Unauthorized - token expired
-      if (response.status === 401 && token) {
-        console.log('🔒 401 Unauthorized - attempting token refresh');
-        
-        try {
+      if (response.status === 401 && token) {        try {
           const newToken = await this.handleTokenRefresh();
           
           // Retry original request with new token
           const retryHeaders = {
             ...headers,
             Authorization: `Bearer ${newToken}`
-          };
-          
-          console.log(`🔄 Retrying request with new token: ${options.method || 'GET'} ${fullUrl}`);
-          
-          const retryResponse = await fetch(fullUrl, {
+          };          const retryResponse = await fetch(fullUrl, {
             ...requestOptions,
             headers: retryHeaders
           });
@@ -257,7 +233,7 @@ class TokenInterceptor {
     return this.request(url, {
       ...options,
       method: 'POST',
-      body: data ? JSON.stringify(data) : undefined
+      body: data instanceof FormData ? data : (data ? JSON.stringify(data) : undefined)
     });
   }
 
@@ -265,7 +241,7 @@ class TokenInterceptor {
     return this.request(url, {
       ...options,
       method: 'PUT',
-      body: data ? JSON.stringify(data) : undefined
+      body: data instanceof FormData ? data : (data ? JSON.stringify(data) : undefined)
     });
   }
 
@@ -273,7 +249,7 @@ class TokenInterceptor {
     return this.request(url, {
       ...options,
       method: 'PATCH',
-      body: data ? JSON.stringify(data) : undefined
+      body: data instanceof FormData ? data : (data ? JSON.stringify(data) : undefined)
     });
   }
 

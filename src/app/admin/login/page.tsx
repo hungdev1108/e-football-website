@@ -23,7 +23,8 @@ export default function AdminLogin() {
     setError('');
     
     try {
-      const response = await fetch('https://api.hieptranefootball.com/api/auth/admin-login', {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.hieptranefootball.com/api';
+      const response = await fetch(`${apiUrl}/auth/admin-login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -34,7 +35,18 @@ export default function AdminLogin() {
       const data = await response.json();
 
       if (data.success && data.accessToken) {
+        // Save access token
         localStorage.setItem('admin_token', data.accessToken);
+        
+        // Save refresh token
+        if (data.refreshToken) {
+          localStorage.setItem('admin_refresh_token', data.refreshToken);
+        }
+        
+        // Set expiry time (24 hours from now)
+        const expiryTime = Date.now() + (24 * 60 * 60 * 1000);
+        localStorage.setItem('admin_token_expiry', expiryTime.toString());
+        
         router.push('/admin');
       } else {
         setError(data.message || 'Đăng nhập thất bại');

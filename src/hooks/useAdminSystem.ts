@@ -113,6 +113,20 @@ interface Banner {
   updatedAt: string;
 }
 
+export interface BackgroundMusicTrack {
+  _id: string;
+  url: string;
+  title: string;
+  originalName: string;
+  addedAt?: string;
+}
+
+export interface BackgroundMusicConfig {
+  tracks: BackgroundMusicTrack[];
+  enabled: boolean;
+  volume: number;
+}
+
 // Types for API responses
 interface PublicSettingsData {
   siteName?: string;
@@ -236,6 +250,26 @@ const adminApi = {
       }
     });
     return response as { success: boolean; data: UploadResponse[] };
+  },
+  // Background Music
+  getBackgroundMusic: async (): Promise<{ success: boolean; data: BackgroundMusicConfig }> => {
+    const response = await tokenInterceptor.get('/system/music');
+    return response as { success: boolean; data: BackgroundMusicConfig };
+  },
+
+  updateBackgroundMusic: async (data: FormData | Record<string, unknown>): Promise<{ success: boolean; data: BackgroundMusicConfig }> => {
+    const response = await tokenInterceptor.put('/system/music', data);
+    return response as { success: boolean; data: BackgroundMusicConfig };
+  },
+
+  deleteBackgroundMusic: async (): Promise<{ success: boolean }> => {
+    const response = await tokenInterceptor.delete('/system/music');
+    return response as { success: boolean };
+  },
+
+  deleteBackgroundMusicTrack: async (trackId: string): Promise<{ success: boolean; data: BackgroundMusicConfig }> => {
+    const response = await tokenInterceptor.delete(`/system/music/track/${trackId}`);
+    return response as { success: boolean; data: BackgroundMusicConfig };
   },
 
 };
@@ -441,5 +475,72 @@ export const usePublicBanners = () => {
   return useQuery({
     queryKey: ['public', 'banners'],
     queryFn: adminApi.getPublicBanners,
+  });
+};
+
+// Background Music hooks
+export const useBackgroundMusic = () => {
+  return useQuery({
+    queryKey: ['system', 'music'],
+    queryFn: adminApi.getBackgroundMusic,
+  });
+};
+
+export const useUpdateBackgroundMusic = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: adminApi.updateBackgroundMusic,
+    onSuccess: (data) => {
+      if (data.success) {
+        queryClient.invalidateQueries({ queryKey: ['system', 'music'] });
+        queryClient.invalidateQueries({ queryKey: ['admin', 'system'] });
+        toast.success('Cập nhật nhạc nền thành công');
+      } else {
+        toast.error('Cập nhật nhạc nền thất bại');
+      }
+    },
+    onError: () => {
+      toast.error('Lỗi khi cập nhật nhạc nền');
+    },
+  });
+};
+
+export const useDeleteBackgroundMusic = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: adminApi.deleteBackgroundMusic,
+    onSuccess: (data) => {
+      if (data.success) {
+        queryClient.invalidateQueries({ queryKey: ['system', 'music'] });
+        queryClient.invalidateQueries({ queryKey: ['admin', 'system'] });
+        toast.success('Xóa nhạc nền thành công');
+      } else {
+        toast.error('Xóa nhạc nền thất bại');
+      }
+    },
+    onError: () => {
+      toast.error('Lỗi khi xóa nhạc nền');
+    },
+  });
+};
+
+export const useDeleteBackgroundMusicTrack = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: adminApi.deleteBackgroundMusicTrack,
+    onSuccess: (data) => {
+      if (data.success) {
+        queryClient.invalidateQueries({ queryKey: ['system', 'music'] });
+        toast.success('Xóa bài nhạc thành công');
+      } else {
+        toast.error('Xóa bài nhạc thất bại');
+      }
+    },
+    onError: () => {
+      toast.error('Lỗi khi xóa bài nhạc');
+    },
   });
 };

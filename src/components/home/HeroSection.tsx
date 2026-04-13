@@ -1,194 +1,181 @@
 "use client";
 
-import { memo } from "react";
+import { memo, useState, useEffect, useCallback } from "react";
 import Image from "next/image";
-import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
+import Link from "next/link";
+import { ArrowRight, Sparkles, ShieldCheck, ChevronLeft, ChevronRight } from "lucide-react";
+import "./hero-slider.css";
+import { Button } from "@/components/ui/button";
 
 interface HeroSectionProps {
   className?: string;
 }
 
+const bannerImages = [
+  { src: "/Banner_efootball-new.jpg", alt: "eFootball Banner" },
+  { src: "/Banner_coin-new.jpg", alt: "Coin Banner" },
+];
+
 export const HeroSection = memo(function HeroSection({
   className,
 }: HeroSectionProps) {
-  const settings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    autoplay: true,
-    autoplaySpeed: 4000,
-    fade: true,
-    cssEase: "linear",
-    pauseOnHover: true,
-    arrows: true,
-    responsive: [
-      {
-        breakpoint: 768,
-        settings: {
-          arrows: false,
-          dots: true,  // ← Thay đổi từ false thành true
-        }
-      }
-    ]
-  };
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isClient, setIsClient] = useState(false);
 
-  const bannerImages = [
-    {
-      src: "/Banner_1.png",
-      alt: "eFootball Banner"
-    },
-    {
-      src: "/Banner_2.png", 
-      alt: "Coin Banner"
-    }
-  ];
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // Auto-play
+  useEffect(() => {
+    if (!isClient) return;
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % bannerImages.length);
+    }, 4500);
+    return () => clearInterval(timer);
+  }, [isClient]);
+
+  const goToSlide = useCallback((index: number) => {
+    setCurrentSlide(index);
+  }, []);
+
+  const nextSlide = useCallback(() => {
+    setCurrentSlide((prev) => (prev + 1) % bannerImages.length);
+  }, []);
+
+  const prevSlide = useCallback(() => {
+    setCurrentSlide((prev) => (prev - 1 + bannerImages.length) % bannerImages.length);
+  }, []);
 
   return (
-    <section className={`relative w-full py-4 md:pt-8 ${className || ""}`}>
-      <div className="container mx-auto px-4 lg:px-6">
-        <div className="hero-slider relative pb-2 md:pb-2">
-          <div className="rounded-xl md:rounded-2xl">
-            <Slider {...settings}>
-              {bannerImages.map((banner, index) => (
-                <div key={index} className="relative">
-                  <div className="relative w-full h-[200px] sm:h-[250px] md:h-[350px] lg:h-[400px] xl:h-[460px]">
-                    <Image
-                      src={banner.src}
-                      alt={banner.alt}
-                      fill
-                      className="w-full h-full object-cover rounded-xl"
-                      priority={index === 0}
-                      sizes="(max-width: 640px) 100vw, (max-width: 768px) 100vw, (max-width: 1024px) 100vw, 100vw"
-                    />
+    <section
+      className={`relative w-full overflow-hidden py-6 md:pt-10 md:pb-14 ${
+        className || ""
+      }`}
+    >
+      <div className="container relative z-10 mx-auto px-4 lg:px-6">
+        <div className="grid items-center gap-8 md:grid-cols-[1.05fr_1fr] md:gap-10">
+          {/* TEXT SIDE */}
+          <div className="text-center md:text-left">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/50 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur">
+              <Sparkles className="h-3.5 w-3.5 text-purple-500" />
+              <span>Premium eFootball Account Store</span>
+            </div>
+
+            <h1 className="text-4xl font-black leading-[1.08] tracking-tight md:text-5xl lg:text-6xl">
+              <span className="neon-text-tri">Tài khoản eFootball</span>
+              <br />
+              <span className="text-foreground">đẳng cấp hàng đầu</span>
+            </h1>
+
+            <p className="mx-auto mt-4 max-w-xl text-sm text-muted-foreground md:mx-0 md:text-base">
+              Khám phá hàng nghìn tài khoản chất lượng, bảo mật tuyệt đối, giao
+              dịch tức thì. Chọn ngay đội hình mơ ước của bạn.
+            </p>
+
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-3 md:justify-start">
+              <Button variant="neon" size="lg" asChild>
+                <Link href="/accounts">
+                  Mua ngay
+                  <ArrowRight className="ml-1 h-4 w-4" />
+                </Link>
+              </Button>
+              <Button variant="glass" size="lg" asChild>
+                <Link href="/news">Xem tin tức</Link>
+              </Button>
+            </div>
+
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-5 text-xs text-muted-foreground md:justify-start">
+              <span className="inline-flex items-center gap-1.5">
+                <ShieldCheck className="h-4 w-4 text-emerald-400" />
+                Bảo mật 100%
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
+                Online 24/7
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <Sparkles className="h-4 w-4 text-cyan-400" />
+                10,000+ khách hàng
+              </span>
+            </div>
+          </div>
+
+          {/* SLIDER SIDE — CSS-only slider, no hydration issues */}
+          <div className="relative w-full">
+            {/* Neon halo phía sau */}
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -inset-4 rounded-[32px] opacity-50 blur-3xl"
+              style={{
+                background:
+                  "linear-gradient(135deg, rgba(34,211,238,0.45), rgba(168,85,247,0.5) 50%, rgba(244,114,182,0.4))",
+              }}
+            />
+
+            <div className="hero-slider relative overflow-hidden rounded-2xl">
+              {/* Slides container */}
+              <div
+                className="hero-slides-track"
+                style={{
+                  transform: `translateX(-${currentSlide * 100}%)`,
+                  transition: "transform 0.6s cubic-bezier(0.65, 0, 0.35, 1)",
+                }}
+              >
+                {bannerImages.map((banner, index) => (
+                  <div key={index} className="hero-slide-item">
+                    <div className="hero-slide-inner">
+                      <Image
+                        src={banner.src}
+                        alt={banner.alt}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                        className="object-cover"
+                        priority={index === 0}
+                        quality={85}
+                      />
+                      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent" />
+                      <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/15 rounded-2xl" />
+                    </div>
                   </div>
-                </div>
-              ))}
-            </Slider>
+                ))}
+              </div>
+
+              {/* Navigation arrows */}
+              {bannerImages.length > 1 && (
+                <>
+                  <button
+                    onClick={prevSlide}
+                    className="cursor-pointer absolute left-2 top-1/2 -translate-y-1/2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-sm transition-all hover:bg-black/60 hover:scale-110"
+                    aria-label="Previous slide"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={nextSlide}
+                    className="cursor-pointer absolute right-2 top-1/2 -translate-y-1/2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-sm transition-all hover:bg-black/60 hover:scale-110"
+                    aria-label="Next slide"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
+                </>
+              )}
+
+              {/* Dots indicator */}
+              <div className="hero-dots">
+                {bannerImages.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => goToSlide(index)}
+                    className={`cursor-pointer hero-dot ${currentSlide === index ? "hero-dot-active" : ""}`}
+                    aria-label={`Go to slide ${index + 1}`}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
-
-      <style jsx global>{`
-        .hero-slider {
-          width: 100%;
-          position: relative;
-        }
-        
-        .hero-slider .slick-slide {
-          outline: none;
-        }
-        
-        .hero-slider .slick-slide > div {
-          width: 100%;
-        }
-        
-        .hero-slider .slick-dots {
-          bottom: -25px;
-          position: absolute;
-          z-index: 10;
-          display: flex !important;
-          justify-content: center;
-          width: 100%;
-          left: 50%;
-          transform: translateX(-50%);
-          gap: 8px;
-        }
-        
-        .hero-slider .slick-dots li {
-          margin: 0;
-          width: auto;
-          height: auto;
-        }
-        
-        .hero-slider .slick-dots li button {
-          width: 40px;
-          height: 4px;
-          padding: 0;
-          border: none;
-          border-radius: 2px;
-          background: #e2e8f0;
-          transition: all 0.3s ease;
-          cursor: pointer;
-        }
-        
-        .hero-slider .slick-dots li button:before {
-          display: none;
-        }
-        
-        .hero-slider .slick-dots li.slick-active button {
-          background: #1e293b;
-          width: 40px;
-          height: 4px;
-        }
-        
-        .hero-slider .slick-dots li button:hover {
-          background: #64748b;
-        }
-        
-        .hero-slider .slick-dots li.slick-active button:hover {
-          background: #0f172a;
-        }
-        
-        
-        /* Mobile optimizations */
-        @media (max-width: 640px) {
-          .hero-slider .slick-dots {
-            bottom: -20px;
-            gap: 6px;
-          }
-          
-          .hero-slider .slick-dots li button {
-            width: 30px;
-            height: 3px;
-          }
-          
-          .hero-slider .slick-dots li.slick-active button {
-            width: 30px;
-            height: 3px;
-          }
-          
-        }
-        
-        /* Tablet và Desktop */
-        @media (min-width: 768px) {
-          .hero-slider .slick-dots {
-            bottom: -35px;
-            gap: 10px;
-          }
-          
-          .hero-slider .slick-dots li button {
-            width: 45px;
-            height: 4px;
-          }
-          
-          .hero-slider .slick-dots li.slick-active button {
-            width: 45px;
-            height: 4px;
-          }
-        }
-        
-        @media (min-width: 1024px) {
-          .hero-slider .slick-dots {
-            bottom: -20px;
-            gap: 12px;
-          }
-          
-          .hero-slider .slick-dots li button {
-            width: 50px;
-            height: 4px;
-          }
-          
-          .hero-slider .slick-dots li.slick-active button {
-            width: 50px;
-            height: 4px;
-          }
-
-        }
-      `}</style>
     </section>
   );
 });

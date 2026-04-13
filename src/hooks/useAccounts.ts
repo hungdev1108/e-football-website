@@ -14,12 +14,8 @@ export const useAccounts = (params?: {
 }) => {
   return useQuery({
     queryKey: ['accounts', params],
-    queryFn: async () => {
-      console.log('🔍 Calling API with params:', params);
-      try {
-        const result = await accountService.getAccounts(params);
-        console.log('✅ API Response:', result);
-        return result;
+    queryFn: async () => {      try {
+        const result = await accountService.getAccounts(params);        return result;
       } catch (error) {
         console.error('❌ API Error:', error);
         console.error('🚨 useAccounts Error:', error);
@@ -56,12 +52,8 @@ export const useAccount = (id: string) => {
 export const useCategories = () => {
   return useQuery({
     queryKey: ['categories'],
-    queryFn: async () => {
-      console.log('🔍 Calling Categories API...');
-      try {
-        const result = await accountService.getCategories();
-        console.log('✅ Categories API Response:', result);
-        return result;
+    queryFn: async () => {      try {
+        const result = await accountService.getCategories();        return result;
       } catch (error) {
         console.error('❌ Categories API Error:', error);
         throw error;

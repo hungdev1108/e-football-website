@@ -22,8 +22,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import { Filter, Search, Grid, List, Star, LoaderIcon, X } from "lucide-react";
+import { Filter, Search, Grid, List, Star, X } from "lucide-react";
 import { Header } from "@/components/layout/Header";
+import { Skeleton } from "@/components/ui/skeleton";
+import { FooterSection } from "@/components/home/FooterSection";
 import { useAccounts, useCategories } from "@/hooks/useAccounts";
 import { ApiGameAccount, ApiCategory } from "@/types";
 import { getImageUrl, getPlaceholderUrl } from "@/utils/imageUtils";
@@ -47,11 +49,7 @@ export default function AccountsPage() {
     limit: 12,
     ...filters,
     search: searchQuery || undefined,
-  };
-
-  console.log("🔍 Query params sent to API:", queryParams);
-
-  const { data: accountsData, isLoading: loadingAccounts } =
+  };  const { data: accountsData, isLoading: loadingAccounts } =
     useAccounts(queryParams);
 
   const { data: categoriesData, isLoading: loadingCategories } =
@@ -76,12 +74,7 @@ export default function AccountsPage() {
   const pagination = (accountsData as AccountsApiResponse)?.pagination;
   const categories = (categoriesData as CategoriesApiResponse)?.data || [];
 
-  // Debug logs
-  console.log("🔍 accountsData:", accountsData);
-  console.log("📊 accounts extracted:", accounts);
-  console.log("📄 pagination:", pagination);
-
-  const formatPrice = (price: number) => {
+  // Debug logs  const formatPrice = (price: number) => {
     if (price === -1) {
       return "📞 Liên hệ";
     }
@@ -228,9 +221,7 @@ export default function AccountsPage() {
       <div className="space-y-3">
         <Label className="text-sm md:text-base font-medium">Danh mục</Label>
         {loadingCategories ? (
-          <div className="flex items-center justify-center h-10">
-            <LoaderIcon className="w-4 h-4 animate-spin" />
-          </div>
+          <Skeleton className="h-9 w-full rounded-md" />
         ) : (
           <Select
             value={filters.category || "all"}
@@ -305,7 +296,7 @@ export default function AccountsPage() {
             step={50000}
             className="w-full"
           />
-          <div className="flex justify-between text-xs md:text-sm text-gray-500">
+          <div className="flex justify-between text-xs md:text-sm text-muted-foreground">
             <span>{formatPrice(filters.minPrice)}</span>
             <span>{formatPrice(filters.maxPrice)}</span>
           </div>
@@ -319,17 +310,25 @@ export default function AccountsPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="relative min-h-screen">
       <Header />
 
-      <div className="container mx-auto px-4 py-4 md:py-8 lg:px-6">
+      <div className="container mx-auto px-4 py-6 md:py-10 lg:px-6">
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-3xl font-black tracking-tight md:text-4xl">
+            <span className="neon-text-tri">Tài khoản game</span>
+          </h1>
+          <p className="mt-2 text-sm text-muted-foreground md:text-base">
+            Khám phá và chọn tài khoản eFootball phù hợp với bạn
+          </p>
+        </div>
         <div className="flex flex-col lg:flex-row gap-4 md:gap-8">
           {/* Desktop Sidebar Filters */}
           <div className="hidden lg:block lg:w-1/4">
-            <Card className="sticky top-24">
+            <Card className="glass sticky top-24 border-border/60">
               <CardHeader className="pb-4">
                 <CardTitle className="flex items-center gap-2 text-xl">
-                  <Filter className="h-5 w-5" />
+                  <Filter className="h-5 w-5 text-[rgb(var(--neon-violet))]" />
                   Bộ lọc
                 </CardTitle>
               </CardHeader>
@@ -339,9 +338,9 @@ export default function AccountsPage() {
 
           {/* Mobile Filters Overlay */}
           {showMobileFilters && (
-            <div className="lg:hidden fixed inset-0 bg-black/50 z-50">
-              <div className="bg-white h-full w-full max-w-sm ml-auto overflow-y-auto">
-                <div className="p-4 border-b flex items-center justify-between">
+            <div className="lg:hidden fixed inset-0 z-50 bg-background/70 backdrop-blur-sm">
+              <div className="h-full w-full max-w-sm ml-auto overflow-y-auto bg-card text-card-foreground border-l border-border">
+                <div className="p-4 border-b border-border flex items-center justify-between">
                   <h2 className="text-lg font-semibold">Bộ lọc</h2>
                   <Button
                     variant="ghost"
@@ -361,23 +360,24 @@ export default function AccountsPage() {
           {/* Main Content */}
           <div className="lg:w-3/4">
             {/* Search Bar */}
-            <Card className="mb-4 md:mb-6">
+            <Card className="glass mb-4 md:mb-6 border-border/60">
               <CardContent className="p-3 md:p-4">
                 <form onSubmit={handleSearch} className="flex gap-2 md:gap-4">
                   <div className="flex-1 relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
                       type="text"
                       placeholder="Tìm kiếm tài khoản..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10 text-sm md:text-base"
+                      className="pl-10 text-sm md:text-base bg-background/40"
                     />
                   </div>
                   <Button
                     type="submit"
+                    variant="neon"
                     size="sm"
-                    className="px-3 md:px-4 text-sm md:text-base"
+                    className="px-3 md:px-5 text-sm md:text-base"
                   >
                     <span className="hidden md:inline">Tìm kiếm</span>
                     <Search className="h-4 w-4 md:hidden" />
@@ -399,7 +399,7 @@ export default function AccountsPage() {
                   Bộ lọc
                 </Button>
                 {pagination && (
-                  <div className="text-xs md:text-sm text-gray-600">
+                  <div className="text-xs md:text-sm text-muted-foreground">
                     <span className="hidden md:inline">
                       Hiển thị {accounts.length} trong {pagination.totalItems}{" "}
                       tài khoản
@@ -413,7 +413,7 @@ export default function AccountsPage() {
 
               <div className="flex items-center justify-between md:justify-end md:gap-4">
                 {pagination && (
-                  <div className="text-xs text-gray-500 md:hidden">
+                  <div className="text-xs text-muted-foreground md:hidden">
                     Trang {pagination.currentPage}/{pagination.totalPages}
                   </div>
                 )}
@@ -440,25 +440,24 @@ export default function AccountsPage() {
 
             {/* Loading State */}
             {loadingAccounts && (
-              <div className="flex items-center justify-center h-64">
-                <LoaderIcon className="w-6 h-6 md:w-8 md:h-8 animate-spin" />
-                <span className="ml-2 text-sm md:text-base">
-                  Đang tải tài khoản...
-                </span>
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-2 md:gap-6 xl:grid-cols-3">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <Skeleton key={i} className="h-[340px] w-full rounded-2xl" />
+                ))}
               </div>
             )}
 
             {/* No Results */}
             {!loadingAccounts && accounts.length === 0 && (
-              <div className="text-center py-12 md:py-16 px-4">
-                <div className="text-4xl md:text-6xl mb-4">🔍</div>
-                <h3 className="text-lg md:text-xl font-bold mb-2">
+              <div className="glass mx-auto max-w-md rounded-2xl py-12 px-6 text-center md:py-16">
+                <div className="text-5xl md:text-6xl mb-4">🔍</div>
+                <h3 className="text-lg md:text-xl font-bold text-foreground mb-2">
                   Không tìm thấy tài khoản nào
                 </h3>
-                <p className="text-gray-600 mb-4 text-sm md:text-base">
+                <p className="text-muted-foreground mb-5 text-sm md:text-base">
                   Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm
                 </p>
-                <Button onClick={clearFilters} size="sm">
+                <Button onClick={clearFilters} variant="neon" size="sm">
                   Xóa bộ lọc
                 </Button>
               </div>
@@ -476,7 +475,7 @@ export default function AccountsPage() {
                 {accounts.map((account: ApiGameAccount) => (
                   <Link key={account._id} href={`/accounts/${account._id}`}>
                     <Card
-                      className={`group cursor-pointer overflow-hidden border-0 bg-white/95 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-1 rounded-2xl flex flex-col p-0 ${
+                      className={`group glass cursor-pointer overflow-hidden border border-border/60 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_-20px_rgb(var(--neon-violet)/0.55)] rounded-2xl flex flex-col p-0 ${
                         viewMode === "grid" ? "h-full" : "h-auto"
                       } ${viewMode === "list" ? "mb-2" : ""}`}
                     >
@@ -513,7 +512,7 @@ export default function AccountsPage() {
                           <div className="absolute top-3 left-3 md:top-4 md:left-4">
                             <Badge
                               variant="secondary"
-                              className="bg-white/95 backdrop-blur-sm text-slate-700 text-xs md:text-sm shadow-md border-0"
+                              className="bg-background/70 backdrop-blur text-foreground text-xs md:text-sm shadow-md border-0"
                             >
                               <span className="md:hidden">
                                 {getPlatformIcon(
@@ -533,7 +532,7 @@ export default function AccountsPage() {
 
                           {/* Account code badge */}
                           <div className="absolute top-3 right-3 md:top-4 md:right-4">
-                            <Badge className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs md:text-sm shadow-md border-0">
+                            <Badge className="bg-gradient-to-r from-[rgb(var(--neon-cyan))] to-[rgb(var(--neon-violet))] text-white text-xs md:text-sm shadow-[0_0_15px_rgb(var(--neon-violet)/0.6)] border-0">
                               {account.accountCode}
                             </Badge>
                           </div>
@@ -553,7 +552,7 @@ export default function AccountsPage() {
                           {/* Featured badge */}
                           {account.featured && (
                             <div className="absolute bottom-3 left-3 md:bottom-4 md:left-4">
-                              <Badge className="bg-gradient-to-r from-yellow-500 to-amber-500 text-white text-xs md:text-sm shadow-md border-0">
+                              <Badge className="bg-gradient-to-r from-amber-400 to-yellow-500 text-black text-xs md:text-sm shadow-[0_0_15px_rgba(251,191,36,0.6)] border-0">
                                 ⭐{" "}
                                 <span className="hidden md:inline">
                                   Nổi bật
@@ -577,14 +576,14 @@ export default function AccountsPage() {
                             }`}
                           >
                             <CardTitle
-                              className={`text-sm md:text-lg line-clamp-1 text-slate-800 group-hover:text-blue-600 transition-colors duration-200 font-semibold ${
+                              className={`text-sm md:text-lg line-clamp-1 text-foreground group-hover:text-[rgb(var(--neon-cyan))] transition-colors duration-200 font-semibold ${
                                 viewMode === "grid" ? "h-4 md:h-7" : ""
                               }`}
                             >
                               {account.title}
                             </CardTitle>
                             <CardDescription
-                              className={`text-xs md:text-sm text-slate-500 mt-1 leading-4 md:leading-5 ${
+                              className={`text-xs md:text-sm text-muted-foreground mt-1 leading-4 md:leading-5 ${
                                 viewMode === "list"
                                   ? "line-clamp-2"
                                   : "hidden md:block line-clamp-2 h-8 md:h-10"
@@ -603,17 +602,15 @@ export default function AccountsPage() {
                           >
                             {/* Desktop: same row, Mobile: separate rows */}
                             <div className="hidden md:flex items-center justify-between mb-4 md:mb-5">
-                              <div className="flex items-center gap-1 md:gap-2 bg-amber-50 px-2 py-1 rounded-lg">
-                                <Star className="h-3 w-3 md:h-4 md:w-4 text-amber-500 fill-current" />
-                                <span className="text-xs md:text-sm font-semibold text-amber-700">
+                              <div className="flex items-center gap-1 md:gap-2 rounded-lg border border-border/50 bg-background/40 px-2 py-1 backdrop-blur">
+                                <Star className="h-3 w-3 md:h-4 md:w-4 fill-amber-400 text-amber-400" />
+                                <span className="text-xs md:text-sm font-semibold text-foreground">
                                   {account.collectiveStrength}
                                 </span>
                               </div>
                               <div
-                                className={`text-base md:text-xl font-bold ${
-                                  account.price === -1
-                                    ? "bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent animate-pulse"
-                                    : "bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
+                                className={`text-base md:text-xl font-bold neon-text ${
+                                  account.price === -1 ? "animate-pulse" : ""
                                 }`}
                               >
                                 {formatPrice(account.price)}
@@ -623,16 +620,14 @@ export default function AccountsPage() {
                             {/* Mobile: separate rows */}
                             <div className="md:hidden space-y-2 mb-4">
                               <div className="flex items-center gap-2">
-                                <Star className="h-3 w-3 text-amber-500 fill-current" />
-                                <span className="text-xs font-semibold text-amber-700">
+                                <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                                <span className="text-xs font-semibold text-foreground">
                                   {account.collectiveStrength}
                                 </span>
                               </div>
                               <div
-                                className={`text-sm font-bold ${
-                                  account.price === -1
-                                    ? "bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent animate-pulse"
-                                    : "bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
+                                className={`text-sm font-bold neon-text ${
+                                  account.price === -1 ? "animate-pulse" : ""
                                 }`}
                               >
                                 {formatPrice(account.price)}
@@ -640,7 +635,8 @@ export default function AccountsPage() {
                             </div>
 
                             <Button
-                              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white border-0 shadow-md hover:shadow-lg transition-all duration-200 text-sm md:text-sm py-2.5 md:py-3 rounded-xl font-semibold"
+                              variant="neon"
+                              className="w-full text-sm md:text-sm py-2.5 md:py-3 rounded-xl font-semibold"
                               disabled={account.status !== "available"}
                             >
                               <span className="hidden md:inline">
@@ -668,6 +664,7 @@ export default function AccountsPage() {
           </div>
         </div>
       </div>
+      <FooterSection />
     </div>
   );
 }

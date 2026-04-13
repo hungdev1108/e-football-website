@@ -64,14 +64,15 @@ export const Sidebar = memo(function Sidebar({ className }: SidebarProps) {
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetContent
           side="left"
-          className="w-[280px] sm:w-[320px] p-0 bg-white [&>button]:text-white [&>button]:hover:text-white/80 [&>button]:border-0 [&>button]:ring-0 [&>button]:outline-0"
+          className="w-[280px] sm:w-[320px] p-0 bg-sidebar text-sidebar-foreground border-r border-sidebar-border [&>button]:text-white [&>button]:hover:text-white/80 [&>button]:border-0 [&>button]:ring-0 [&>button]:outline-0"
         >
           <VisuallyHidden>
             <SheetTitle>Menu điều hướng</SheetTitle>
           </VisuallyHidden>
-          
+
           {/* Header */}
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-white">
+          <div className="relative overflow-hidden bg-gradient-to-br from-[rgb(var(--neon-violet)/0.85)] via-[rgb(var(--neon-cyan)/0.7)] to-[rgb(var(--neon-pink)/0.7)] p-6 text-white">
+            <div className="pointer-events-none absolute inset-0 opacity-40 mix-blend-overlay" style={{background:"radial-gradient(600px 200px at 20% 0%, rgba(255,255,255,0.4), transparent 60%)"}} />
             <div className="mb-4">
               <Link
                 href="/"
@@ -89,7 +90,7 @@ export const Sidebar = memo(function Sidebar({ className }: SidebarProps) {
               </Link>
             </div>
 
-            <p className="text-sm text-blue-100">
+            <p className="relative text-sm text-white/85">
               Nền tảng mua bán tài khoản eFootball uy tín
             </p>
           </div>
@@ -105,10 +106,10 @@ export const Sidebar = memo(function Sidebar({ className }: SidebarProps) {
                     <Link
                       key={item.name}
                       href={item.href}
-                      className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 group"
+                      className="group flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-sidebar-foreground/80 transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                       onClick={closeMenu}
                     >
-                      <IconComponent className="h-5 w-5 text-slate-400 group-hover:text-blue-600 transition-colors" />
+                      <IconComponent className="h-5 w-5 text-muted-foreground transition-colors group-hover:text-[rgb(var(--neon-violet))]" />
                       {item.name}
                     </Link>
                   );
@@ -117,11 +118,11 @@ export const Sidebar = memo(function Sidebar({ className }: SidebarProps) {
             </nav>
 
             {/* Auth Section */}
-            <div className="border-t border-slate-200 p-4">
+            <div className="border-t border-sidebar-border p-4">
               <div className="space-y-2">
                 <Button
-                  variant="ghost"
-                  className="w-full justify-start gap-3 hover:bg-blue-50 hover:text-blue-600"
+                  variant="outline"
+                  className="w-full justify-start gap-3"
                   asChild
                 >
                   <Link href="/auth/login" onClick={closeMenu}>
@@ -129,10 +130,7 @@ export const Sidebar = memo(function Sidebar({ className }: SidebarProps) {
                     Đăng nhập
                   </Link>
                 </Button>
-                <Button
-                  className="w-full justify-start gap-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
-                  asChild
-                >
+                <Button variant="neon" className="w-full justify-start gap-3" asChild>
                   <Link href="/auth/register" onClick={closeMenu}>
                     <UserPlus className="h-4 w-4" />
                     Đăng ký
@@ -142,27 +140,27 @@ export const Sidebar = memo(function Sidebar({ className }: SidebarProps) {
             </div>
 
             {/* Contact Info */}
-            <div className="border-t border-slate-200 p-4">
+            <div className="border-t border-sidebar-border p-4">
               <div className="space-y-3">
-                <h3 className="text-sm font-semibold text-slate-700">
+                <h3 className="text-sm font-semibold text-sidebar-foreground">
                   Liên hệ hỗ trợ
                 </h3>
                 <div className="space-y-3">
-                  <div className="flex items-center gap-3 text-sm text-slate-600">
-                    <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                      <span className="text-green-600">📱</span>
+                  <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[rgb(var(--neon-emerald)/0.15)]">
+                      <span>📱</span>
                     </div>
                     <div>
-                      <div className="font-medium">Zalo</div>
+                      <div className="font-medium text-sidebar-foreground">Zalo</div>
                       <div className="text-xs">0395860670</div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3 text-sm text-slate-600">
-                    <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <span className="text-blue-600">⏰</span>
+                  <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[rgb(var(--neon-cyan)/0.18)]">
+                      <span>⏰</span>
                     </div>
                     <div>
-                      <div className="font-medium">Giờ hoạt động</div>
+                      <div className="font-medium text-sidebar-foreground">Giờ hoạt động</div>
                       <div className="text-xs">8:00 - 22:00</div>
                     </div>
                   </div>
@@ -171,12 +169,12 @@ export const Sidebar = memo(function Sidebar({ className }: SidebarProps) {
             </div>
 
             {/* Status Badge */}
-            <div className="border-t border-slate-200 p-4">
+            <div className="border-t border-sidebar-border p-4">
               <Badge
                 variant="secondary"
-                className="w-full justify-center bg-green-50 text-green-700 border-green-200"
+                className="w-full justify-center bg-[rgb(var(--neon-emerald)/0.12)] text-[rgb(var(--neon-emerald))] border border-[rgb(var(--neon-emerald)/0.3)]"
               >
-                <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+                <div className="mr-2 h-2 w-2 animate-pulse rounded-full bg-[rgb(var(--neon-emerald))]" />
                 Đang hoạt động
               </Badge>
             </div>

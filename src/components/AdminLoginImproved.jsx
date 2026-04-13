@@ -23,9 +23,7 @@ export default function AdminLoginImproved() {
 
   // Redirect if already authenticated
   useEffect(() => {
-    if (isAuthenticated) {
-      console.log('🔄 Already authenticated, redirecting immediately...');
-      setSuccess(true);
+    if (isAuthenticated) {      setSuccess(true);
       router.push('/admin');
     }
   }, [isAuthenticated, router]);
@@ -41,17 +39,8 @@ export default function AdminLoginImproved() {
     e.preventDefault();
     setLoading(true);
     setError('');
-    setSuccess(false);
-    
-    console.log('🔐 Admin login attempt:', { username: credentials.username, password: '***' });
-    
-    try {
-      const result = await login(credentials);
-      console.log('🔐 Login result:', result);
-      console.log('🔐 Login result type:', typeof result);
-      console.log('🔐 Login result success property:', result?.success);
-      
-      // Check if result is successful
+    setSuccess(false);    try {
+      const result = await login(credentials);      // Check if result is successful
       // Handle both object response and string response
       const isSuccess = result && (
         result.success === true || 
@@ -59,19 +48,13 @@ export default function AdminLoginImproved() {
         (result.message && result.message.includes('thành công'))
       );
       
-      if (isSuccess) {
-        console.log('✅ Admin login successful');
-        setSuccess(true);
+      if (isSuccess) {        setSuccess(true);
         setCredentials({ username: '', password: '' });
         
-        // Show success message briefly then redirect
-        console.log('🔄 Redirecting to admin dashboard...');
-        setTimeout(() => {
+        // Show success message briefly then redirect        setTimeout(() => {
           router.push('/admin');
         }, 800);
-      } else {
-        console.log('❌ Login failed:', result);
-        const errorMessage = result?.message || result || 'Đăng nhập thất bại';
+      } else {        const errorMessage = result?.message || result || 'Đăng nhập thất bại';
         setError(errorMessage);
       }
     } catch (error) {

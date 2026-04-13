@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/layout/providers";
+import { AuroraBackground } from "@/components/effects/AuroraBackground";
+import { CommandPaletteMount } from "@/components/ui/command-palette-mount";
 
 const inter = Inter({
   subsets: ["latin", "vietnamese"],
@@ -86,10 +88,14 @@ export default function RootLayout({
     <html lang="vi" suppressHydrationWarning>
       <link rel="icon" href="/favicon.ico" />
       <body
-        className={`${inter.className} antialiased min-h-screen bg-background`}
+        className={`${inter.className} antialiased min-h-screen bg-background text-foreground`}
         suppressHydrationWarning
       >
-        <Providers>{children}</Providers>
+        <Providers>
+          <AuroraBackground />
+          {children}
+          <CommandPaletteMount />
+        </Providers>
       </body>
     </html>
   );

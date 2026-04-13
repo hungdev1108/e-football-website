@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'react-hot-toast';
 import tokenInterceptor from '@/services/tokenInterceptor';
 
 // Define types
@@ -49,9 +50,7 @@ export const useCreateNews = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (newsData: NewsData) => {
-      console.log('🔍 Frontend sending data:', newsData);
-      const response = await tokenInterceptor.post('/news', newsData);
+    mutationFn: async (newsData: NewsData) => {      const response = await tokenInterceptor.post('/news', newsData);
       return response.data;
     },
     onSuccess: () => {
@@ -86,6 +85,12 @@ export const useDeleteNews = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['adminNews'] });
+      toast.success('Xóa tin tức thành công');
+    },
+    onError: (error: Error & { status?: number; data?: { message?: string } }) => {
+      console.error('Delete news error:', error);
+      const msg = error?.data?.message || error?.message || 'Lỗi khi xóa tin tức';
+      toast.error(msg);
     },
   });
 };

@@ -1,0 +1,93 @@
+/* Hero slider styles — pure CSS, no react-slick dependency */
+
+.hero-slider {
+  position: relative;
+}
+
+/* Slides track — flexbox horizontal strip */
+.hero-slides-track {
+  display: flex;
+  width: 100%;
+  will-change: transform;
+}
+
+/* Each slide takes full width */
+.hero-slide-item {
+  flex: 0 0 100%;
+  min-width: 100%;
+}
+
+/* Slide inner height — responsive via media queries */
+.hero-slide-inner {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+@media (min-width: 640px) {
+  .hero-slide-inner {
+    height: 260px;
+  }
+}
+
+@media (min-width: 768px) {
+  .hero-slide-inner {
+    height: 300px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-slide-inner {
+    height: 360px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .hero-slide-inner {
+    height: 400px;
+  }
+}
+
+/* Dots */
+.hero-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.hero-dot {
+  width: 28px;
+  height: 3px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--foreground) 28%, transparent);
+  cursor: pointer;
+  transition: all 0.35s ease;
+}
+
+.hero-dot:hover {
+  background: color-mix(in oklab, var(--foreground) 50%, transparent);
+}
+
+.hero-dot-active {
+  width: 42px;
+  background: linear-gradient(
+    90deg,
+    rgba(34, 211, 238, 1),
+    rgba(168, 85, 247, 1)
+  );
+  box-shadow: 0 0 12px rgba(168, 85, 247, 0.6);
+}
+
+@media (min-width: 768px) {
+  .hero-dot {
+    width: 36px;
+  }
+  .hero-dot-active {
+    width: 52px;
+  }
+}

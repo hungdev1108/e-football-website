@@ -5,7 +5,7 @@ import { Header } from "@/components/layout/Header";
 import { HeroSection } from "@/components/home/HeroSection";
 import { SloganSection } from "@/components/home/SloganSection";
 import { ChatWidget } from "@/components/ui/ChatWidget";
-import { LoaderIcon } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // Lazy load các components không cần thiết ngay lập tức
 const CategoriesSection = lazy(() =>
@@ -38,16 +38,19 @@ const FooterSection = lazy(() =>
   }))
 );
 
-// Loading component để hiển thị khi lazy load
 const SectionSkeleton = () => (
-  <div className="flex items-center justify-center h-64">
-    <LoaderIcon className="w-8 h-8 animate-spin" />
+  <div className="container mx-auto px-4 lg:px-6 py-12">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <Skeleton key={i} className="h-64 w-full rounded-2xl" />
+      ))}
+    </div>
   </div>
 );
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40">
+    <div className="relative min-h-screen">
       {/* Header - Load ngay lập tức */}
       <Header />
 

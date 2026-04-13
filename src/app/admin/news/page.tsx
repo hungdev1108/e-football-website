@@ -127,6 +127,7 @@ export default function AdminNewsPage() {
   });
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [previewImage, setPreviewImage] = useState<string>("");
+  const [deletingNewsId, setDeletingNewsId] = useState<string | null>(null);
 
   // API hooks - filter out "all" values before sending to API
   const apiFilters = {
@@ -257,11 +258,7 @@ export default function AdminNewsPage() {
   
       if (!['draft', 'published', 'archived'].includes(newsData.status)) {
         newsData.status = 'draft';
-      }
-  
-      console.log('✅ Processed data:', newsData);
-  
-      await createNewsMutation.mutateAsync(newsData);
+      }      await createNewsMutation.mutateAsync(newsData);
       
       setIsCreateDialogOpen(false);
       reset();
@@ -309,14 +306,19 @@ export default function AdminNewsPage() {
     }
   };
 
-  // Xử lý xóa tin tức
-  const handleDeleteNews = async (id: string) => {
-    if (confirm("Bạn có chắc chắn muốn xóa tin tức này?")) {
-      try {
-        await deleteNewsMutation.mutateAsync(id);
-      } catch (error) {
-        console.error("Error deleting news:", error);
-      }
+  // Xử lý xóa tin tức — mở dialog xác nhận
+  const handleDeleteNews = (id: string) => {
+    setDeletingNewsId(id);
+  };
+
+  const confirmDeleteNews = async () => {
+    if (!deletingNewsId) return;
+    const id = deletingNewsId;
+    setDeletingNewsId(null);
+    try {
+      await deleteNewsMutation.mutateAsync(id);
+    } catch (error) {
+      console.error("[delete news] error:", error);
     }
   };
 
@@ -491,7 +493,7 @@ export default function AdminNewsPage() {
                 />
                 <button
                   type="button"
-                  className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center shadow-lg transition-all duration-200 opacity-80 hover:opacity-100 group-hover:scale-110"
+                  className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center shadow-lg transition-all duration-200 opacity-80 hover:opacity-100 group-hover:scale-110 cursor-pointer"
                   onClick={() => {
                     setPreviewImage("");
                     setSelectedImage(null);
@@ -753,11 +755,11 @@ export default function AdminNewsPage() {
                             <Edit className="h-4 w-4" />
                           </Button>
                           <Button
+                            type="button"
                             variant="outline"
                             size="sm"
                             className="text-red-600 hover:text-red-700"
                             onClick={() => handleDeleteNews(article._id)}
-                            disabled={deleteNewsMutation.isPending}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -834,6 +836,38 @@ export default function AdminNewsPage() {
               </Button>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete confirmation dialog */}
+      <Dialog
+        open={deletingNewsId !== null}
+        onOpenChange={(open) => !open && setDeletingNewsId(null)}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Xác nhận xóa tin tức</DialogTitle>
+            <DialogDescription>
+              Bạn có chắc chắn muốn xóa tin tức này? Hành động này không thể hoàn tác.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setDeletingNewsId(null)}
+            >
+              Hủy
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={confirmDeleteNews}
+              disabled={deleteNewsMutation.isPending}
+            >
+              {deleteNewsMutation.isPending ? "Đang xóa..." : "Xóa"}
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

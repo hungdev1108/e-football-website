@@ -5,11 +5,20 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Clock, Eye, Share2, Heart, MessageCircle } from "lucide-react";
+import {
+  ArrowLeft,
+  Clock,
+  Eye,
+  Share2,
+  Heart,
+  ChevronRight,
+  User,
+  CalendarDays,
+} from "lucide-react";
 import { useNewsById, useFeaturedNews } from "@/hooks/useNews";
 import { getImageUrl } from "@/utils/imageUtils";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ApiNews } from "@/types";
 
 export default function NewsDetailPage() {
@@ -19,18 +28,24 @@ export default function NewsDetailPage() {
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
 
-  // Fetch news detail
   const { data: newsData, isLoading, error } = useNewsById(newsId);
   const { data: relatedNewsData } = useFeaturedNews(4);
 
   const news = newsData?.data;
-  const relatedNews = relatedNewsData?.data || [];
+  const relatedNews = (relatedNewsData?.data || []).filter(
+    (item: ApiNews) => item._id !== newsId
+  ).slice(0, 4);
 
   const formatDate = (dateString: string): string => {
     return new Date(dateString).toLocaleDateString("vi-VN", {
       year: "numeric",
       month: "long",
       day: "numeric",
+    });
+  };
+
+  const formatTime = (dateString: string): string => {
+    return new Date(dateString).toLocaleTimeString("vi-VN", {
       hour: "2-digit",
       minute: "2-digit",
     });
@@ -38,7 +53,7 @@ export default function NewsDetailPage() {
 
   const handleLike = () => {
     setIsLiked(!isLiked);
-    setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
+    setLikeCount((prev) => (isLiked ? prev - 1 : prev + 1));
   };
 
   const handleShare = async () => {
@@ -49,218 +64,260 @@ export default function NewsDetailPage() {
           text: news?.excerpt || news?.content.substring(0, 150),
           url: window.location.href,
         });
-      } catch (error) {
-        console.log('Error sharing:', error);
+      } catch {
+        /* user cancelled */
       }
     } else {
-      // Fallback: copy to clipboard
       navigator.clipboard.writeText(window.location.href);
-      alert('Link đã được sao chép vào clipboard!');
+      alert("Link đã được sao chép vào clipboard!");
     }
   };
 
+  /* ─── Loading ─── */
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
-        <div className="container mx-auto px-4 py-8">
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
-            <div className="h-64 bg-gray-200 rounded mb-6"></div>
-            <div className="h-6 bg-gray-200 rounded w-3/4 mb-4"></div>
-            <div className="h-4 bg-gray-200 rounded w-1/2 mb-8"></div>
-            <div className="space-y-4">
-              <div className="h-4 bg-gray-200 rounded"></div>
-              <div className="h-4 bg-gray-200 rounded"></div>
-              <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-            </div>
-          </div>
+      <div className="container mx-auto max-w-4xl px-4 py-10">
+        <Skeleton className="mb-6 h-8 w-32 rounded-xl" />
+        <Skeleton className="mb-6 h-72 w-full rounded-2xl md:h-[420px]" />
+        <Skeleton className="mb-3 h-10 w-3/4 rounded" />
+        <div className="flex gap-4 mb-8">
+          <Skeleton className="h-5 w-28 rounded" />
+          <Skeleton className="h-5 w-20 rounded" />
+        </div>
+        <div className="space-y-3">
+          <Skeleton className="h-4 w-full rounded" />
+          <Skeleton className="h-4 w-full rounded" />
+          <Skeleton className="h-4 w-5/6 rounded" />
+          <Skeleton className="h-4 w-full rounded" />
+          <Skeleton className="h-4 w-4/5 rounded" />
         </div>
       </div>
     );
   }
 
+  /* ─── Not found ─── */
   if (error || !news) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-800 mb-4">Không tìm thấy bài viết</h1>
-          <p className="text-gray-600 mb-6">Bài viết bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.</p>
-          <Button onClick={() => router.push('/news')} className="bg-blue-600 hover:bg-blue-700">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Quay lại danh sách tin tức
+      <div className="flex min-h-[60vh] items-center justify-center px-4">
+        <div className="max-w-sm text-center">
+          <div className="mb-4 text-7xl">📰</div>
+          <h1 className="mb-2 text-2xl font-bold text-foreground">
+            Không tìm thấy bài viết
+          </h1>
+          <p className="mb-6 text-muted-foreground">
+            Bài viết không tồn tại hoặc đã bị xóa.
+          </p>
+          <Button onClick={() => router.push("/news")} variant="neon">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Quay lại tin tức
           </Button>
         </div>
       </div>
     );
   }
 
+  const publishDate = news.publishedAt || news.createdAt;
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
-      {/* Header Navigation */}
-      <div className="bg-white/80 backdrop-blur-sm border-b sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4">
-          <Button 
-            variant="ghost" 
+    <div className="relative min-h-screen">
+      {/* Sticky nav */}
+      <div className="sticky top-0 z-30 border-b border-border/40 bg-background/80 backdrop-blur-xl">
+        <div className="container mx-auto flex max-w-4xl items-center justify-between px-4 py-3">
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => router.back()}
-            className="hover:bg-blue-50"
+            className="gap-2 rounded-xl text-muted-foreground hover:text-foreground"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Quay lại
+            <ArrowLeft className="h-4 w-4" />
+            <span className="hidden sm:inline">Quay lại</span>
           </Button>
+          <div className="flex gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className={`h-8 w-8 rounded-lg ${isLiked ? "text-red-500" : ""}`}
+              onClick={handleLike}
+            >
+              <Heart className={`h-4 w-4 ${isLiked ? "fill-current" : ""}`} />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={handleShare}>
+              <Share2 className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2">
-            <article className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden">
-              {/* Featured Image */}
-              {news.featuredImage?.url && (
-                <div className="relative h-64 md:h-96 overflow-hidden">
-                  <Image
-                    src={getImageUrl(news.featuredImage.url)}
-                    alt={news.featuredImage.alt || news.title}
-                    fill
-                    className="object-cover"
-                    priority
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-                </div>
-              )}
+      {/* Hero image */}
+      {news.featuredImage?.url && (
+        <div className="relative h-64 w-full overflow-hidden md:h-[420px] lg:h-[480px]">
+          <Image
+            src={getImageUrl(news.featuredImage.url)}
+            alt={news.featuredImage.alt || news.title}
+            fill
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
+        </div>
+      )}
 
-              <div className="p-6 md:p-8">
-                {/* Article Header */}
-                <div className="mb-6">
-                  {/* Tags */}
-                  {news.tags && news.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {news.tags.map((tag: string, index: number) => (
-                        <Badge key={index} variant="secondary" className="bg-blue-100 text-blue-800">
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                  )}
+      {/* Article */}
+      <article
+        className={`container mx-auto max-w-4xl px-4 ${
+          news.featuredImage?.url ? "-mt-24 relative z-10" : "pt-8"
+        }`}
+      >
+        <div className="glass rounded-2xl border border-border/40 p-6 md:p-10 shadow-xl">
+          {/* Tags */}
+          {news.tags && news.tags.length > 0 && (
+            <div className="mb-4 flex flex-wrap gap-2">
+              {news.tags.map((tag: string, i: number) => (
+                <Badge
+                  key={i}
+                  variant="secondary"
+                  className="rounded-full bg-[rgb(var(--neon-cyan)/0.1)] text-[rgb(var(--neon-cyan))] border border-[rgb(var(--neon-cyan)/0.2)] text-xs"
+                >
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+          )}
 
-                  {/* Title */}
-                  <h1 className="text-2xl md:text-4xl font-bold text-gray-900 mb-4 leading-tight">
-                    {news.title}
-                  </h1>
+          {/* Title */}
+          <h1 className="mb-5 text-2xl font-extrabold leading-tight tracking-tight text-foreground md:text-4xl lg:text-[2.5rem]">
+            {news.title}
+          </h1>
 
-                  {/* Meta Information */}
-                  <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-6">
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
-                      <span>
-                        {news.publishedAt
-                          ? formatDate(news.publishedAt)
-                          : formatDate(news.createdAt)}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Eye className="w-4 h-4" />
-                      <span>{news.views} lượt xem</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <span>Tác giả: Trần Đình Hiệp</span>
-                    </div>
-                  </div>
-
-                  {/* Excerpt */}
-                  {news.excerpt && (
-                    <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
-                      <p className="text-gray-700 italic text-lg leading-relaxed">
-                        {news.excerpt}
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Article Content */}
-                <div className="prose prose-lg max-w-none">
-                  <div 
-                    className="text-gray-800 leading-relaxed whitespace-pre-wrap"
-                    dangerouslySetInnerHTML={{ __html: news.content.replace(/\n/g, '<br>') }}
-                  />
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex items-center justify-between pt-8 mt-8 border-t border-gray-200">
-                  <div className="flex items-center gap-4">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleLike}
-                      className={`${isLiked ? 'bg-red-50 border-red-200 text-red-600' : ''}`}
-                    >
-                      <Heart className={`w-4 h-4 mr-2 ${isLiked ? 'fill-current' : ''}`} />
-                      {isLiked ? 'Đã thích' : 'Thích'} ({likeCount})
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <MessageCircle className="w-4 h-4 mr-2" />
-                      Bình luận
-                    </Button>
-                  </div>
-                  <Button variant="outline" size="sm" onClick={handleShare}>
-                    <Share2 className="w-4 h-4 mr-2" />
-                    Chia sẻ
-                  </Button>
-                </div>
-              </div>
-            </article>
-          </div>
-
-          {/* Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-24">
-              {/* Related News */}
-              {relatedNews.length > 0 && (
-                <Card className="bg-white/80 backdrop-blur-sm">
-                  <CardHeader>
-                    <CardTitle className="text-xl font-bold text-gray-900">
-                      Tin tức liên quan
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {relatedNews.filter((item: ApiNews) => item._id !== newsId).slice(0, 3).map((item: ApiNews) => (
-                      <Link key={item._id} href={`/news/${item._id}`}>
-                        <div className="group cursor-pointer border rounded-lg p-3 hover:bg-blue-50 transition-colors">
-                          <div className="flex gap-3">
-                            {item.featuredImage?.url && (
-                              <div className="relative w-16 h-16 flex-shrink-0 overflow-hidden rounded">
-                                <Image
-                                  src={getImageUrl(item.featuredImage.url)}
-                                  alt={item.featuredImage.alt || item.title}
-                                  fill
-                                  className="object-cover"
-                                />
-                              </div>
-                            )}
-                            <div className="flex-1 min-w-0">
-                              <h4 className="font-medium text-sm text-gray-900 line-clamp-2 group-hover:text-blue-600 transition-colors">
-                                {item.title}
-                              </h4>
-                              <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
-                                <Clock className="w-3 h-3" />
-                                <span>
-                                  {new Date(item.publishedAt || item.createdAt).toLocaleDateString('vi-VN')}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </Link>
-                    ))}
-                  </CardContent>
-                </Card>
-              )}
-
-
+          {/* Meta bar */}
+          <div className="mb-8 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
+            <div className="flex items-center gap-1.5">
+              <User className="h-4 w-4" />
+              <span className="font-medium">Trần Đình Hiệp</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <CalendarDays className="h-4 w-4" />
+              <span>{formatDate(publishDate)}</span>
+              <span className="text-border">•</span>
+              <span>{formatTime(publishDate)}</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Eye className="h-4 w-4" />
+              <span>{news.views.toLocaleString()} lượt xem</span>
             </div>
           </div>
+
+          {/* Excerpt */}
+          {news.excerpt && (
+            <div className="mb-8 rounded-xl border-l-[3px] border-[rgb(var(--neon-violet))] bg-[rgb(var(--neon-violet)/0.05)] px-5 py-4">
+              <p className="text-base italic leading-relaxed text-foreground/85 md:text-lg">
+                {news.excerpt}
+              </p>
+            </div>
+          )}
+
+          {/* Content */}
+          <div className="prose prose-lg max-w-none">
+            <div className="text-foreground/85 leading-[1.85] md:text-[1.05rem]">
+              {news.content.split("\n").map((line: string, i: number) => {
+                if (!line.trim()) return <br key={i} />;
+                return (
+                  <p key={i} className="mb-4 last:mb-0">
+                    {line}
+                  </p>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Actions footer */}
+          <div className="mt-10 flex items-center justify-between border-t border-border/40 pt-6">
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleLike}
+                className={`rounded-xl ${
+                  isLiked
+                    ? "border-red-300 bg-red-50 text-red-600 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-400"
+                    : ""
+                }`}
+              >
+                <Heart
+                  className={`mr-1.5 h-4 w-4 ${isLiked ? "fill-current" : ""}`}
+                />
+                {isLiked ? "Đã thích" : "Thích"}{" "}
+                {likeCount > 0 && `(${likeCount})`}
+              </Button>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="rounded-xl"
+              onClick={handleShare}
+            >
+              <Share2 className="mr-1.5 h-4 w-4" />
+              Chia sẻ
+            </Button>
+          </div>
         </div>
-      </div>
+      </article>
+
+      {/* Related news */}
+      {relatedNews.length > 0 && (
+        <section className="container mx-auto max-w-4xl px-4 py-12">
+          <div className="mb-6 flex items-center justify-between">
+            <h2 className="text-xl font-bold text-foreground">
+              Tin tức liên quan
+            </h2>
+            <Link href="/news">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-1 text-muted-foreground hover:text-foreground"
+              >
+                Xem tất cả
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {relatedNews.map((item: ApiNews) => (
+              <Link key={item._id} href={`/news/${item._id}`}>
+                <div className="group flex gap-4 rounded-xl border border-border/40 bg-card/50 p-3 transition-all duration-200 hover:bg-accent/30 hover:shadow-md">
+                  {item.featuredImage?.url && (
+                    <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg">
+                      <Image
+                        src={getImageUrl(item.featuredImage.url)}
+                        alt={item.featuredImage.alt || item.title}
+                        fill
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                    </div>
+                  )}
+                  <div className="flex flex-1 flex-col justify-center min-w-0">
+                    <h4 className="line-clamp-2 text-sm font-semibold text-foreground transition-colors group-hover:text-[rgb(var(--neon-violet))]">
+                      {item.title}
+                    </h4>
+                    <div className="mt-1.5 flex items-center gap-2 text-xs text-muted-foreground">
+                      <Clock className="h-3 w-3" />
+                      <span>
+                        {new Date(
+                          item.publishedAt || item.createdAt
+                        ).toLocaleDateString("vi-VN")}
+                      </span>
+                      <span className="text-border">•</span>
+                      <Eye className="h-3 w-3" />
+                      <span>{item.views}</span>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

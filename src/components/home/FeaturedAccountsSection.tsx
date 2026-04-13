@@ -3,15 +3,15 @@
 import { memo, useMemo } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Star } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Star, ArrowRight } from "lucide-react";
+import { TiltCard } from "@/components/effects/TiltCard";
+import {
+  ScrollReveal,
+  StaggerContainer,
+  StaggerItem,
+} from "@/components/effects/ScrollReveal";
 import { useFeaturedAccounts } from "@/hooks/useAccounts";
 import { ApiGameAccount } from "@/types";
 import { getImageUrl, getPlaceholderUrl } from "@/utils/imageUtils";
@@ -20,29 +20,17 @@ interface FeaturedAccountsSectionProps {
   className?: string;
 }
 
-// Memoized helper functions outside component
 const formatPrice = (price: number): string => {
-  if (price === -1) {
-    return "📞 Liên hệ";
-  }
-
+  if (price === -1) return "📞 Liên hệ";
   const priceStr = price.toString();
-  if (priceStr.length <= 3) {
-    return `${price} đ`;
-  }
-
+  if (priceStr.length <= 3) return `${price} đ`;
   const firstDigit = priceStr[0];
   const remainingStr = priceStr.slice(1);
-
-  // Tạo pattern từ phải sang trái theo chuẩn định dạng tiền tệ
   let pattern = "";
   for (let i = 0; i < remainingStr.length; i++) {
-    if (i > 0 && (remainingStr.length - i) % 3 === 0) {
-      pattern += ".";
-    }
+    if (i > 0 && (remainingStr.length - i) % 3 === 0) pattern += ".";
     pattern += "x";
   }
-
   return `${firstDigit}${pattern} đ`;
 };
 
@@ -54,7 +42,6 @@ const getPlatformIcon = (platform: string): string => {
       return "📱";
     case "ps4":
     case "ps5":
-      return "🎮";
     case "xbox":
       return "🎮";
     default:
@@ -83,184 +70,148 @@ export const FeaturedAccountsSection = memo(function FeaturedAccountsSection({
   className,
 }: FeaturedAccountsSectionProps) {
   const { data: featuredAccountsData, isLoading: loadingAccounts } =
-    useFeaturedAccounts(8);
+    useFeaturedAccounts(999);
 
-  // Memoize the accounts array
-  const featuredAccounts = useMemo(() => {
-    return featuredAccountsData?.data || [];
-  }, [featuredAccountsData?.data]);
+  const featuredAccounts = useMemo(
+    () => featuredAccountsData?.data || [],
+    [featuredAccountsData?.data],
+  );
 
   return (
     <section
-      className={`container mx-auto py-2 md:py-10 px-4 lg:px-6 bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 relative overflow-hidden ${
-        className || ""
-      }`}
+      className={`relative overflow-hidden py-10 md:py-16 ${className || ""}`}
     >
-      {/* Background decorative elements */}
-      <div className="absolute inset-0 opacity-30">
-        <div className="absolute top-10 left-1/4 w-64 h-64 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-10 right-1/4 w-80 h-80 bg-indigo-200 rounded-full mix-blend-multiply filter blur-3xl animate-pulse delay-1000"></div>
-      </div>
-
-      <div className="container mx-auto relative z-10">
-        <div className="text-center mb-6 md:mb-8">
-          <h3
-            className="text-2xl md:text-4xl lg:text-5xl font-bold leading-tight py-2 bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent mb-2"
-            style={{
-              fontFamily: "Inter, Roboto, Noto Sans, Arial, sans-serif",
-            }}
-          >
-            Tài khoản nổi bật
+      <div className="container mx-auto px-4 lg:px-6">
+        <ScrollReveal className="mb-8 text-center md:mb-12">
+          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/40 px-3 py-1 text-[11px] font-medium uppercase tracking-wider text-muted-foreground backdrop-blur">
+            ⭐ Featured
+          </div>
+          <h3 className="py-2 text-3xl font-black leading-tight tracking-tight md:text-5xl">
+            <span className="neon-text">Tài khoản nổi bật</span>
           </h3>
-          <p className="text-sm md:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed px-4">
+          <p className="mx-auto mt-2 max-w-2xl text-sm text-muted-foreground md:text-base">
             Những tài khoản game chất lượng cao được chọn lọc kỹ càng
           </p>
-        </div>
+        </ScrollReveal>
 
         {loadingAccounts ? (
-          <div className="flex items-center justify-center h-64">
-            <div className="relative">
-              <div className="w-12 h-12 md:w-16 md:h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
-            </div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
-            {featuredAccounts.map((account: ApiGameAccount) => (
-              <AccountCard key={account._id} account={account} />
+          <div className="grid grid-cols-2 gap-4 md:gap-8 lg:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-[420px] w-full rounded-2xl" />
             ))}
           </div>
+        ) : (
+          <StaggerContainer className="grid grid-cols-2 gap-4 md:gap-8 lg:grid-cols-4">
+            {featuredAccounts.map((account: ApiGameAccount) => (
+              <StaggerItem key={account._id}>
+                <AccountCard account={account} />
+              </StaggerItem>
+            ))}
+          </StaggerContainer>
         )}
 
-        <div className="text-center mt-8 md:mt-12">
-          <Button
-            size="sm"
-            variant="outline"
-            className="bg-white/80 backdrop-blur-sm hover:bg-white border-2 text-sm md:text-lg px-4 py-2 md:px-8 md:py-6"
-            asChild
-          >
+        <ScrollReveal className="mt-10 text-center md:mt-14" delay={0.1}>
+          <Button variant="glass" size="lg" asChild>
             <Link href="/accounts">
               <span className="hidden md:inline">Xem tất cả tài khoản</span>
               <span className="md:hidden">Xem tất cả</span>
-              <svg
-                className="ml-2 w-4 h-4 md:w-5 md:h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 7l5 5m0 0l-5 5m5-5H6"
-                />
-              </svg>
+              <ArrowRight className="ml-1 h-4 w-4" />
             </Link>
           </Button>
-        </div>
+        </ScrollReveal>
       </div>
     </section>
   );
 });
 
-// Separate memoized component for account card
 const AccountCard = memo(function AccountCard({
   account,
 }: {
   account: ApiGameAccount;
 }) {
   return (
-    <Link href={`/accounts/${account._id}`}>
-      <Card className="group cursor-pointer overflow-hidden border-0 bg-white/95 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-1 rounded-2xl h-[380px] md:h-[420px] flex flex-col p-0">
-        <div
-          className="relative overflow-hidden bg-gray-100 h-40 md:h-44 bg-cover bg-center transition-transform duration-200 group-hover:scale-105"
-          style={{
-            backgroundImage: `url(${
-              getImageUrl(account.images[0]?.url) || getPlaceholderUrl(640, 295)
-            })`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
-          }}
-        >
-          {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+    <Link href={`/accounts/${account._id}`} className="block">
+      <TiltCard className="group relative h-[380px] md:h-[420px] rounded-2xl">
+        <div className="relative flex h-full flex-col overflow-hidden rounded-2xl glass transition-all duration-300 group-hover:shadow-[0_20px_60px_-20px_rgb(var(--neon-violet)/0.55)]">
+          <div
+            className="relative h-40 w-full overflow-hidden bg-muted md:h-44"
+            style={{
+              backgroundImage: `url(${
+                getImageUrl(account.images[0]?.url) ||
+                getPlaceholderUrl(640, 295)
+              })`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-60" />
 
-          {/* Platform badge */}
-          <div className="absolute top-3 left-3 md:top-4 md:left-4">
-            <Badge
-              variant="secondary"
-              className="bg-white/95 backdrop-blur-sm text-slate-700 text-xs md:text-sm shadow-md border-0"
-            >
-              <span className="md:hidden">
-                {getPlatformIcon(account.accountDetails.platform)}
-              </span>
-              <span className="hidden md:inline">
-                {getPlatformIcon(account.accountDetails.platform)}{" "}
-                {getPlatformLabel(account.accountDetails.platform)}
-              </span>
-            </Badge>
-          </div>
-
-          {/* Account code badge */}
-          <div className="absolute top-3 right-3 md:top-4 md:right-4">
-            <Badge className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs md:text-sm shadow-md border-0">
-              {account.accountCode}
-            </Badge>
-          </div>
-
-          {/* Sold overlay */}
-          {account.status === "sold" && (
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center">
-              <Badge
-                variant="destructive"
-                className="text-sm md:text-lg px-3 py-2 md:px-6 md:py-3 bg-red-600 shadow-lg"
-              >
-                ĐÃ BÁN
+            <div className="absolute left-3 top-3 md:left-4 md:top-4">
+              <Badge className="border-0 bg-background/70 text-foreground text-xs shadow-md backdrop-blur md:text-sm">
+                <span className="md:hidden">
+                  {getPlatformIcon(account.accountDetails.platform)}
+                </span>
+                <span className="hidden md:inline">
+                  {getPlatformIcon(account.accountDetails.platform)}{" "}
+                  {getPlatformLabel(account.accountDetails.platform)}
+                </span>
               </Badge>
             </div>
-          )}
-        </div>
 
-        <CardHeader className="pb-1 px-3 md:px-4 pt-3 md:pt-3">
-          <CardTitle className="text-base md:text-lg line-clamp-1 text-slate-800 group-hover:text-blue-600 transition-colors duration-200 font-semibold h-5 md:h-7">
-            {account.title}
-          </CardTitle>
-          <CardDescription className="line-clamp-2 text-sm md:text-sm text-slate-500 mt-1 overflow-hidden text-ellipsis h-10 md:h-10 leading-5 md:leading-5">
-            {account.description}
-          </CardDescription>
-        </CardHeader>
+            <div className="absolute right-3 top-3 md:right-4 md:top-4">
+              <Badge className="border-0 bg-gradient-to-r from-[rgb(var(--neon-cyan))] to-[rgb(var(--neon-violet))] text-white text-xs shadow-[0_0_15px_rgb(var(--neon-violet)/0.6)] md:text-sm">
+                {account.accountCode}
+              </Badge>
+            </div>
 
-        <CardContent className="pt-0 px-3 md:px-4 pb-4 md:pb-4 flex-1 flex flex-col justify-between">
-          <div className="flex items-center justify-between mb-3 md:mb-5 gap-2">
-            <div className="flex items-center gap-1 md:gap-2 bg-amber-50 px-1.5 md:px-2 py-1 rounded-lg flex-shrink-0">
-              <Star className="h-3 w-3 md:h-4 md:w-4 text-amber-500 fill-current" />
-              <span className="text-xs md:text-sm font-semibold text-amber-700">
-                {account.collectiveStrength}
-              </span>
-            </div>
-            <div
-              className={`text-sm md:text-xl font-bold text-right flex-shrink-0 ${
-                account.price === -1
-                  ? "bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent animate-pulse"
-                  : "bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
-              }`}
-            >
-              {formatPrice(account.price)}
-            </div>
+            {account.status === "sold" && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+                <Badge
+                  variant="destructive"
+                  className="px-3 py-1.5 text-sm md:px-6 md:py-2.5 md:text-base"
+                >
+                  ĐÃ BÁN
+                </Badge>
+              </div>
+            )}
           </div>
 
-          <Button
-            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white border-0 shadow-md hover:shadow-lg transition-all duration-200 text-sm md:text-sm py-2.5 md:py-3 px-4 md:px-4 rounded-lg md:rounded-xl font-semibold mt-auto cursor-pointer"
-            disabled={account.status !== "available"}
-          >
-            <span className="inline">
-              {account.status === "available"
-                ? "Xem chi tiết"
-                : "Không khả dụng"}
-            </span>
-          </Button>
-        </CardContent>
-      </Card>
+          <div className="flex flex-1 flex-col px-4 pb-4 pt-3">
+            <h4 className="line-clamp-1 h-5 text-base font-semibold text-foreground transition-colors group-hover:text-[rgb(var(--neon-cyan))] md:h-7 md:text-lg">
+              {account.title}
+            </h4>
+            <p className="mt-1 line-clamp-2 h-10 text-sm leading-5 text-muted-foreground">
+              {account.description}
+            </p>
+
+            <div className="mt-3 flex items-center justify-between gap-2 md:mt-4">
+              <div className="flex flex-shrink-0 items-center gap-1.5 rounded-lg border border-border/50 bg-background/40 px-2 py-1 backdrop-blur">
+                <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                <span className="text-xs font-semibold text-foreground md:text-sm">
+                  {account.collectiveStrength}
+                </span>
+              </div>
+              <div
+                className={`flex-shrink-0 text-right text-sm font-bold md:text-lg ${
+                  account.price === -1
+                    ? "neon-text animate-pulse"
+                    : "neon-text"
+                }`}
+              >
+                {formatPrice(account.price)}
+              </div>
+            </div>
+
+            <Button
+              variant="neon"
+              className="mt-3 w-full"
+              disabled={account.status !== "available"}
+            >
+              {account.status === "available" ? "Xem chi tiết" : "Không khả dụng"}
+            </Button>
+          </div>
+        </div>
+      </TiltCard>
     </Link>
   );
 });

@@ -46,28 +46,35 @@ export const ChatWidget = memo(function ChatWidget() {
     <>
       {/* Floating Chat Button */}
       <div className="fixed bottom-6 right-6 z-[9999]">
-        {/* Pulse animation - behind button */}
-        <div className="absolute inset-0 w-14 h-14 rounded-full bg-blue-600 animate-ping opacity-20 pointer-events-none"></div>
-
+        <div
+          className="pointer-events-none absolute inset-0 h-14 w-14 animate-ping rounded-full opacity-30"
+          style={{
+            background:
+              "radial-gradient(circle, rgb(var(--neon-violet) / 0.6), transparent 70%)",
+          }}
+        />
         <Button
           onClick={() => setIsOpen(true)}
-          className="relative w-14 h-14 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 cursor-pointer"
+          variant="neon"
+          className="relative h-14 w-14 rounded-full p-0 shadow-[0_10px_30px_-5px_rgb(var(--neon-violet)/0.7)] transform transition-transform duration-300 hover:scale-110 cursor-pointer"
+          aria-label="Mở chat hỗ trợ"
         >
-          <MessageCircle className="w-6 h-6 text-white" />
-          <span className="sr-only">Mở chat</span>
+          <MessageCircle className="h-6 w-6 text-white" />
         </Button>
       </div>
 
       {/* Chat Dialog */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="w-[320px] p-0 bg-slate-800 border-slate-700 [&>button]:text-white [&>button]:hover:text-white/80">
+        <DialogContent className="w-[320px] p-0 glass-strong border-border/60 [&>button]:text-foreground/80 [&>button]:hover:text-foreground">
           <VisuallyHidden>
             <DialogTitle>Tùy chọn liên hệ</DialogTitle>
           </VisuallyHidden>
 
           {/* Header */}
           <DialogHeader className="p-4 pb-2">
-            <h3 className="text-lg font-semibold text-white">Chúng tôi trên</h3>
+            <h3 className="neon-text-tri text-lg font-semibold">
+              Chúng tôi trên
+            </h3>
           </DialogHeader>
 
           {/* Contact Options */}
@@ -77,17 +84,17 @@ export const ChatWidget = memo(function ChatWidget() {
                 <button
                   key={option.id}
                   onClick={option.action}
-                  className="w-full flex items-center gap-3 p-3 bg-slate-700/50 hover:bg-slate-600/50 rounded-lg transition-all duration-200 text-left group"
+                  className="group w-full flex items-center gap-3 p-3 rounded-lg border border-border/50 bg-background/40 backdrop-blur hover:bg-accent/40 hover:border-[rgb(var(--neon-violet)/0.5)] transition-all duration-200 text-left"
                 >
-                  <div className="w-8 h-8 flex items-center justify-center bg-white/10 rounded-lg text-lg">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-border/60 bg-background/60 text-lg">
                     {option.icon}
                   </div>
                   <div className="flex-1">
-                    <div className="text-white font-medium group-hover:text-blue-300 transition-colors">
+                    <div className="font-medium text-foreground transition-colors group-hover:text-[rgb(var(--neon-cyan))]">
                       {option.title}
                     </div>
                     {option.subtitle && (
-                      <div className="text-sm text-slate-400">
+                      <div className="text-xs text-muted-foreground">
                         {option.subtitle}
                       </div>
                     )}
@@ -104,7 +111,8 @@ export const ChatWidget = memo(function ChatWidget() {
                 window.open("https://zalo.me/0395860670", "_blank");
                 setIsOpen(false);
               }}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
+              variant="neon"
+              className="w-full"
             >
               <MessageCircle className="w-4 h-4" />
               Chat ngay

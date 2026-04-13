@@ -55,68 +55,40 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   } = useAuthStore();
 
   // SIMPLIFIED AUTH CHECK - chỉ chạy 1 lần
-  useEffect(() => {
-    console.log('🔍 Auth check triggered. Pathname:', pathname);
-    console.log('🔍 Current auth state:', { isAdminAuthenticated, adminUser });
-
-    // If on login page, don't check auth
-    if (pathname === '/admin/login') {
-      console.log('✅ On login page, no auth check needed');
-      setLoading(false);
+  useEffect(() => {    // If on login page, don't check auth
+    if (pathname === '/admin/login') {      setLoading(false);
       setAuthChecked(true);
       return;
     }
 
     // If auth already checked, don't check again
-    if (authChecked) {
-      console.log('✅ Auth already checked');
-      setLoading(false);
+    if (authChecked) {      setLoading(false);
       return;
     }
 
-    const verifyAuth = async () => {
-      console.log('🔍 Starting auth verification...');
-      
-      // Check localStorage token
-      const token = localStorage.getItem('admin_token');
-      console.log('🔍 Token from localStorage:', token ? '***EXISTS***' : 'NULL');
-      
-      if (!token) {
-        console.log('❌ No token found, redirecting to login');
-        setAuthChecked(true);
+    const verifyAuth = async () => {      // Check localStorage token
+      const token = localStorage.getItem('admin_token');      if (!token) {        setAuthChecked(true);
         setLoading(false);
         router.push('/admin/login');
         return;
       }
 
-      try {
-        console.log('🔍 Verifying token with backend...');
-        
-        const response = await fetch('https://api.hieptranefootball.com/api/auth/admin-verify', {
+      try {        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.hieptranefootball.com/api';
+        const response = await fetch(`${apiUrl}/auth/admin-verify`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
-        });
-        
-        console.log('🔍 Verify response status:', response.status);
-        
-        if (response.ok) {
-          const data = await response.json();
-          console.log('✅ Auth verified successfully:', data);
-          setAuthChecked(true);
+        });        if (response.ok) {
+          const data = await response.json();          setAuthChecked(true);
           setLoading(false);
-        } else {
-          console.log('❌ Auth verification failed');
-          localStorage.removeItem('admin_token');
+        } else {          localStorage.removeItem('admin_token');
           setAuthChecked(true);
           setLoading(false);
           router.push('/admin/login');
         }
       } catch (error) {
         console.error('❌ Auth check error:', error);
-        // FOR DEVELOPMENT: Allow access if check fails
-        console.log('🔧 Development mode: allowing access despite error');
-        setAuthChecked(true);
+        // FOR DEVELOPMENT: Allow access if check fails        setAuthChecked(true);
         setLoading(false);
       }
     };
@@ -124,9 +96,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     verifyAuth();
   }, [pathname, router, adminUser, authChecked, isAdminAuthenticated]); // Add missing dependencies
 
-  const handleLogout = () => {
-    console.log('🚪 Logging out...');
-    localStorage.removeItem('admin_token');
+  const handleLogout = () => {    localStorage.removeItem('admin_token');
     adminLogout();
     setAuthChecked(false);
     router.push('/admin/login');

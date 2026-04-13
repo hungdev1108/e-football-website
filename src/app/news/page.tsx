@@ -26,13 +26,14 @@ import {
   Calendar,
   Eye,
   Clock,
-  LoaderIcon,
   Newspaper,
 } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { useNews, useFeaturedNews } from "@/hooks/useNews";
 import { ApiNews } from "@/types";
 import { getImageUrl, getPlaceholderUrl } from "@/utils/imageUtils";
+import { Skeleton } from "@/components/ui/skeleton";
+import { FooterSection } from "@/components/home/FooterSection";
 
 export default function NewsPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -130,19 +131,20 @@ export default function NewsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="relative min-h-screen">
       <Header />
 
-      <div className="container mx-auto px-4 lg:px-6 py-8">
+      <div className="container mx-auto px-4 lg:px-6 py-10">
         {/* Header Section */}
         <div className="text-center mb-12">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <Newspaper className="h-8 w-8 text-blue-600" />
-            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
-              Tin tức eFootball
-            </h1>
+          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/40 px-3 py-1 text-[11px] font-medium uppercase tracking-wider text-muted-foreground backdrop-blur">
+            <Newspaper className="h-3 w-3 text-[rgb(var(--neon-cyan))]" />
+            News Center
           </div>
-          <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
+          <h1 className="text-4xl md:text-5xl font-black tracking-tight neon-text-tri">
+            Tin tức eFootball
+          </h1>
+          <p className="mt-3 text-base md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
             Cập nhật những thông tin mới nhất về eFootball, tin tức game, và mẹo
             chơi hữu ích
           </p>
@@ -183,7 +185,7 @@ export default function NewsPage() {
                     </div>
                     <CardHeader className={index === 0 ? "pb-2" : "pb-1"}>
                       <CardTitle
-                        className={`group-hover:text-blue-600 transition-colors line-clamp-2 ${
+                        className={`group-hover:text-[rgb(var(--neon-cyan))] transition-colors line-clamp-2 ${
                           index === 0 ? "text-xl lg:text-2xl" : "text-lg"
                         }`}
                       >
@@ -196,7 +198,7 @@ export default function NewsPage() {
                       )}
                     </CardHeader>
                     <CardContent className="pt-0">
-                      <div className="flex items-center justify-between text-sm text-gray-500">
+                      <div className="flex items-center justify-between text-sm text-muted-foreground">
                         <div className="flex items-center gap-2">
                           <Clock className="w-4 h-4" />
                           <span>
@@ -210,7 +212,7 @@ export default function NewsPage() {
                           <span>{article.views}</span>
                         </div>
                       </div>
-                      {/* <div className="text-sm text-gray-600 mt-2">
+                      {/* <div className="text-sm text-muted-foreground mt-2">
                         Tác giả:{" "}
                         {article.author.fullName || article.author.username}
                       </div> */}
@@ -224,12 +226,12 @@ export default function NewsPage() {
 
         {/* Search and Filter Section */}
         <section className="mb-8">
-          <Card>
+          <Card className="glass border-border/60">
             <CardContent className="p-6">
               <div className="flex flex-col md:flex-row gap-4">
                 <form onSubmit={handleSearch} className="flex gap-2 flex-1">
                   <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                     <Input
                       type="text"
                       placeholder="Tìm kiếm tin tức..."
@@ -238,7 +240,7 @@ export default function NewsPage() {
                       className="pl-10"
                     />
                   </div>
-                  <Button type="submit">Tìm kiếm</Button>
+                  <Button type="submit" variant="neon">Tìm kiếm</Button>
                 </form>
 
                 <Select value={sortBy} onValueChange={setSortBy}>
@@ -261,7 +263,7 @@ export default function NewsPage() {
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold">Tất cả tin tức</h2>
             {pagination && (
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-muted-foreground">
                 Hiển thị {news.length} trong {pagination.totalItems} bài viết
               </div>
             )}
@@ -269,9 +271,10 @@ export default function NewsPage() {
 
           {/* Loading State */}
           {loadingNews && (
-            <div className="flex items-center justify-center h-64">
-              <LoaderIcon className="w-8 h-8 animate-spin" />
-              <span className="ml-2">Đang tải tin tức...</span>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Skeleton key={i} className="h-80 w-full rounded-2xl" />
+              ))}
             </div>
           )}
 
@@ -282,7 +285,7 @@ export default function NewsPage() {
               <h3 className="text-xl font-bold mb-2">
                 Không tìm thấy tin tức nào
               </h3>
-              <p className="text-gray-600 mb-4">
+              <p className="text-muted-foreground mb-4">
                 Thử thay đổi từ khóa tìm kiếm
               </p>
               <Button
@@ -301,7 +304,7 @@ export default function NewsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {news.map((article: ApiNews) => (
                 <Link key={article._id} href={`/news/${article._id}`}>
-                  <Card className="hover:shadow-lg transition-all cursor-pointer group h-full rounded-2xl p-0">
+                  <Card className="glass border-border/60 hover:shadow-[0_20px_50px_-20px_rgb(var(--neon-violet)/0.5)] hover:-translate-y-1 transition-all cursor-pointer group h-full rounded-2xl p-0 overflow-hidden">
                     <div className="relative overflow-hidden">
                       <Image
                         src={
@@ -322,7 +325,7 @@ export default function NewsPage() {
                     </div>
 
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-lg line-clamp-2 group-hover:text-blue-600 transition-colors">
+                      <CardTitle className="text-lg line-clamp-2 group-hover:text-[rgb(var(--neon-cyan))] transition-colors">
                         {article.title}
                       </CardTitle>
                       <CardDescription className="line-clamp-3">
@@ -331,7 +334,7 @@ export default function NewsPage() {
                     </CardHeader>
 
                     <CardContent className="pt-0">
-                      <div className="flex items-center justify-between text-sm text-gray-500 mb-2">
+                      <div className="flex items-center justify-between text-sm text-muted-foreground mb-2">
                         <div className="flex items-center gap-2">
                           <Calendar className="w-4 h-4" />
                           <span>
@@ -347,7 +350,7 @@ export default function NewsPage() {
                       </div>
 
                       {/* <div className="flex items-center justify-between">
-                        <div className="text-sm text-gray-600">
+                        <div className="text-sm text-muted-foreground">
                           Tác giả:{" "}
                           {article.author.fullName || article.author.username}
                         </div>
@@ -364,6 +367,7 @@ export default function NewsPage() {
           {renderPagination()}
         </section>
       </div>
+      <FooterSection />
     </div>
   );
 }

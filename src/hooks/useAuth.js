@@ -31,10 +31,8 @@ export const useAuth = () => {
     if (isRefreshing || !adminToken) return false;
 
     setIsRefreshing(true);
-    try {
-      console.log('🔄 Refreshing admin token...');
-      
-      const response = await fetch('https://api.hieptranefootball.com/api/auth/admin-refresh-token', {
+    try {      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.hieptranefootball.com/api';
+      const response = await fetch(`${apiUrl}/auth/admin-refresh-token`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -55,10 +53,7 @@ export const useAuth = () => {
         // Set new expiry time
         const newExpiry = Date.now() + TOKEN_EXPIRY_TIME;
         setTokenExpiry(newExpiry);
-        localStorage.setItem('admin_token_expiry', newExpiry.toString());
-        
-        console.log('✅ Token refreshed successfully');
-        scheduleTokenRefresh(newExpiry);
+        localStorage.setItem('admin_token_expiry', newExpiry.toString());        scheduleTokenRefresh(newExpiry);
         return true;
       } else {
         console.error('❌ Token refresh failed:', data.message);
@@ -82,9 +77,7 @@ export const useAuth = () => {
 
     const timeUntilRefresh = expiry - TOKEN_REFRESH_THRESHOLD - Date.now();
     
-    if (timeUntilRefresh > 0) {
-      console.log(`⏰ Token refresh scheduled in ${Math.round(timeUntilRefresh / 1000 / 60)} minutes`);
-      refreshTimeoutRef.current = setTimeout(() => {
+    if (timeUntilRefresh > 0) {      refreshTimeoutRef.current = setTimeout(() => {
         refreshToken();
       }, timeUntilRefresh);
     }
@@ -94,7 +87,8 @@ export const useAuth = () => {
   const handleLogout = useCallback(async () => {
     try {
       if (adminToken) {
-        await fetch('https://api.hieptranefootball.com/api/auth/admin-logout', {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.hieptranefootball.com/api';
+        await fetch(`${apiUrl}/auth/admin-logout`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${adminToken}`
@@ -118,7 +112,8 @@ export const useAuth = () => {
   // Enhanced login with token expiry tracking
   const enhancedLogin = useCallback(async (credentials) => {
     try {
-      const response = await fetch('https://api.hieptranefootball.com/api/auth/admin-login', {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.hieptranefootball.com/api';
+      const response = await fetch(`${apiUrl}/auth/admin-login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -139,10 +134,7 @@ export const useAuth = () => {
         localStorage.setItem('admin_token_expiry', expiry.toString());
         
         // Schedule refresh
-        scheduleTokenRefresh(expiry);
-        
-        console.log('✅ Login successful, token expires in 24 hours');
-        return { success: true, user: data.user };
+        scheduleTokenRefresh(expiry);        return { success: true, user: data.user };
       } else {
         return { success: false, message: data.message || 'Đăng nhập thất bại' };
       }
@@ -163,11 +155,7 @@ export const useAuth = () => {
       
       if (expiry > now) {
         setTokenExpiry(expiry);
-        scheduleTokenRefresh(expiry);
-        console.log(`🔐 Token valid for ${Math.round((expiry - now) / 1000 / 60 / 60)} hours`);
-      } else {
-        console.log('🔄 Token expired, attempting refresh...');
-        refreshToken();
+        scheduleTokenRefresh(expiry);      } else {        refreshToken();
       }
     }
   }, [adminToken, scheduleTokenRefresh, handleLogout]);

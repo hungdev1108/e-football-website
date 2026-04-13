@@ -4,8 +4,6 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle, CardDetail, CardContentDetail } from "@/components/ui/card";
-
 import { Button } from "@/components/ui/button";
 import {
   ArrowLeft,
@@ -14,7 +12,6 @@ import {
   ShoppingCart,
   Heart,
   Share2,
-  LoaderIcon,
   Eye,
   ChevronLeft,
   ChevronRight,
@@ -26,265 +23,231 @@ import {
   Shield,
   Clock,
   MessageCircle,
+  CheckCircle2,
+  Zap,
+  Phone,
+  Tag,
+  Monitor,
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { useAccount } from "@/hooks/useAccounts";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ApiGameAccount } from "@/types";
 import { getImageUrl, getPlaceholderUrl } from "@/utils/imageUtils";
 import PurchaseModal from "@/components/ui/PurchaseModal";
-import "@/styles/purchase-button.css";
 
-// Enhanced Image Carousel Component
-const ImageCarousel = ({
+/* ─── Image Gallery ─── */
+const ImageGallery = ({
   images,
   title,
 }: {
   images: { url: string; alt?: string }[];
   title: string;
 }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [current, setCurrent] = useState(0);
+  const [fullscreen, setFullscreen] = useState(false);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
-  const carouselRef = useRef<HTMLDivElement>(null);
 
-  // Touch handlers for mobile swipe
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchStart(e.targetTouches[0].clientX);
-  };
+  const next = () => setCurrent((p) => (p + 1) % images.length);
+  const prev = () => setCurrent((p) => (p - 1 + images.length) % images.length);
 
-  const handleTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
-  };
-
-  const handleTouchEnd = () => {
+  // Touch
+  const onTouchStart = (e: React.TouchEvent) => setTouchStart(e.targetTouches[0].clientX);
+  const onTouchMove = (e: React.TouchEvent) => setTouchEnd(e.targetTouches[0].clientX);
+  const onTouchEnd = () => {
     if (!touchStart || !touchEnd) return;
-    const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > 50;
-    const isRightSwipe = distance < -50;
-
-    if (isLeftSwipe && currentIndex < images.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-    }
-    if (isRightSwipe && currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
-    }
+    const d = touchStart - touchEnd;
+    if (d > 50 && current < images.length - 1) setCurrent(current + 1);
+    if (d < -50 && current > 0) setCurrent(current - 1);
   };
 
-  const nextImage = () => {
-    setCurrentIndex((prev) => (prev + 1) % images.length);
-  };
-
-  const prevImage = () => {
-    setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
-  };
-
-  const toggleFullscreen = () => {
-    setIsFullscreen(!isFullscreen);
-  };
-
-  // Keyboard navigation
+  // Keyboard
   useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
-      if (isFullscreen) {
-        if (e.key === "ArrowLeft") prevImage();
-        if (e.key === "ArrowRight") nextImage();
-        if (e.key === "Escape") setIsFullscreen(false);
+    const cb = (e: KeyboardEvent) => {
+      if (fullscreen) {
+        if (e.key === "ArrowLeft") prev();
+        if (e.key === "ArrowRight") next();
+        if (e.key === "Escape") setFullscreen(false);
       }
     };
+    window.addEventListener("keydown", cb);
+    return () => window.removeEventListener("keydown", cb);
+  }, [fullscreen, current]);
 
-    window.addEventListener("keydown", handleKeyPress);
-    return () => window.removeEventListener("keydown", handleKeyPress);
-  }, [isFullscreen, currentIndex]);
-
-  // Auto-slide effect
+  // Auto-slide
   useEffect(() => {
-    if (images.length > 1 && !isFullscreen) {
-      const interval = setInterval(nextImage, 5000);
-      return () => clearInterval(interval);
+    if (images.length > 1 && !fullscreen) {
+      const t = setInterval(next, 6000);
+      return () => clearInterval(t);
     }
-  }, [currentIndex, isFullscreen, images.length]);
+  }, [current, fullscreen, images.length]);
 
-  if (!images || images.length === 0) {
+  if (!images?.length) {
     return (
-      <div className="w-full h-64 md:h-96 bg-gray-200 rounded-2xl flex items-center justify-center">
-        <div className="text-gray-400">No images available</div>
+      <div className="flex h-64 w-full items-center justify-center rounded-2xl bg-muted/50 md:h-96">
+        <span className="text-muted-foreground">Không có hình ảnh</span>
       </div>
     );
   }
 
   return (
     <>
-      {/* Main Carousel */}
-      <div className="relative w-full overflow-hidden rounded-2xl bg-black group">
+      <div className="relative overflow-hidden rounded-2xl bg-black/90 group">
         <div
-          ref={carouselRef}
-          className="relative w-full h-64 sm:h-80 md:h-96 lg:h-[500px]"
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
+          className="relative h-72 w-full sm:h-80 md:h-[440px] lg:h-[520px]"
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
         >
-          {/* Main Image */}
-          <div className="relative w-full h-full overflow-hidden">
-            <Image
-              src={
-                getImageUrl(images[currentIndex]?.url) ||
-                getPlaceholderUrl(800, 600)
-              }
-              alt={images[currentIndex]?.alt || title}
-              fill
-              className="object-contain transition-all duration-500 ease-out"
-              priority
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 70vw, 60vw"
-            />
+          <Image
+            src={getImageUrl(images[current]?.url) || getPlaceholderUrl(800, 600)}
+            alt={images[current]?.alt || title}
+            fill
+            className="object-contain transition-all duration-500"
+            priority
+            sizes="(max-width: 768px) 100vw, 60vw"
+          />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-black/10 opacity-0 transition-opacity group-hover:opacity-100" />
 
-            {/* Gradient overlay for better control visibility */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          </div>
-
-          {/* Navigation arrows - Only show if more than 1 image */}
           {images.length > 1 && (
             <>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="absolute left-2 md:left-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-all duration-300 z-10"
-                onClick={prevImage}
+              <button
+                onClick={prev}
+                className="absolute left-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md transition-all hover:bg-white/25 hover:scale-110 opacity-0 group-hover:opacity-100"
               >
-                <ChevronLeft className="h-4 w-4 md:h-6 md:w-6" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="absolute right-2 md:right-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-all duration-300 z-10"
-                onClick={nextImage}
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+              <button
+                onClick={next}
+                className="absolute right-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md transition-all hover:bg-white/25 hover:scale-110 opacity-0 group-hover:opacity-100"
               >
-                <ChevronRight className="h-4 w-4 md:h-6 md:w-6" />
-              </Button>
+                <ChevronRight className="h-5 w-5" />
+              </button>
             </>
           )}
 
-          {/* Fullscreen button */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="absolute top-2 md:top-4 right-2 md:right-4 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-all duration-300 z-10"
-            onClick={toggleFullscreen}
+          <button
+            onClick={() => setFullscreen(true)}
+            className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md transition-all hover:bg-white/25 opacity-0 group-hover:opacity-100"
           >
             <Maximize2 className="h-4 w-4" />
-          </Button>
+          </button>
 
-          {/* Image counter */}
           {images.length > 1 && (
-            <div className="absolute bottom-2 md:bottom-4 right-2 md:right-4 bg-black/70 text-white px-2 md:px-3 py-1 rounded-full text-xs md:text-sm font-medium">
-              {currentIndex + 1} / {images.length}
+            <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 gap-2">
+              {images.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrent(i)}
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    i === current ? "w-6 bg-white" : "w-2 bg-white/40 hover:bg-white/70"
+                  }`}
+                />
+              ))}
             </div>
           )}
         </div>
-
-        {/* Thumbnail dots - Mobile optimized */}
-        {images.length > 1 && (
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
-            {images.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentIndex(index)}
-                className={`w-2 h-2 md:w-3 md:h-3 rounded-full transition-all duration-300 ${
-                  index === currentIndex
-                    ? "bg-white scale-125"
-                    : "bg-white/50 hover:bg-white/80"
-                }`}
-              />
-            ))}
-          </div>
-        )}
       </div>
 
-      {/* Thumbnail Strip - Only show on larger screens */}
+      {/* Thumbnails */}
       {images.length > 1 && (
-        <div className="hidden md:flex mt-4 space-x-3 overflow-x-auto pb-2">
-          {images.map((image, index) => (
+        <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+          {images.map((img, i) => (
             <button
-              key={index}
-              onClick={() => setCurrentIndex(index)}
-              className={`flex-shrink-0 w-20 h-20 lg:w-24 lg:h-24 rounded-xl overflow-hidden border-2 transition-all duration-300 ${
-                index === currentIndex
-                  ? "border-blue-500 scale-105 shadow-lg"
-                  : "border-gray-200 hover:border-gray-400"
+              key={i}
+              onClick={() => setCurrent(i)}
+              className={`relative flex-shrink-0 h-16 w-16 md:h-20 md:w-20 overflow-hidden rounded-xl border-2 transition-all duration-200 ${
+                i === current
+                  ? "border-[rgb(var(--neon-violet))] ring-2 ring-[rgb(var(--neon-violet)/0.3)]"
+                  : "border-border/40 opacity-60 hover:opacity-100"
               }`}
             >
               <Image
-                src={getImageUrl(image.url)}
-                alt={image.alt || `Image ${index + 1}`}
-                width={96}
-                height={96}
-                className="w-full h-full object-cover"
+                src={getImageUrl(img.url)}
+                alt={img.alt || `Ảnh ${i + 1}`}
+                width={80}
+                height={80}
+                className="h-full w-full object-cover"
               />
             </button>
           ))}
         </div>
       )}
 
-      {/* Fullscreen Modal */}
-      {isFullscreen && (
-        <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
-          <div className="relative w-full h-full flex items-center justify-center">
-            <Image
-              src={
-                getImageUrl(images[currentIndex]?.url) ||
-                getPlaceholderUrl(1200, 800)
-              }
-              alt={images[currentIndex]?.alt || title}
-              fill
-              className="object-contain"
-              priority
-            />
-
-            {/* Close button */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="absolute top-4 right-4 text-white bg-black/50 hover:bg-black/70 rounded-full p-2"
-              onClick={toggleFullscreen}
-            >
-              <X className="h-6 w-6" />
-            </Button>
-
-            {/* Navigation in fullscreen */}
-            {images.length > 1 && (
-              <>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white bg-black/50 hover:bg-black/70 rounded-full p-2"
-                  onClick={prevImage}
-                >
-                  <ChevronLeft className="h-8 w-8" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white bg-black/50 hover:bg-black/70 rounded-full p-2"
-                  onClick={nextImage}
-                >
-                  <ChevronRight className="h-8 w-8" />
-                </Button>
-              </>
-            )}
-
-            {/* Counter in fullscreen */}
-            {images.length > 1 && (
-              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white bg-black/70 px-4 py-2 rounded-full">
-                {currentIndex + 1} / {images.length}
+      {/* Fullscreen */}
+      {fullscreen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-sm">
+          <Image
+            src={getImageUrl(images[current]?.url) || getPlaceholderUrl(1200, 800)}
+            alt={images[current]?.alt || title}
+            fill
+            className="object-contain p-4"
+            priority
+          />
+          <button
+            onClick={() => setFullscreen(false)}
+            className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md transition hover:bg-white/20"
+          >
+            <X className="h-5 w-5" />
+          </button>
+          {images.length > 1 && (
+            <>
+              <button
+                onClick={prev}
+                className="absolute left-4 top-1/2 -translate-y-1/2 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md transition hover:bg-white/20"
+              >
+                <ChevronLeft className="h-7 w-7" />
+              </button>
+              <button
+                onClick={next}
+                className="absolute right-4 top-1/2 -translate-y-1/2 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md transition hover:bg-white/20"
+              >
+                <ChevronRight className="h-7 w-7" />
+              </button>
+              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 rounded-full bg-white/10 px-4 py-2 text-sm text-white backdrop-blur-md">
+                {current + 1} / {images.length}
               </div>
-            )}
-          </div>
+            </>
+          )}
         </div>
       )}
     </>
   );
 };
 
+/* ─── Stat Chip ─── */
+const StatChip = ({
+  icon: Icon,
+  label,
+  value,
+  color = "violet",
+}: {
+  icon: React.ElementType;
+  label: string;
+  value: string | number;
+  color?: "violet" | "cyan" | "emerald" | "pink";
+}) => {
+  const colors = {
+    violet: "from-[rgb(var(--neon-violet)/0.12)] to-[rgb(var(--neon-violet)/0.04)] border-[rgb(var(--neon-violet)/0.2)] text-[rgb(var(--neon-violet))]",
+    cyan: "from-[rgb(var(--neon-cyan)/0.12)] to-[rgb(var(--neon-cyan)/0.04)] border-[rgb(var(--neon-cyan)/0.2)] text-[rgb(var(--neon-cyan))]",
+    emerald: "from-[rgb(var(--neon-emerald)/0.12)] to-[rgb(var(--neon-emerald)/0.04)] border-[rgb(var(--neon-emerald)/0.2)] text-[rgb(var(--neon-emerald))]",
+    pink: "from-[rgb(var(--neon-pink)/0.12)] to-[rgb(var(--neon-pink)/0.04)] border-[rgb(var(--neon-pink)/0.2)] text-[rgb(var(--neon-pink))]",
+  };
+  return (
+    <div className={`flex items-center gap-3 rounded-xl border bg-gradient-to-br p-4 ${colors[color]}`}>
+      <div className={`flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br ${colors[color]} backdrop-blur`}>
+        <Icon className="h-5 w-5" />
+      </div>
+      <div>
+        <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</p>
+        <p className="text-lg font-bold text-foreground">{value}</p>
+      </div>
+    </div>
+  );
+};
+
+/* ─── Main Page ─── */
 export default function AccountDetailPage() {
   const [isLiked, setIsLiked] = useState(false);
   const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
@@ -295,84 +258,25 @@ export default function AccountDetailPage() {
   const { data: accountData, isLoading } = useAccount(accountId);
   const account = accountData?.data as ApiGameAccount;
 
-  // Scroll detection for sticky header
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 100);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const h = () => setIsScrolled(window.scrollY > 80);
+    window.addEventListener("scroll", h);
+    return () => window.removeEventListener("scroll", h);
   }, []);
 
   const formatPrice = (price: number) => {
-    if (price === -1) {
-      return "📞 Liên hệ";
-    }
-
-    const priceStr = price.toString();
-    if (priceStr.length <= 3) {
-      return `${price} đ`;
-    }
-
-    const firstDigit = priceStr[0];
-    const remainingStr = priceStr.slice(1);
-
-    let pattern = "";
-    for (let i = 0; i < remainingStr.length; i++) {
-      if (i > 0 && (remainingStr.length - i) % 3 === 0) {
-        pattern += ".";
-      }
-      pattern += "x";
-    }
-
-    return `${firstDigit}${pattern} đ`;
+    if (price === -1) return "Liên hệ";
+    return new Intl.NumberFormat("vi-VN").format(price) + " đ";
   };
 
-  const formatDate = (dateString: string) => {
-    if (!dateString) return "Không xác định";
-    try {
-      return new Date(dateString).toLocaleDateString("vi-VN", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
-    } catch (error) {
-      console.error("Error formatting date:", error);
-      return "Không xác định";
-    }
+  const formatDate = (d: string) => {
+    if (!d) return "—";
+    return new Date(d).toLocaleDateString("vi-VN", { year: "numeric", month: "long", day: "numeric" });
   };
 
-  const getPlatformIcon = (platform: string) => {
-    switch (platform) {
-      case "steam":
-        return "💻";
-      case "mobile":
-        return "📱";
-      case "ps4":
-      case "ps5":
-        return "🎮";
-      case "xbox":
-        return "🎮";
-      default:
-        return "🎮";
-    }
-  };
-
-  const getPlatformLabel = (platform: string) => {
-    switch (platform) {
-      case "steam":
-        return "Steam PC";
-      case "mobile":
-        return "Mobile";
-      case "ps4":
-        return "PlayStation 4";
-      case "ps5":
-        return "PlayStation 5";
-      case "xbox":
-        return "Xbox";
-      default:
-        return platform;
-    }
+  const getPlatformLabel = (p: string) => {
+    const map: Record<string, string> = { steam: "Steam PC", mobile: "Mobile", ps4: "PS4", ps5: "PS5", xbox: "Xbox" };
+    return map[p] || p;
   };
 
   const handlePurchase = () => {
@@ -385,14 +289,10 @@ export default function AccountDetailPage() {
 
   const handleShare = () => {
     if (navigator.share) {
-      navigator.share({
-        title: account.title,
-        text: account.description,
-        url: window.location.href,
-      });
+      navigator.share({ title: account.title, text: account.description, url: window.location.href });
     } else {
       navigator.clipboard.writeText(window.location.href);
-      toast.success("Link đã được copy vào clipboard!");
+      toast.success("Đã sao chép link!");
     }
   };
 
@@ -401,42 +301,43 @@ export default function AccountDetailPage() {
     toast.success(isLiked ? "Đã xóa khỏi yêu thích" : "Đã thêm vào yêu thích");
   };
 
+  /* Loading */
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <div className="relative">
-            <LoaderIcon className="w-12 h-12 animate-spin mx-auto text-blue-500" />
-            <div className="absolute inset-0 rounded-full border-4 border-blue-100"></div>
+      <div className="container mx-auto max-w-6xl px-4 py-10">
+        <Skeleton className="mb-6 h-8 w-32 rounded-xl" />
+        <div className="grid gap-8 lg:grid-cols-[1fr_380px]">
+          <div className="space-y-4">
+            <Skeleton className="h-[440px] w-full rounded-2xl" />
+            <div className="flex gap-2">
+              <Skeleton className="h-20 w-20 rounded-xl" />
+              <Skeleton className="h-20 w-20 rounded-xl" />
+              <Skeleton className="h-20 w-20 rounded-xl" />
+            </div>
           </div>
-          <div>
-            <p className="text-lg font-semibold text-gray-700">
-              Đang tải thông tin tài khoản...
-            </p>
-            <p className="text-sm text-gray-500">Vui lòng đợi trong giây lát</p>
+          <div className="space-y-4">
+            <Skeleton className="h-6 w-3/4 rounded" />
+            <Skeleton className="h-10 w-1/2 rounded" />
+            <Skeleton className="h-14 w-full rounded-xl" />
+            <Skeleton className="h-40 w-full rounded-2xl" />
           </div>
         </div>
       </div>
     );
   }
 
+  /* Not found */
   if (!account) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
-        <div className="text-center space-y-6 max-w-md">
-          <div className="text-8xl">😞</div>
-          <div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">
-              Không tìm thấy tài khoản
-            </h2>
-            <p className="text-gray-600 mb-6">
-              Tài khoản bạn đang tìm không tồn tại hoặc đã bị xóa.
-            </p>
-          </div>
+      <div className="flex min-h-[60vh] items-center justify-center px-4">
+        <div className="max-w-sm text-center">
+          <div className="mb-4 text-7xl">😞</div>
+          <h2 className="mb-2 text-2xl font-bold text-foreground">Không tìm thấy tài khoản</h2>
+          <p className="mb-6 text-muted-foreground">Tài khoản không tồn tại hoặc đã bị xóa.</p>
           <Link href="/accounts">
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Quay lại danh sách tài khoản
+            <Button variant="neon" size="lg">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Quay lại
             </Button>
           </Link>
         </div>
@@ -444,637 +345,298 @@ export default function AccountDetailPage() {
     );
   }
 
+  const isAvailable = account.status === "available";
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 overflow-x-hidden">
-      {/* Sticky Header */}
+    <div className="relative min-h-screen">
+      {/* Sticky breadcrumb */}
       <div
-        className={`sticky top-0 z-40 transition-all duration-300 ${
+        className={`sticky top-0 z-30 transition-all duration-300 ${
           isScrolled
-            ? "bg-white/95 backdrop-blur-md shadow-lg"
+            ? "bg-background/80 shadow-sm backdrop-blur-xl border-b border-border/40"
             : "bg-transparent"
         }`}
       >
-        <div className="container mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
-            <Link href="/accounts">
-              <Button
-                variant="ghost"
-                className="flex items-center space-x-2 hover:bg-gray-100 rounded-xl px-3 py-2"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                <span className="hidden sm:inline">Quay lại</span>
-              </Button>
-            </Link>
-
-            {isScrolled && (
-              <div className="flex items-center space-x-3">
-                <div className="hidden md:block">
-                  <h3 className="font-semibold text-gray-800 truncate max-w-xs">
-                    {account.title}
-                  </h3>
-                </div>
-                <div className="flex space-x-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="rounded-xl"
-                    onClick={handleLike}
-                  >
-                    <Heart
-                      className={`h-4 w-4 ${
-                        isLiked ? "fill-red-500 text-red-500" : ""
-                      }`}
-                    />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="rounded-xl"
-                    onClick={handleShare}
-                  >
-                    <Share2 className="h-4 w-4" />
-                  </Button>
-                </div>
+        <div className="container mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+          <Link href="/accounts">
+            <Button variant="ghost" size="sm" className="gap-2 rounded-xl text-muted-foreground hover:text-foreground">
+              <ArrowLeft className="h-4 w-4" />
+              <span className="hidden sm:inline">Tài khoản game</span>
+            </Button>
+          </Link>
+          {isScrolled && (
+            <div className="flex items-center gap-2">
+              <span className="hidden truncate text-sm font-semibold text-foreground md:block md:max-w-[200px] lg:max-w-xs">
+                {account.title}
+              </span>
+              <div className="flex gap-1">
+                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={handleLike}>
+                  <Heart className={`h-4 w-4 ${isLiked ? "fill-red-500 text-red-500" : ""}`} />
+                </Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={handleShare}>
+                  <Share2 className="h-4 w-4" />
+                </Button>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-6 space-y-6 overflow-x-hidden">
-        {/* Hero Section with Image Carousel */}
-        <div className="space-y-4">
-          <ImageCarousel images={account.images || []} title={account.title} />
-
-          {/* Title and Quick Info - Enhanced Mobile/Desktop */}
+      <div className="container mx-auto max-w-6xl px-4 py-6">
+        <div className="grid gap-8 lg:grid-cols-[1fr_380px]">
+          {/* ─── LEFT: Gallery + Details ─── */}
           <div className="space-y-6">
-            {/* Main Title Section */}
-            <div className="bg-white rounded-2xl p-4 md:p-6 shadow-lg border border-gray-100">
-              <div className="space-y-4">
-                <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent leading-normal md:leading-relaxed">
-                  {account.title}
-                </h1>
+            <ImageGallery images={account.images || []} title={account.title} />
 
-                {/* Meta Information */}
-                <div className="flex flex-wrap items-center gap-3 text-sm md:text-base text-gray-600">
-                  <div className="flex items-center space-x-2 bg-gray-50 px-3 py-2 rounded-full">
-                    <Calendar className="h-4 w-4 md:h-5 md:w-5 text-blue-500 flex-shrink-0" />
-                    <span className="font-medium whitespace-nowrap">
-                      {formatDate(account?.createdAt)}
-                    </span>
+            {/* Title & meta (mobile) */}
+            <div className="lg:hidden space-y-4">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${
+                  isAvailable
+                    ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                    : "bg-red-500/10 text-red-600 dark:text-red-400"
+                }`}>
+                  <span className={`h-1.5 w-1.5 rounded-full ${isAvailable ? "bg-emerald-500" : "bg-red-500"}`} />
+                  {isAvailable ? "Có sẵn" : "Đã bán"}
+                </span>
+                {account.featured && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-600 dark:text-amber-400">
+                    <Star className="h-3 w-3" /> Nổi bật
+                  </span>
+                )}
+                <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
+                  {account.accountCode}
+                </span>
+              </div>
+              <h1 className="text-2xl font-bold leading-tight text-foreground md:text-3xl">
+                {account.title}
+              </h1>
+              {/* Price Mobile */}
+              <div className="glass rounded-2xl p-5 border border-border/40">
+                <div className={`text-3xl font-black ${
+                  account.price === -1
+                    ? "text-emerald-600 dark:text-emerald-400"
+                    : "neon-text-tri"
+                }`}>
+                  {formatPrice(account.price)}
+                </div>
+                <Button
+                  className={`mt-4 w-full h-12 rounded-xl text-base font-bold transition-all ${
+                    isAvailable
+                      ? "bg-gradient-to-r from-[rgb(var(--neon-violet))] to-[rgb(var(--neon-pink))] text-white shadow-lg shadow-[rgb(var(--neon-violet)/0.3)] hover:shadow-xl hover:shadow-[rgb(var(--neon-violet)/0.5)] hover:-translate-y-0.5"
+                      : "bg-muted text-muted-foreground cursor-not-allowed"
+                  }`}
+                  onClick={handlePurchase}
+                  disabled={!isAvailable}
+                >
+                  <ShoppingCart className="mr-2 h-5 w-5" />
+                  {isAvailable ? "Mua ngay" : "Đã bán"}
+                </Button>
+                <div className="mt-3 flex gap-2">
+                  <Button variant="outline" className="flex-1 rounded-xl" onClick={handleLike}>
+                    <Heart className={`mr-1.5 h-4 w-4 ${isLiked ? "fill-red-500 text-red-500" : ""}`} />
+                    {isLiked ? "Đã thích" : "Thích"}
+                  </Button>
+                  <Button variant="outline" className="flex-1 rounded-xl" onClick={handleShare}>
+                    <Share2 className="mr-1.5 h-4 w-4" /> Chia sẻ
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Description */}
+            <div className="glass rounded-2xl border border-border/40 p-5 md:p-6">
+              <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-foreground">
+                <Gamepad2 className="h-5 w-5 text-[rgb(var(--neon-violet))]" />
+                Mô tả chi tiết
+              </h2>
+              <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground/80 md:text-base">
+                {account.description}
+              </p>
+            </div>
+
+            {/* Stats grid */}
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+              <StatChip icon={Star} label="Sức mạnh" value={account.collectiveStrength} color="violet" />
+              <StatChip icon={Coins} label="Coins" value={(account.accountDetails?.coins || 0).toLocaleString()} color="cyan" />
+              <StatChip icon={Gamepad2} label="GP" value={(account.accountDetails?.gp || 0).toLocaleString()} color="emerald" />
+              <StatChip icon={Eye} label="Lượt xem" value={account.views.toLocaleString()} color="pink" />
+            </div>
+
+            {/* Technical details */}
+            <div className="glass rounded-2xl border border-border/40 p-5 md:p-6">
+              <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-foreground">
+                <Shield className="h-5 w-5 text-[rgb(var(--neon-emerald))]" />
+                Thông tin kỹ thuật
+              </h2>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="flex items-center gap-3 rounded-xl bg-muted/40 p-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[rgb(var(--neon-cyan)/0.1)]">
+                    <Monitor className="h-5 w-5 text-[rgb(var(--neon-cyan))]" />
                   </div>
-                  <div className="flex items-center space-x-2 bg-gray-50 px-3 py-2 rounded-full">
-                    <Eye className="h-4 w-4 md:h-5 md:w-5 text-green-500 flex-shrink-0" />
-                    <span className="font-medium whitespace-nowrap">
-                      {account.views.toLocaleString()} lượt xem
-                    </span>
+                  <div>
+                    <p className="text-xs font-medium text-muted-foreground">Nền tảng</p>
+                    <p className="font-semibold text-foreground">{getPlatformLabel(account.accountDetails?.platform || "mobile")}</p>
                   </div>
                 </div>
-
-                {/* Platform and Status Badges - Enhanced Responsive */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                  <div className="flex items-center justify-center space-x-2 bg-white border-2 border-blue-200 text-gray-700 px-3 py-3 rounded-xl shadow-sm min-h-[48px]">
-                    <span className="text-base flex-shrink-0">
-                      {getPlatformIcon(
-                        account.accountDetails?.platform || "mobile"
-                      )}
-                    </span>
-                    <span className="font-medium text-xs md:text-base text-center">
-                      {getPlatformLabel(
-                        account.accountDetails?.platform || "mobile"
-                      )}
-                    </span>
+                <div className="flex items-center gap-3 rounded-xl bg-muted/40 p-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[rgb(var(--neon-violet)/0.1)]">
+                    <Tag className="h-5 w-5 text-[rgb(var(--neon-violet))]" />
                   </div>
-
-                  <div className="flex items-center justify-center space-x-2 bg-white border-2 border-purple-200 text-gray-700 px-3 py-3 rounded-xl shadow-sm min-h-[48px]">
-                    <span className="text-sm flex-shrink-0">🏷️</span>
-                    <span className="font-medium text-xs md:text-base text-center">
-                      {account.accountCode}
-                    </span>
-                  </div>
-
-                  <div
-                    className={`flex items-center justify-center space-x-2 px-3 py-3 rounded-xl shadow-sm font-medium text-xs md:text-base min-h-[48px] bg-white text-gray-700 ${
-                      account.status === "available"
-                        ? "border-2 border-green-200"
-                        : "border-2 border-red-200"
-                    }`}
-                  >
-                    <span className="text-sm flex-shrink-0">
-                      {account.status === "available" ? "✅" : "❌"}
-                    </span>
-                    <span className="text-center">
-                      {account.status === "available" ? "Có sẵn" : "Đã bán"}
-                    </span>
-                  </div>
-
-                  {account.featured ? (
-                    <div className="flex items-center justify-center space-x-2 bg-white border-2 border-orange-200 text-gray-700 px-3 py-3 rounded-xl shadow-sm min-h-[48px]">
-                      <span className="text-sm flex-shrink-0">⭐</span>
-                      <span className="font-medium text-xs md:text-base text-center">
-                        Nổi bật
-                      </span>
-                    </div>
-                  ) : (
-                    <div className="hidden lg:block"></div>
-                  )}
-                </div>
-
-                <div className="lg:hidden order-1">
-            <CardDetail className="overflow-x-hidden">
-              <CardContentDetail className="overflow-x-hidden">
-                <div className="text-center space-y-4">
-                  {/* Enhanced Action Buttons - Mobile */}
-                  <div className="space-y-3 pt-2">
-                    <div className="relative">
-                      <Button
-                        className={`relative w-full h-14 text-xl font-black rounded-2xl shadow-2xl transform transition-all duration-500 border-2 overflow-hidden ${
-                          account.status === "available"
-                            ? "bg-gradient-to-r from-red-500 via-pink-500 to-orange-500 hover:from-red-600 hover:via-pink-600 hover:to-orange-600 text-white border-red-300 hover:scale-105 hover:shadow-3xl hover:shadow-red-500/50"
-                            : "bg-gray-400 cursor-not-allowed text-white border-gray-300"
-                        }`}
-                        onClick={handlePurchase}
-                        disabled={account.status !== "available"}
-                      >
-                        {/* Background Glow Effect */}
-                        {account.status === "available" && (
-                          <div className="absolute -inset-1 bg-gradient-to-r from-red-500/30 via-pink-500/30 to-orange-500/30 rounded-2xl blur-md animate-pulse -z-10"></div>
-                        )}
-                        
-                        <div className="relative z-10 flex items-center justify-center space-x-3">
-                          <div className="relative overflow-hidden">
-                            <ShoppingCart className="h-5 w-5 animate-bounce" />
-                            {account.status === "available" && (
-                              <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-yellow-400 rounded-full animate-ping"></div>
-                            )}
-                          </div>
-                          <span className="bg-gradient-to-r from-yellow-200 to-white bg-clip-text text-transparent font-black">
-                            {account.status === "available"
-                              ? "🔥 MUA NGAY - GIẢM SỐC! 🔥"
-                              : "❌ Không khả dụng"}
-                          </span>
-                        </div>
-                        
-                        {/* Shine Effect */}
-                        {account.status === "available" && (
-                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 transform translate-x-full animate-shine"></div>
-                        )}
-                      </Button>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                      <Button
-                        variant="outline"
-                        className={`h-10 rounded-xl border-2 hover:bg-red-50 transition-all duration-300 ${
-                          isLiked
-                            ? "border-red-500 bg-red-50 text-red-600"
-                            : "border-gray-300 hover:border-red-400"
-                        }`}
-                        onClick={handleLike}
-                      >
-                        <Heart
-                          className={`h-4 w-4 mr-1 ${
-                            isLiked ? "fill-red-500 text-red-500" : ""
-                          }`}
-                        />
-                        <span className="font-semibold text-sm">
-                          {isLiked ? "Đã thích" : "Yêu thích"}
-                        </span>
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="h-10 rounded-xl border-2 border-gray-300 hover:border-blue-400 hover:bg-blue-50 transition-all duration-300"
-                        onClick={handleShare}
-                      >
-                        <Share2 className="h-4 w-4 mr-1" />
-                        <span className="font-semibold text-sm">Chia sẻ</span>
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Price Display - Mobile Optimized */}
-                  <div className="relative">
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-2xl blur-xl"></div>
-                    <div className="relative bg-white rounded-2xl p-4 shadow-lg border border-gray-100">
-                      <div
-                        className={`text-3xl md:text-4xl font-black ${
-                          account.price === -1
-                            ? "bg-gradient-to-r from-green-500 to-emerald-600 bg-clip-text text-transparent animate-pulse"
-                            : "bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent"
-                        }`}
-                      >
-                        {formatPrice(account.price)}
-                      </div>
-                      <p className="text-base md:text-lg text-gray-600 mt-1 font-medium">
-                        {account.price === -1
-                          ? "Liên hệ để biết giá"
-                          : "Giá bán"}
-                      </p>
-                    </div>
+                  <div>
+                    <p className="text-xs font-medium text-muted-foreground">Danh mục</p>
+                    <p className="font-semibold text-foreground">{account.category?.name || "Chưa phân loại"}</p>
                   </div>
                 </div>
-              </CardContentDetail>
-            </CardDetail>
-          </div>
+                <div className="flex items-center gap-3 rounded-xl bg-muted/40 p-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[rgb(var(--neon-emerald)/0.1)]">
+                    <Calendar className="h-5 w-5 text-[rgb(var(--neon-emerald))]" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium text-muted-foreground">Ngày đăng</p>
+                    <p className="font-semibold text-foreground">{formatDate(account.createdAt)}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 rounded-xl bg-muted/40 p-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[rgb(var(--neon-pink)/0.1)]">
+                    <Trophy className="h-5 w-5 text-[rgb(var(--neon-pink))]" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium text-muted-foreground">Mã tài khoản</p>
+                    <p className="font-semibold text-foreground">{account.accountCode}</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Main Content Grid - Responsive Layout */}
-        <div className="space-y-6 lg:space-y-0 lg:grid lg:grid-cols-3 lg:gap-6">
-          {/* Mobile: Purchase Section First - Only visible on mobile */}
-          
-
-          {/* Left Column - Account Details */}
-          <div className="lg:col-span-2 space-y-6 order-2 lg:order-1">
-            {/* Enhanced Price Section - Desktop Only */}
-            <Card className="hidden lg:block overflow-hidden bg-gradient-to-br from-white to-gray-50 border-2 border-gray-100 shadow-xl">
-              <CardContent className="p-6 md:p-8">
-                <div className="text-center space-y-6">
-                  {/* Price Display */}
-                  <div className="relative">
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-2xl blur-xl"></div>
-                    <div className="relative bg-white rounded-2xl p-6 md:p-8 shadow-lg border border-gray-100">
-                      <div
-                        className={`text-4xl md:text-6xl lg:text-7xl font-black ${
-                          account.price === -1
-                            ? "bg-gradient-to-r from-green-500 to-emerald-600 bg-clip-text text-transparent animate-pulse"
-                            : "bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent"
-                        }`}
-                      >
-                        {formatPrice(account.price)}
-                      </div>
-                      <p className="text-lg md:text-xl text-gray-600 mt-2 font-medium">
-                        {account.price === -1
-                          ? "Liên hệ để biết giá"
-                          : "Giá bán"}
-                      </p>
-                    </div>
-                  </div>
-
-                  
-
-                  {/* Enhanced Action Buttons - Desktop */}
-                  <div className="space-y-4 pt-4">
-                    <div className="relative">
-                      <Button
-                        className={`relative w-full h-16 md:h-20 text-xl md:text-2xl font-black rounded-2xl shadow-2xl transform transition-all duration-500 border-2 overflow-hidden ${
-                          account.status === "available"
-                            ? "bg-gradient-to-r from-red-500 via-pink-500 to-orange-500 hover:from-red-600 hover:via-pink-600 hover:to-orange-600 text-white border-red-300 hover:scale-105 hover:shadow-4xl hover:shadow-red-500/60"
-                            : "bg-gray-400 cursor-not-allowed text-white border-gray-300"
-                        }`}
-                        onClick={handlePurchase}
-                        disabled={account.status !== "available"}
-                      >
-                        {/* Background Glow Effect */}
-                        {account.status === "available" && (
-                          <div className="absolute -inset-1 bg-gradient-to-r from-red-500/30 via-pink-500/30 to-orange-500/30 rounded-2xl blur-md animate-pulse -z-10"></div>
-                        )}
-                        
-                        <div className="relative z-10 flex items-center justify-center space-x-4">
-                          <div className="relative overflow-hidden">
-                            <ShoppingCart className="h-8 w-8 animate-bounce" />
-                            {account.status === "available" && (
-                              <>
-                                <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-ping"></div>
-                                <div className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-yellow-300 rounded-full animate-pulse"></div>
-                              </>
-                            )}
-                          </div>
-                          <div className="flex flex-col items-center">
-                            <span className="bg-gradient-to-r from-yellow-200 to-white bg-clip-text text-transparent font-black">
-                              {account.status === "available"
-                                ? "🔥 MUA NGAY - GIẢM SỐC! 🔥"
-                                : "❌ Không khả dụng"}
-                            </span>
-                            {account.status === "available" && (
-                              <span className="text-yellow-200 text-sm font-semibold animate-pulse">
-                                💎 Chỉ còn vài tài khoản cuối! 💎
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        
-                        {/* Shine Effect */}
-                        {account.status === "available" && (
-                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent skew-x-12 transform translate-x-full animate-shine"></div>
-                        )}
-                      </Button>
-                    </div>
-
-                    <div className="flex gap-3">
-                      <Button
-                        variant="outline"
-                        className={`flex-1 h-12 md:h-14 rounded-xl border-2 hover:bg-red-50 transition-all duration-300 ${
-                          isLiked
-                            ? "border-red-500 bg-red-50 text-red-600"
-                            : "border-gray-300 hover:border-red-400"
-                        }`}
-                        onClick={handleLike}
-                      >
-                        <Heart
-                          className={`h-5 w-5 md:h-6 md:w-6 mr-2 ${
-                            isLiked ? "fill-red-500 text-red-500" : ""
-                          }`}
-                        />
-                        <span className="font-semibold text-sm md:text-base">
-                          {isLiked ? "Đã thích" : "Yêu thích"}
-                        </span>
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="flex-1 h-12 md:h-14 rounded-xl border-2 border-gray-300 hover:border-blue-400 hover:bg-blue-50 transition-all duration-300"
-                        onClick={handleShare}
-                      >
-                        <Share2 className="h-5 w-5 md:h-6 md:w-6 mr-2" />
-                        <span className="font-semibold text-sm md:text-base">
-                          Chia sẻ
-                        </span>
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Enhanced Description */}
-            <Card className="bg-gradient-to-br from-white to-indigo-50 border-2 border-indigo-100 shadow-xl">
-              <CardHeader className="pb-4">
-                <CardTitle className="flex items-center space-x-3 text-xl md:text-2xl">
-                  <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl">
-                    <Gamepad2 className="h-6 w-6 md:h-7 md:w-7 text-white" />
-                  </div>
-                  <span className="bg-gradient-to-r from-gray-800 to-indigo-800 bg-clip-text text-transparent font-bold">
-                    Mô tả chi tiết
+          {/* ─── RIGHT: Sticky sidebar (desktop) ─── */}
+          <div className="hidden lg:block">
+            <div className="sticky top-20 space-y-5">
+              {/* Purchase card */}
+              <div className="glass rounded-2xl border border-border/40 p-6">
+                <div className="flex flex-wrap items-center gap-2 mb-3">
+                  <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${
+                    isAvailable
+                      ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                      : "bg-red-500/10 text-red-600 dark:text-red-400"
+                  }`}>
+                    <span className={`h-1.5 w-1.5 rounded-full ${isAvailable ? "bg-emerald-500 animate-pulse" : "bg-red-500"}`} />
+                    {isAvailable ? "Có sẵn" : "Đã bán"}
                   </span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="bg-white rounded-2xl p-4 md:p-6 border border-indigo-200 shadow-md">
-                  <div className="prose prose-gray max-w-none">
-                    <p className="text-gray-700 text-base md:text-lg leading-relaxed whitespace-pre-wrap font-medium">
-                      {account.description}
-                    </p>
+                  {account.featured && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-600 dark:text-amber-400">
+                      <Star className="h-3 w-3" /> Nổi bật
+                    </span>
+                  )}
+                </div>
+
+                <h1 className="mb-4 text-xl font-bold leading-snug text-foreground">
+                  {account.title}
+                </h1>
+
+                {/* Price */}
+                <div className="mb-5 rounded-xl bg-gradient-to-br from-[rgb(var(--neon-violet)/0.08)] to-[rgb(var(--neon-pink)/0.05)] border border-[rgb(var(--neon-violet)/0.15)] p-5 text-center">
+                  <p className="mb-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    {account.price === -1 ? "Giá" : "Giá bán"}
+                  </p>
+                  <div className={`text-3xl font-black ${
+                    account.price === -1 ? "text-emerald-600 dark:text-emerald-400" : "neon-text-tri"
+                  }`}>
+                    {formatPrice(account.price)}
                   </div>
                 </div>
-              </CardContent>
-            </Card>
 
-            {/* Enhanced Stats Grid */}
-            <Card className="bg-gradient-to-br from-white to-blue-50 border-2 border-blue-100 shadow-xl">
-              <CardHeader className="pb-4">
-                <CardTitle className="flex items-center space-x-3 text-xl md:text-2xl">
-                  <div className="p-2 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-xl">
-                    <Trophy className="h-6 w-6 md:h-7 md:w-7 text-white" />
-                  </div>
-                  <span className="bg-gradient-to-r from-gray-800 to-blue-800 bg-clip-text text-transparent font-bold">
-                    Thống kê tài khoản
-                  </span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div className="bg-gradient-to-br from-yellow-50 to-orange-50 p-4 md:p-6 rounded-2xl border-2 border-yellow-200 hover:shadow-lg transition-all duration-300">
-                    <div className="flex items-center space-x-4">
-                      <div className="p-3 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-xl shadow-md">
-                        <Star className="h-6 w-6 md:h-8 md:w-8 text-white" />
-                      </div>
-                      <div>
-                        <p className="text-2xl md:text-3xl font-black text-gray-900">
-                          {account.collectiveStrength}
-                        </p>
-                        <p className="text-sm md:text-base text-gray-600 font-medium">
-                          Collective Strength
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+                {/* CTA */}
+                <Button
+                  className={`w-full h-13 rounded-xl text-base font-bold transition-all duration-300 ${
+                    isAvailable
+                      ? "bg-gradient-to-r from-[rgb(var(--neon-violet))] to-[rgb(var(--neon-pink))] text-white shadow-lg shadow-[rgb(var(--neon-violet)/0.3)] hover:shadow-xl hover:shadow-[rgb(var(--neon-violet)/0.5)] hover:-translate-y-0.5 active:translate-y-0"
+                      : "bg-muted text-muted-foreground cursor-not-allowed"
+                  }`}
+                  onClick={handlePurchase}
+                  disabled={!isAvailable}
+                >
+                  <ShoppingCart className="mr-2 h-5 w-5" />
+                  {isAvailable ? "Mua ngay" : "Đã bán"}
+                </Button>
 
-                  <div className="bg-gradient-to-br from-yellow-50 to-orange-50 p-4 md:p-6 rounded-2xl border-2 border-yellow-200 hover:shadow-lg transition-all duration-300">
-                    <div className="flex items-center space-x-4">
-                      <div className="p-3 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-xl shadow-md">
-                        <Coins className="h-6 w-6 md:h-8 md:w-8 text-white" />
-                      </div>
-                      <div>
-                        <p className="text-2xl md:text-3xl font-black text-gray-900">
-                          {account.accountDetails?.coins?.toLocaleString() ||
-                            "0"}
-                        </p>
-                        <p className="text-sm md:text-base text-gray-600 font-medium">
-                          Coins
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <Button
+                    variant="outline"
+                    className={`rounded-xl transition-all ${isLiked ? "border-red-300 bg-red-50 text-red-600 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-400" : ""}`}
+                    onClick={handleLike}
+                  >
+                    <Heart className={`mr-1.5 h-4 w-4 ${isLiked ? "fill-current" : ""}`} />
+                    {isLiked ? "Đã thích" : "Thích"}
+                  </Button>
+                  <Button variant="outline" className="rounded-xl" onClick={handleShare}>
+                    <Share2 className="mr-1.5 h-4 w-4" />
+                    Chia sẻ
+                  </Button>
+                </div>
 
-                  <div className="bg-gradient-to-br from-purple-50 to-indigo-50 p-4 md:p-6 rounded-2xl border-2 border-purple-200 hover:shadow-lg transition-all duration-300">
-                    <div className="flex items-center space-x-4">
-                      <div className="p-3 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl shadow-md">
-                        <Gamepad2 className="h-6 w-6 md:h-8 md:w-8 text-white" />
-                      </div>
-                      <div>
-                        <p className="text-2xl md:text-3xl font-black text-gray-900">
-                          {account.accountDetails?.gp?.toLocaleString() || "0"}
-                        </p>
-                        <p className="text-sm md:text-base text-gray-600 font-medium">
-                          GP
-                        </p>
-                      </div>
-                    </div>
+                {/* Quick stats */}
+                <div className="mt-5 grid grid-cols-2 gap-3">
+                  <div className="rounded-lg bg-muted/40 p-3 text-center">
+                    <p className="text-lg font-bold text-foreground">{account.collectiveStrength}</p>
+                    <p className="text-xs text-muted-foreground">Sức mạnh</p>
                   </div>
-
-                  <div className="bg-gradient-to-br from-blue-50 to-cyan-50 p-4 md:p-6 rounded-2xl border-2 border-blue-200 hover:shadow-lg transition-all duration-300">
-                    <div className="flex items-center space-x-4">
-                      <div className="p-3 bg-gradient-to-r from-blue-500 to-cyan-600 rounded-xl shadow-md">
-                        <Eye className="h-6 w-6 md:h-8 md:w-8 text-white" />
-                      </div>
-                      <div>
-                        <p className="text-2xl md:text-3xl font-black text-gray-900">
-                          {account.views.toLocaleString()}
-                        </p>
-                        <p className="text-sm md:text-base text-gray-600 font-medium">
-                          Lượt xem
-                        </p>
-                      </div>
-                    </div>
+                  <div className="rounded-lg bg-muted/40 p-3 text-center">
+                    <p className="text-lg font-bold text-foreground">{account.views.toLocaleString()}</p>
+                    <p className="text-xs text-muted-foreground">Lượt xem</p>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
 
-            
-
-            {/* Enhanced Technical Details */}
-            <Card className="bg-gradient-to-br from-white to-green-50 border-2 border-green-100 shadow-xl">
-              <CardHeader className="pb-4">
-                <CardTitle className="flex items-center space-x-3 text-xl md:text-2xl">
-                  <div className="p-2 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl">
-                    <Shield className="h-6 w-6 md:h-7 md:w-7 text-white" />
-                  </div>
-                  <span className="bg-gradient-to-r from-gray-800 to-green-800 bg-clip-text text-transparent font-bold">
-                    Chi tiết kỹ thuật
-                  </span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-4 md:p-6 rounded-2xl border-2 border-green-200 hover:shadow-lg transition-all duration-300">
-                    <div className="space-y-3">
-                      <label className="text-sm md:text-base font-bold text-green-700 uppercase tracking-wide">
-                        Danh mục
-                      </label>
-                      <div className="flex items-center space-x-3">
-                        <div className="p-2 bg-gradient-to-r from-green-400 to-emerald-500 rounded-xl">
-                          <span className="text-xl">🎮</span>
-                        </div>
-                        <span className="font-bold text-lg md:text-xl text-gray-900">
-                          {account.category.name}
-                        </span>
-                      </div>
+              {/* Contact */}
+              <div className="glass rounded-2xl border border-border/40 p-5">
+                <h3 className="mb-3 flex items-center gap-2 text-sm font-bold text-foreground">
+                  <Phone className="h-4 w-4 text-[rgb(var(--neon-cyan))]" />
+                  Liên hệ hỗ trợ
+                </h3>
+                <div className="space-y-2">
+                  <a
+                    href="https://zalo.me/0395860670"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 rounded-xl bg-blue-500/5 border border-blue-500/10 p-3 transition-colors hover:bg-blue-500/10"
+                  >
+                    <span className="text-xl">📱</span>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Zalo</p>
+                      <p className="font-semibold text-foreground">0395 860 670</p>
                     </div>
-                  </div>
-
-                  <div className="bg-gradient-to-br from-blue-50 to-cyan-50 p-4 md:p-6 rounded-2xl border-2 border-blue-200 hover:shadow-lg transition-all duration-300">
-                    <div className="space-y-3">
-                      <label className="text-sm md:text-base font-bold text-blue-700 uppercase tracking-wide">
-                        Nền tảng
-                      </label>
-                      <div className="flex items-center space-x-3">
-                        <div className="p-2 bg-gradient-to-r from-blue-400 to-cyan-500 rounded-xl">
-                          <span className="text-xl">
-                            {getPlatformIcon(
-                              account.accountDetails?.platform || "mobile"
-                            )}
-                          </span>
-                        </div>
-                        <span className="font-bold text-lg md:text-xl text-gray-900">
-                          {getPlatformLabel(
-                            account.accountDetails?.platform || "mobile"
-                          )}
-                        </span>
-                      </div>
+                  </a>
+                  <div className="flex items-center gap-3 rounded-xl bg-muted/30 p-3">
+                    <Clock className="h-5 w-5 text-muted-foreground" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Giờ hoạt động</p>
+                      <p className="text-sm font-medium text-foreground">8:00 – 22:00 hàng ngày</p>
                     </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
 
-          {/* Right Column - Sticky Sidebar */}
-          <div className="lg:sticky lg:top-24 lg:self-start order-3 lg:order-2">
-            <div className="space-y-6">
-              {/* Contact Info */}
-              <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 shadow-lg">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-blue-800 flex items-center space-x-2 text-lg md:text-xl">
-                    <div className="p-2 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl">
-                      <MessageCircle className="h-5 w-5 text-white" />
+              {/* Guarantees */}
+              <div className="glass rounded-2xl border border-border/40 p-5">
+                <h3 className="mb-3 flex items-center gap-2 text-sm font-bold text-foreground">
+                  <Shield className="h-4 w-4 text-[rgb(var(--neon-emerald))]" />
+                  Cam kết
+                </h3>
+                <div className="space-y-2.5">
+                  {[
+                    "Tài khoản chính chủ 100%",
+                    "Bảo hành vĩnh viễn",
+                    "Hỗ trợ 24/7",
+                    "Hoàn tiền nếu không đúng mô tả",
+                  ].map((text) => (
+                    <div key={text} className="flex items-center gap-2.5">
+                      <CheckCircle2 className="h-4 w-4 flex-shrink-0 text-[rgb(var(--neon-emerald))]" />
+                      <span className="text-sm text-foreground/80">{text}</span>
                     </div>
-                    <span className="font-bold">Liên hệ hỗ trợ</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center space-x-3 p-3 bg-white rounded-xl border border-blue-100 hover:shadow-md transition-all duration-300">
-                    <div className="w-12 h-12 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <span className="text-2xl">📱</span>
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-bold text-blue-800 text-base">Zalo</p>
-                      <p className="text-blue-600 text-sm md:text-base font-semibold">
-                        0395860670
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center space-x-3 p-3 bg-white rounded-xl border border-blue-100 hover:shadow-md transition-all duration-300">
-                    <div className="w-12 h-12 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <Clock className="h-6 w-6 text-blue-600" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-bold text-blue-800 text-base">
-                        Giờ hoạt động
-                      </p>
-                      <p className="text-blue-600 text-sm md:text-base font-medium">
-                        8:00 - 22:00 hàng ngày
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Guarantee */}
-              <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 shadow-lg">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-green-800 flex items-center space-x-2 text-lg md:text-xl">
-                    <div className="p-2 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl">
-                      <Shield className="h-5 w-5 text-white" />
-                    </div>
-                    <span className="font-bold">Cam kết bảo đảm</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex items-center space-x-3 p-3 bg-white rounded-xl border border-green-100 hover:shadow-md transition-all duration-300">
-                      <div className="w-3 h-3 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex-shrink-0"></div>
-                      <span className="text-green-700 font-medium text-sm md:text-base">
-                        Tài khoản chính chủ 100%
-                      </span>
-                    </div>
-                    <div className="flex items-center space-x-3 p-3 bg-white rounded-xl border border-green-100 hover:shadow-md transition-all duration-300">
-                      <div className="w-3 h-3 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex-shrink-0"></div>
-                      <span className="text-green-700 font-medium text-sm md:text-base">
-                        Bảo hành vĩnh viễn
-                      </span>
-                    </div>
-                    <div className="flex items-center space-x-3 p-3 bg-white rounded-xl border border-green-100 hover:shadow-md transition-all duration-300">
-                      <div className="w-3 h-3 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex-shrink-0"></div>
-                      <span className="text-green-700 font-medium text-sm md:text-base">
-                        Hỗ trợ 24/7
-                      </span>
-                    </div>
-                    <div className="flex items-center space-x-3 p-3 bg-white rounded-xl border border-green-100 hover:shadow-md transition-all duration-300">
-                      <div className="w-3 h-3 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex-shrink-0"></div>
-                      <span className="text-green-700 font-medium text-sm md:text-base">
-                        Hoàn tiền nếu không đúng mô tả
-                      </span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Mobile: Additional Info */}
-              <div className="lg:hidden">
-                <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200 shadow-lg">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-purple-800 flex items-center space-x-2 text-lg">
-                      <div className="p-2 bg-gradient-to-r from-purple-500 to-pink-600 rounded-xl">
-                        <Star className="h-5 w-5 text-white" />
-                      </div>
-                      <span className="font-bold">Tại sao chọn chúng tôi?</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="text-center p-3 bg-white rounded-xl border border-purple-100">
-                        <div className="text-2xl font-black text-purple-600">
-                          10K+
-                        </div>
-                        <div className="text-xs text-purple-700 font-medium">
-                          Khách hàng
-                        </div>
-                      </div>
-                      <div className="text-center p-3 bg-white rounded-xl border border-purple-100">
-                        <div className="text-2xl font-black text-purple-600">
-                          99.9%
-                        </div>
-                        <div className="text-xs text-purple-700 font-medium">
-                          Hài lòng
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                  ))}
+                </div>
               </div>
             </div>
           </div>

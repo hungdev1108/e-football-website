@@ -121,7 +121,7 @@ PurchaseModalProps) {
       <DialogPortal>
         <DialogOverlay />
         <DialogPrimitive.Content className="fixed top-[50%] left-[50%] z-50 translate-x-[-50%] translate-y-[-50%] w-[90vw] max-w-4xl max-h-[85vh] overflow-hidden p-0 bg-transparent border-0 shadow-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 duration-200">
-          <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
+          <div className="glass-strong rounded-3xl shadow-[0_30px_80px_-20px_rgb(var(--neon-violet)/0.55)] overflow-hidden border border-border/60">
             {/* Animated Header */}
             <div className="relative bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white rounded-lg shadow-md p-4 sm:p-5">
               <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-pink-600/10 animate-pulse z-0 pointer-events-none" />
@@ -158,7 +158,7 @@ PurchaseModalProps) {
                 {/* Enhanced Main Content Grid */}
                 <div className="grid lg:grid-cols-2 gap-6">
                   {/* Enhanced QR Payment Section */}
-                  <Card className="border-0 shadow-xl bg-white rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-500 group">
+                  <Card className="glass border border-border/60 shadow-lg rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-500 group">
                     <div className="bg-gradient-to-r from-green-400 via-emerald-500 to-teal-500 h-2"></div>
                     <CardContent className="p-6 sm:p-8 text-center">
                       <div className="flex items-center justify-center gap-4 mb-6">
@@ -180,13 +180,13 @@ PurchaseModalProps) {
                                 alt="QR Code Thanh toán"
                                 width={200}
                                 height={200}
-                                className="rounded-2xl border-4 border-green-200 shadow-2xl bg-white p-4 mx-auto group-hover:scale-105 transition-transform duration-300"
+                                className="mx-auto rounded-2xl border border-[rgb(var(--neon-emerald)/0.4)] bg-white p-4 shadow-[0_20px_60px_-20px_rgb(var(--neon-emerald)/0.6)] transition-transform duration-300 group-hover:scale-105"
                               />
                               <div className="absolute inset-0 bg-gradient-to-t from-green-500/20 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             </div>
                           ) : (
-                            <div className="w-48 h-48 bg-gradient-to-br from-green-50 via-emerald-100 to-teal-100 rounded-2xl border-4 border-green-200 shadow-2xl flex items-center justify-center mx-auto group-hover:scale-105 transition-transform duration-300">
-                              <QrCode className="h-16 w-16 text-green-400" />
+                            <div className="glass mx-auto flex h-48 w-48 items-center justify-center rounded-2xl border border-[rgb(var(--neon-emerald)/0.4)] shadow-2xl transition-transform duration-300 group-hover:scale-105">
+                              <QrCode className="h-16 w-16 text-[rgb(var(--neon-emerald))]" />
                             </div>
                           )}
                         </div>
@@ -196,11 +196,11 @@ PurchaseModalProps) {
                             Quét mã QR để chuyển khoản trực tiếp
                           </p>
                           <div className="space-y-3">
-                            <Button className="w-full bg-gradient-to-r from-green-500 via-emerald-600 to-teal-600 hover:from-green-600 hover:via-emerald-700 hover:to-teal-700 text-white px-8 py-4 text-base rounded-xl shadow-xl transition-all duration-300 transform hover:scale-105">
+                            <Button variant="neon" size="lg" className="w-full">
                               <CreditCard className="h-5 w-5 mr-2" />
                               Chuyển khoản ngay
                             </Button>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm text-muted-foreground">
                               Hỗ trợ tất cả ngân hàng trong nước
                             </p>
                           </div>
@@ -210,7 +210,7 @@ PurchaseModalProps) {
                   </Card>
 
                   {/* Enhanced Contact Section */}
-                  <Card className="border-0 shadow-xl bg-white rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-500">
+                  <Card className="glass border border-border/60 shadow-lg rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-500">
                     <div className="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 h-2"></div>
                     <CardContent className="p-6 sm:p-8">
                       <div className="flex items-center gap-4 mb-6">
@@ -224,19 +224,19 @@ PurchaseModalProps) {
 
                       <div className="space-y-4">
                         {/* Enhanced Phone */}
-                        <div className="bg-gradient-to-r from-blue-50 via-cyan-50 to-sky-50 rounded-xl p-4 border-2 border-blue-200 hover:border-blue-300 transition-all duration-300 shadow-lg hover:shadow-xl group">
+                        <div className="glass rounded-xl p-4 border border-[rgb(var(--neon-cyan)/0.35)] hover:border-[rgb(var(--neon-cyan)/0.7)] transition-all duration-300 shadow-lg hover:shadow-xl group">
                           <div className="flex items-center gap-4">
                             <div className="p-3 bg-gradient-to-r from-blue-500 via-cyan-600 to-sky-600 rounded-xl shadow-lg flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
                               <Phone className="h-5 w-5 text-white" />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="font-bold text-gray-800 text-base mb-1">
+                              <p className="font-bold text-foreground text-base mb-1">
                                 Hotline 24/7
                               </p>
                               <p className="text-blue-600 font-semibold text-sm">
                                 {contactInfo.phone}
                               </p>
-                              <p className="text-gray-500 text-xs">
+                              <p className="text-muted-foreground text-xs">
                                 Tư vấn miễn phí
                               </p>
                             </div>
@@ -266,7 +266,7 @@ PurchaseModalProps) {
                                       contactInfo.phone
                                     )
                                   }
-                                  className="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 px-3 py-2 rounded-lg shadow-lg transition-all duration-300 text-sm h-8"
+                                  variant="neon" className="px-3 py-2 text-sm h-8"
                                 >
                                   <Phone className="h-4 w-4" />
                                 </Button>
@@ -277,7 +277,7 @@ PurchaseModalProps) {
 
                         {/* Enhanced Zalo */}
                         <div
-                          className="bg-gradient-to-r from-green-50 via-emerald-50 to-teal-50 rounded-xl p-4 border-2 border-green-200 hover:border-green-300 transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer group hover:scale-102 transform"
+                          className="glass rounded-xl p-4 border border-[rgb(var(--neon-emerald)/0.35)] hover:border-[rgb(var(--neon-emerald)/0.7)] transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer group hover:scale-[1.02] transform"
                           onClick={() =>
                             handleContactClick("zalo", contactInfo.zalo)
                           }
@@ -287,23 +287,23 @@ PurchaseModalProps) {
                               <MessageCircle className="h-5 w-5 text-white" />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="font-bold text-gray-800 text-base mb-1">
+                              <p className="font-bold text-foreground text-base mb-1">
                                 Zalo Chat
                               </p>
                               <p className="text-green-600 font-semibold text-sm">
                                 Chat trực tiếp với admin
                               </p>
-                              <p className="text-gray-500 text-xs">
+                              <p className="text-muted-foreground text-xs">
                                 Phản hồi trong 2 phút
                               </p>
                             </div>
-                            <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-green-600 transition-colors duration-300" />
+                            <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-green-600 transition-colors duration-300" />
                           </div>
                         </div>
 
                         {/* Enhanced Facebook */}
                         <div
-                          className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 rounded-xl p-4 border-2 border-indigo-200 hover:border-indigo-300 transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer group hover:scale-102 transform"
+                          className="glass rounded-xl p-4 border border-[rgb(var(--neon-violet)/0.35)] hover:border-[rgb(var(--neon-violet)/0.7)] transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer group hover:scale-[1.02] transform"
                           onClick={() =>
                             handleContactClick("facebook", contactInfo.facebook)
                           }
@@ -313,24 +313,24 @@ PurchaseModalProps) {
                               <Facebook className="h-5 w-5 text-white" />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="font-bold text-gray-800 text-base mb-1">
+                              <p className="font-bold text-foreground text-base mb-1">
                                 Facebook
                               </p>
                               <p className="text-indigo-600 font-semibold text-sm">
                                 Nhắn tin Messenger
                               </p>
-                              <p className="text-gray-500 text-xs">
+                              <p className="text-muted-foreground text-xs">
                                 Hỗ trợ 24/7
                               </p>
                             </div>
-                            <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-indigo-600 transition-colors duration-300" />
+                            <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-indigo-600 transition-colors duration-300" />
                           </div>
                         </div>
                       </div>
 
                       {/* Quick Actions */}
                       <div className="mt-6 p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-orange-200">
-                        <p className="text-center text-sm text-gray-700 font-medium mb-3">
+                        <p className="text-center text-sm text-foreground/90 font-medium mb-3">
                           🚀 Đặt mua nhanh chóng
                         </p>
                         <div className="grid grid-cols-2 gap-3">
@@ -366,12 +366,12 @@ PurchaseModalProps) {
                   <div className="text-center mb-6">
                     <div className="flex items-center justify-center gap-3 mb-3">
                       <Heart className="h-6 w-6 text-red-500 animate-pulse" />
-                      <p className="text-gray-800 font-bold text-lg sm:text-xl">
+                      <p className="text-foreground font-bold text-lg sm:text-xl">
                         Cảm ơn bạn đã tin tưởng eFootball Store!
                       </p>
                       <Heart className="h-6 w-6 text-red-500 animate-pulse" />
                     </div>
-                    <p className="text-gray-600 text-sm">
+                    <p className="text-muted-foreground text-sm">
                       Hàng ngàn khách hàng đã tin tưởng và lựa chọn chúng tôi
                     </p>
                   </div>
@@ -397,17 +397,17 @@ PurchaseModalProps) {
 
                   {/* Stats */}
                   <div className="grid grid-cols-3 gap-2 sm:gap-4 mt-6 text-center">
-                    <div className="bg-white/80 backdrop-blur-sm rounded-xl p-2 sm:p-4 shadow-lg">
-                      <p className="text-lg sm:text-2xl font-bold text-gray-800">10K+</p>
-                      <p className="text-xs text-gray-600">Khách hàng</p>
+                    <div className="glass rounded-xl border border-border/50 p-2 sm:p-4 shadow-lg">
+                      <p className="text-lg sm:text-2xl font-bold text-foreground">10K+</p>
+                      <p className="text-xs text-muted-foreground">Khách hàng</p>
                     </div>
-                    <div className="bg-white/80 backdrop-blur-sm rounded-xl p-2 sm:p-4 shadow-lg">
-                      <p className="text-lg sm:text-2xl font-bold text-gray-800">99.9%</p>
-                      <p className="text-xs text-gray-600">Hài lòng</p>
+                    <div className="glass rounded-xl border border-border/50 p-2 sm:p-4 shadow-lg">
+                      <p className="text-lg sm:text-2xl font-bold text-foreground">99.9%</p>
+                      <p className="text-xs text-muted-foreground">Hài lòng</p>
                     </div>
-                    <div className="bg-white/80 backdrop-blur-sm rounded-xl p-2 sm:p-4 shadow-lg">
-                      <p className="text-lg sm:text-2xl font-bold text-gray-800">24/7</p>
-                      <p className="text-xs text-gray-600">Hỗ trợ</p>
+                    <div className="glass rounded-xl border border-border/50 p-2 sm:p-4 shadow-lg">
+                      <p className="text-lg sm:text-2xl font-bold text-foreground">24/7</p>
+                      <p className="text-xs text-muted-foreground">Hỗ trợ</p>
                     </div>
                   </div>
                 </div>

@@ -142,12 +142,9 @@ export const useAuthStore = create<AuthStore>()(
         }
         
         // Check if token is expired
-        if (expiry && Date.now() >= parseInt(expiry)) {
-          console.log('🔄 Token expired, attempting refresh...');
-          
-          if (refreshToken) {
+        if (expiry && Date.now() >= parseInt(expiry)) {          if (refreshToken) {
             try {
-              const response = await fetch('http://localhost:5002/api/auth/admin-refresh-token', {
+              const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5002/api'}/auth/admin-refresh-token`, {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
@@ -159,9 +156,7 @@ export const useAuthStore = create<AuthStore>()(
               const data = await response.json();
               
               if (data.success && data.accessToken) {
-                get().updateAdminTokens(data.accessToken, data.refreshToken);
-                console.log('✅ Token refreshed successfully');
-                return true;
+                get().updateAdminTokens(data.accessToken, data.refreshToken);                return true;
               }
             } catch (error) {
               console.error('Token refresh failed:', error);
@@ -173,7 +168,7 @@ export const useAuthStore = create<AuthStore>()(
         }
         
         try {
-          const response = await fetch('http://localhost:5002/api/auth/admin-verify', {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5002/api'}/auth/admin-verify`, {
             headers: {
               'Authorization': `Bearer ${token}`
             }

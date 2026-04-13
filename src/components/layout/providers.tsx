@@ -4,7 +4,13 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Toaster } from "react-hot-toast";
 import { useMemo } from "react";
+import { usePathname } from "next/navigation";
 import { AxiosError } from "axios";
+import { ThemeProvider } from "@/components/theme/ThemeProvider";
+import {
+  SeasonalEffects,
+  SeasonalEffectsProvider,
+} from "@/components/effects/SeasonalEffects";
 
 interface ProvidersProps {
   children: React.ReactNode;
@@ -61,36 +67,48 @@ export function Providers({ children }: ProvidersProps) {
     return queryClient;
   }, []);
 
+  const pathname = usePathname();
+  const isAdminRoute = pathname?.startsWith("/admin") ?? false;
+
   return (
-    <QueryClientProvider client={client}>
-      {children}
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          duration: 3000, // Reduced duration
-          style: {
-            background: "#363636",
-            color: "#fff",
-          },
-          success: {
-            duration: 2500,
-            iconTheme: {
-              primary: "#10B981",
-              secondary: "#fff",
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="dark"
+      enableSystem={false}
+      forcedTheme={isAdminRoute ? "light" : undefined}
+      disableTransitionOnChange
+    >
+      <QueryClientProvider client={client}>
+        <SeasonalEffectsProvider>
+          {children}
+          <SeasonalEffects />
+        </SeasonalEffectsProvider>
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 3000,
+            className:
+              "!bg-popover !text-popover-foreground !border !border-border/60 !shadow-xl !backdrop-blur",
+            success: {
+              duration: 2500,
+              iconTheme: {
+                primary: "#34d399",
+                secondary: "#0b1020",
+              },
             },
-          },
-          error: {
-            duration: 4000,
-            iconTheme: {
-              primary: "#EF4444",
-              secondary: "#fff",
+            error: {
+              duration: 4000,
+              iconTheme: {
+                primary: "#f43f5e",
+                secondary: "#0b1020",
+              },
             },
-          },
-        }}
-      />
-      {process.env.NODE_ENV === "development" && (
-        <ReactQueryDevtools initialIsOpen={false} />
-      )}
-    </QueryClientProvider>
+          }}
+        />
+        {process.env.NODE_ENV === "development" && (
+          <ReactQueryDevtools initialIsOpen={false} />
+        )}
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }

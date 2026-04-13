@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'react-hot-toast';
 import tokenInterceptor from '@/services/tokenInterceptor';
 
 // Define types
@@ -55,10 +56,7 @@ export const useCreateAccount = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (accountData: AccountData) => {
-      console.log('Creating account with data:', JSON.stringify(accountData, null, 2));
-      
-      const response = await tokenInterceptor.post('/accounts/admin/create', accountData);
+    mutationFn: async (accountData: AccountData) => {      const response = await tokenInterceptor.post('/accounts/admin/create', accountData);
       return response;
     },
     onSuccess: () => {
@@ -93,6 +91,11 @@ export const useDeleteAccount = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['adminAccounts'] });
+    },
+    onError: (error: Error & { status?: number; data?: { message?: string } }) => {
+      console.error('Delete account error:', error);
+      const msg = error?.data?.message || error?.message || 'Lỗi khi xóa tài khoản';
+      toast.error(msg);
     },
   });
 };
