@@ -163,8 +163,6 @@ export function MusicToggle({ className }: { className?: string }) {
     return null;
   }
 
-  const trackLabel = currentTrack?.title || currentTrack?.originalName || "Nhạc nền";
-
   return (
     <div
       className={`relative ${className || ""}`}
@@ -175,8 +173,8 @@ export function MusicToggle({ className }: { className?: string }) {
         type="button"
         onClick={toggle}
         aria-label={playing ? "Tắt nhạc nền" : "Bật nhạc nền"}
-        title={trackLabel}
-        className="group relative inline-flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-border/50 bg-background/40 backdrop-blur transition-colors hover:bg-accent/40"
+        title={playing ? "Tắt nhạc nền" : "Bật nhạc nền"}
+        className="group relative inline-flex h-9 w-9 cursor-pointer items-center justify-center overflow-hidden rounded-full border border-border/50 bg-background/40 backdrop-blur transition-colors hover:bg-accent/40"
       >
         {playing ? (
           <div className="flex h-4 items-end gap-[2px]">
@@ -201,24 +199,17 @@ export function MusicToggle({ className }: { className?: string }) {
       </button>
 
       {showVolume && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-56 rounded-xl border border-border/60 bg-popover/95 p-3 shadow-xl backdrop-blur-xl">
-          <div className="mb-2 flex items-center justify-between gap-2 text-xs">
-            <span className="truncate text-foreground/80" title={trackLabel}>
-              {trackLabel}
-            </span>
-            <span className="shrink-0 text-muted-foreground">
-              {Math.round(volume * 100)}%
-            </span>
+        <div className="absolute right-0 top-full z-50 mt-2 w-44 rounded-xl border border-border/60 bg-popover/95 p-3 shadow-xl backdrop-blur-xl">
+          <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground">
+            <span>Âm lượng</span>
+            <span>{Math.round(volume * 100)}%</span>
           </div>
           {tracks.length > 1 && (
-            <div className="mb-2 flex items-center justify-between text-[10px] text-muted-foreground">
-              <span>
-                {safeIndex + 1} / {tracks.length}
-              </span>
+            <div className="mb-2 flex items-center justify-end text-[10px] text-muted-foreground">
               <button
                 type="button"
                 onClick={skipNext}
-                className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 hover:bg-accent/40"
+                className="inline-flex cursor-pointer items-center gap-1 rounded px-1.5 py-0.5 hover:bg-accent/40"
                 aria-label="Bài tiếp theo"
               >
                 <SkipForward className="h-3 w-3" />
@@ -239,9 +230,6 @@ export function MusicToggle({ className }: { className?: string }) {
               aria-label="Âm lượng"
             />
           </div>
-          <p className="mt-2 text-[10px] leading-tight text-muted-foreground">
-            Click nút để bật/tắt. Trình duyệt chặn tự phát.
-          </p>
         </div>
       )}
     </div>
