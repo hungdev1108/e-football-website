@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Music2, VolumeX, SkipForward } from "lucide-react";
+import { Music2, Pause, Play, VolumeX, SkipForward } from "lucide-react";
 
 const STORAGE_KEY = "efb-music-playing";
 const VOLUME_KEY = "efb-music-volume";
@@ -101,6 +101,57 @@ export function MusicToggle({ className }: { className?: string }) {
     el.play().catch(() => setPlaying(false));
   }, [trackIndex, currentTrack, playing]);
 
+  // Auto-start on page load: try play() immediately; if blocked by browser
+  // autoplay policy, wait for first user interaction (click/tap/keydown) and
+  // play then. Respects user's explicit pause from previous session.
+  const autoStartedRef = React.useRef(false);
+  React.useEffect(() => {
+    if (autoStartedRef.current) return;
+    if (!currentTrack || !audioRef.current) return;
+
+    // If user explicitly paused before, don't auto-start
+    try {
+      if (localStorage.getItem(STORAGE_KEY) === "0") {
+        autoStartedRef.current = true;
+        return;
+      }
+    } catch {}
+
+    autoStartedRef.current = true;
+    const el = audioRef.current;
+    el.volume = volume;
+
+    const startPlayback = async () => {
+      try {
+        await el.play();
+        setPlaying(true);
+        try {
+          localStorage.setItem(STORAGE_KEY, "1");
+        } catch {}
+      } catch {
+        // Autoplay blocked — wait for first user gesture
+        const onInteract = async () => {
+          try {
+            await el.play();
+            setPlaying(true);
+            try {
+              localStorage.setItem(STORAGE_KEY, "1");
+            } catch {}
+          } catch {}
+          document.removeEventListener("click", onInteract);
+          document.removeEventListener("touchstart", onInteract);
+          document.removeEventListener("keydown", onInteract);
+        };
+        document.addEventListener("click", onInteract, { once: false });
+        document.addEventListener("touchstart", onInteract, { once: false });
+        document.addEventListener("keydown", onInteract, { once: false });
+      }
+    };
+
+    startPlayback();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentTrack]);
+
   const toggle = React.useCallback(async () => {
     if (!currentTrack || !audioRef.current) return;
     const el = audioRef.current;
@@ -148,6 +199,24 @@ export function MusicToggle({ className }: { className?: string }) {
     };
   }, []);
 
+  // Click outside to close popover
+  const wrapperRef = React.useRef<HTMLDivElement | null>(null);
+  React.useEffect(() => {
+    if (!showVolume) return;
+    const handler = (e: MouseEvent | TouchEvent) => {
+      if (!wrapperRef.current) return;
+      if (!wrapperRef.current.contains(e.target as Node)) {
+        setShowVolume(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    document.addEventListener("touchstart", handler);
+    return () => {
+      document.removeEventListener("mousedown", handler);
+      document.removeEventListener("touchstart", handler);
+    };
+  }, [showVolume]);
+
   if (!mounted) {
     return (
       <button
@@ -165,15 +234,15 @@ export function MusicToggle({ className }: { className?: string }) {
 
   return (
     <div
+      ref={wrapperRef}
       className={`relative ${className || ""}`}
       onMouseEnter={() => setShowVolume(true)}
-      onMouseLeave={() => setShowVolume(false)}
     >
       <button
         type="button"
-        onClick={toggle}
-        aria-label={playing ? "Tắt nhạc nền" : "Bật nhạc nền"}
-        title={playing ? "Tắt nhạc nền" : "Bật nhạc nền"}
+        onClick={() => setShowVolume((v) => !v)}
+        aria-label="Nhạc nền"
+        aria-expanded={showVolume}
         className="group relative inline-flex h-9 w-9 cursor-pointer items-center justify-center overflow-hidden rounded-full border border-border/50 bg-background/40 backdrop-blur transition-colors hover:bg-accent/40"
       >
         {playing ? (
@@ -199,24 +268,37 @@ export function MusicToggle({ className }: { className?: string }) {
       </button>
 
       {showVolume && (
-        <div className="absolute right-0 top-full z-50 w-44 rounded-xl border border-border/60 bg-popover/95 p-3 pt-4 shadow-xl backdrop-blur-xl">
-          <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground">
-            <span>Âm lượng</span>
-            <span>{Math.round(volume * 100)}%</span>
-          </div>
-          {tracks.length > 1 && (
-            <div className="mb-2 flex items-center justify-end text-[10px] text-muted-foreground">
+        <div className="absolute right-0 top-full z-50 w-52 rounded-xl border border-border/60 bg-popover/95 p-3 pt-4 shadow-xl backdrop-blur-xl">
+          {/* Play/Pause + Skip */}
+          <div className="mb-3 flex items-center gap-2">
+            <button
+              type="button"
+              onClick={toggle}
+              aria-label={playing ? "Tắt nhạc nền" : "Bật nhạc nền"}
+              className="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-border/60 bg-background/60 transition-colors hover:bg-accent/40"
+            >
+              {playing ? (
+                <Pause className="h-4 w-4" />
+              ) : (
+                <Play className="ml-0.5 h-4 w-4" />
+              )}
+            </button>
+            {tracks.length > 1 && (
               <button
                 type="button"
                 onClick={skipNext}
-                className="inline-flex cursor-pointer items-center gap-1 rounded px-1.5 py-0.5 hover:bg-accent/40"
                 aria-label="Bài tiếp theo"
+                className="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-border/60 bg-background/60 transition-colors hover:bg-accent/40"
               >
-                <SkipForward className="h-3 w-3" />
-                Tiếp
+                <SkipForward className="h-4 w-4" />
               </button>
+            )}
+            <div className="ml-auto text-xs text-muted-foreground">
+              {Math.round(volume * 100)}%
             </div>
-          )}
+          </div>
+
+          {/* Volume slider */}
           <div className="flex items-center gap-2">
             <VolumeX className="h-3.5 w-3.5 text-muted-foreground" />
             <input
