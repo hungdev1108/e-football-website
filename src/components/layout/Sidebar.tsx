@@ -16,6 +16,7 @@ import {
   Newspaper,
   Phone,
 } from "lucide-react";
+import { MusicSidebarRow } from "@/components/audio/MusicToggle";
 
 // Types
 interface LogoInfo {
@@ -116,6 +117,11 @@ export const Sidebar = memo(function Sidebar({ className }: SidebarProps) {
                 })}
               </div>
             </nav>
+
+            {/* Music controls */}
+            <div className="border-t border-sidebar-border p-4">
+              <MusicSidebarRow />
+            </div>
 
             {/* Auth Section */}
             <div className="border-t border-sidebar-border p-4">

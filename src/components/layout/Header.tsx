@@ -51,8 +51,8 @@ export const Header = memo(function Header() {
               </Link>
             </Button>
 
-            <MusicToggle className="hidden sm:block" />
-            <SeasonalToggle className="hidden sm:inline-flex" />
+            <MusicToggle />
+            <SeasonalToggle />
             <ThemeToggle />
 
             <DesktopUserMenu />

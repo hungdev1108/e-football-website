@@ -11,6 +11,7 @@ import {
   SeasonalEffects,
   SeasonalEffectsProvider,
 } from "@/components/effects/SeasonalEffects";
+import { MusicProvider } from "@/components/audio/MusicToggle";
 
 interface ProvidersProps {
   children: React.ReactNode;
@@ -79,10 +80,12 @@ export function Providers({ children }: ProvidersProps) {
       disableTransitionOnChange
     >
       <QueryClientProvider client={client}>
-        <SeasonalEffectsProvider>
-          {children}
-          <SeasonalEffects />
-        </SeasonalEffectsProvider>
+        <MusicProvider>
+          <SeasonalEffectsProvider>
+            {children}
+            <SeasonalEffects />
+          </SeasonalEffectsProvider>
+        </MusicProvider>
         <Toaster
           position="top-right"
           toastOptions={{
