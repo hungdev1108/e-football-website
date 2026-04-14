@@ -443,6 +443,38 @@
   .equalizer-bar:nth-child(3) { animation-delay: 0.3s; }
   .equalizer-bar:nth-child(4) { animation-delay: 0.45s; }
 
+  /* Chat widget: wobble + radar pulse */
+  @keyframes wobble {
+    0%, 100% { transform: rotate(0deg); }
+    15%      { transform: rotate(-14deg) scale(1.05); }
+    30%      { transform: rotate(12deg)  scale(1.05); }
+    45%      { transform: rotate(-10deg); }
+    60%      { transform: rotate(8deg); }
+    75%      { transform: rotate(-4deg); }
+  }
+  .animate-wobble {
+    animation: wobble 2.4s ease-in-out infinite;
+    transform-origin: center;
+  }
+
+  @keyframes radar-pulse {
+    0% {
+      transform: scale(0.95);
+      opacity: 0.75;
+    }
+    70% {
+      transform: scale(1.9);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1.9);
+      opacity: 0;
+    }
+  }
+  .animate-radar {
+    animation: radar-pulse 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+
   /* Shimmer for skeletons */
   @keyframes shimmer {
     0% {

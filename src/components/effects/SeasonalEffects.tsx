@@ -199,9 +199,10 @@ export function SeasonalEffects() {
     };
   }, [isDark]);
 
-  // Hide on admin routes
-  const onAdmin = pathname?.startsWith("/admin") ?? false;
-  if (onAdmin) return null;
+  // Hide on admin and bio routes (standalone landing pages)
+  const isExcluded =
+    pathname?.startsWith("/admin") || pathname?.startsWith("/bio") || false;
+  if (isExcluded) return null;
 
   if (!mounted || !enabled || reduced || !engineReady) return null;
 

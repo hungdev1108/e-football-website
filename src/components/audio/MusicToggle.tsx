@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { usePathname } from "next/navigation";
 import { Music2, Pause, Play, VolumeX, SkipForward } from "lucide-react";
 
 const VOLUME_KEY = "efb-music-volume";
@@ -35,12 +36,18 @@ interface MusicContextValue {
 
 const MusicContext = React.createContext<MusicContextValue | null>(null);
 
+// Routes where music must NOT auto-start (e.g. landing pages reached from
+// external apps where unexpected audio is hostile).
+const NO_AUTOPLAY_ROUTES = ["/admin", "/bio"];
+
 export function MusicProvider({ children }: { children: React.ReactNode }) {
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
   const [playing, setPlaying] = React.useState(false);
   const [volume, setVolumeState] = React.useState(0.3);
   const [musicConfig, setMusicConfig] = React.useState<MusicConfig | null>(null);
   const [trackIndex, setTrackIndex] = React.useState(0);
+  const pathname = usePathname();
+  const skipAutoplay = NO_AUTOPLAY_ROUTES.some((p) => pathname?.startsWith(p));
 
   // Initial load: volume + track index from localStorage, config from API
   React.useEffect(() => {
@@ -117,6 +124,7 @@ export function MusicProvider({ children }: { children: React.ReactNode }) {
   React.useEffect(() => {
     if (autoStartedRef.current) return;
     if (!currentTrack || !audioRef.current) return;
+    if (skipAutoplay) return;
 
     autoStartedRef.current = true;
     const el = audioRef.current;
@@ -353,7 +361,7 @@ export function MusicToggle({ className }: { className?: string }) {
               step={0.05}
               value={volume}
               onChange={(e) => setVolume(parseFloat(e.target.value))}
-              className="h-1 w-full cursor-pointer appearance-none rounded-full bg-muted accent-[rgb(var(--neon-violet))]"
+              className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-foreground/25 accent-[rgb(var(--neon-violet))]"
               aria-label="Âm lượng"
             />
           </div>
@@ -423,7 +431,7 @@ export function MusicSidebarRow() {
           step={0.05}
           value={volume}
           onChange={(e) => setVolume(parseFloat(e.target.value))}
-          className="h-1 w-full cursor-pointer appearance-none rounded-full bg-muted accent-[rgb(var(--neon-violet))]"
+          className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-foreground/25 accent-[rgb(var(--neon-violet))]"
           aria-label="Âm lượng"
         />
       </div>

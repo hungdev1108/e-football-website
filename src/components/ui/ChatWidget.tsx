@@ -1,125 +1,91 @@
 "use client";
 
-import { useState, memo } from "react";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { MessageCircle } from "lucide-react";
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { memo } from "react";
+import Image from "next/image";
+
+interface ContactItem {
+  id: string;
+  label: string;
+  href: string;
+  iconSrc: string;
+  /** Border/glow color (solid rgb values) for the radar rings */
+  color: string;
+}
+
+const contacts: ContactItem[] = [
+  {
+    id: "facebook",
+    label: "Facebook",
+    href: "https://www.facebook.com/tran.hiep.229430",
+    iconSrc: "/Facebook_Logo.png",
+    color: "24,119,242", // #1877F2
+  },
+  {
+    id: "zalo",
+    label: "Zalo",
+    href: "https://zalo.me/0395860670",
+    iconSrc: "/icons8-zalo-48.png",
+    color: "0,104,255", // #0068FF
+  },
+  {
+    id: "tiktok",
+    label: "TikTok",
+    href: "https://www.tiktok.com/@emlaaai123",
+    iconSrc: "/icons8-tiktok-50.png",
+    color: "236,72,153", // pink-500
+  },
+];
 
 export const ChatWidget = memo(function ChatWidget() {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const contactOptions = [
-    {
-      id: "messenger",
-      icon: "💬",
-      title: "Liên hệ qua Messenger",
-      action: () => {
-        window.open("https://www.facebook.com/tran.hiep.229430", "_blank");
-      },
-    },
-    {
-      id: "zalo",
-      icon: "📱",
-      title: "Liên hệ qua Zalo",
-      subtitle: "Zalo",
-      action: () => {
-        window.open("https://zalo.me/0395860670", "_blank");
-      },
-    },
-    {
-      id: "phone",
-      icon: "📞",
-      title: "0395860670",
-      action: () => {
-        window.open("tel:0395860670", "_blank");
-      },
-    },
-  ];
-
   return (
-    <>
-      {/* Floating Chat Button */}
-      <div className="fixed bottom-6 right-6 z-[9999]">
-        <div
-          className="pointer-events-none absolute inset-0 h-14 w-14 animate-ping rounded-full opacity-30"
-          style={{
-            background:
-              "radial-gradient(circle, rgb(var(--neon-violet) / 0.6), transparent 70%)",
-          }}
-        />
-        <Button
-          onClick={() => setIsOpen(true)}
-          variant="neon"
-          className="relative h-14 w-14 rounded-full p-0 shadow-[0_10px_30px_-5px_rgb(var(--neon-violet)/0.7)] transform transition-transform duration-300 hover:scale-110 cursor-pointer"
-          aria-label="Mở chat hỗ trợ"
+    <div className="fixed bottom-6 right-5 z-[9999] flex flex-col items-center gap-3 sm:right-6">
+      {contacts.map((c, idx) => (
+        <a
+          key={c.id}
+          href={c.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={c.label}
+          title={c.label}
+          className="group relative block h-12 w-12 sm:h-14 sm:w-14"
         >
-          <MessageCircle className="h-6 w-6 text-white" />
-        </Button>
-      </div>
+          {/* Radar rings — two layers, staggered */}
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 rounded-full animate-radar"
+            style={{
+              boxShadow: `0 0 0 4px rgba(${c.color}, 0.55)`,
+              animationDelay: `${idx * 0.35}s`,
+            }}
+          />
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 rounded-full animate-radar"
+            style={{
+              boxShadow: `0 0 0 2px rgba(${c.color}, 0.4)`,
+              animationDelay: `${idx * 0.35 + 1}s`,
+            }}
+          />
 
-      {/* Chat Dialog */}
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="w-[320px] p-0 glass-strong border-border/60 [&>button]:text-foreground/80 [&>button]:hover:text-foreground">
-          <VisuallyHidden>
-            <DialogTitle>Tùy chọn liên hệ</DialogTitle>
-          </VisuallyHidden>
-
-          {/* Header */}
-          <DialogHeader className="p-4 pb-2">
-            <h3 className="neon-text-tri text-lg font-semibold">
-              Chúng tôi trên
-            </h3>
-          </DialogHeader>
-
-          {/* Contact Options */}
-          <div className="px-4 pb-2">
-            <div className="space-y-2">
-              {contactOptions.map((option) => (
-                <button
-                  key={option.id}
-                  onClick={option.action}
-                  className="group w-full flex items-center gap-3 p-3 rounded-lg border border-border/50 bg-background/40 backdrop-blur hover:bg-accent/40 hover:border-[rgb(var(--neon-violet)/0.5)] transition-all duration-200 text-left"
-                >
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-border/60 bg-background/60 text-lg">
-                    {option.icon}
-                  </div>
-                  <div className="flex-1">
-                    <div className="font-medium text-foreground transition-colors group-hover:text-[rgb(var(--neon-cyan))]">
-                      {option.title}
-                    </div>
-                    {option.subtitle && (
-                      <div className="text-xs text-muted-foreground">
-                        {option.subtitle}
-                      </div>
-                    )}
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Chat Now Button */}
-          <div className="p-4 pt-2">
-            <Button
-              onClick={() => {
-                window.open("https://zalo.me/0395860670", "_blank");
-                setIsOpen(false);
-              }}
-              variant="neon"
-              className="w-full"
-            >
-              <MessageCircle className="w-4 h-4" />
-              Chat ngay
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </>
+          {/* Button — wobbles subtly, scales on hover */}
+          <span
+            className="relative flex h-full w-full animate-wobble items-center justify-center rounded-full bg-white shadow-[0_10px_30px_-4px_rgba(0,0,0,0.4)] ring-2 ring-white/20 transition-all duration-300 group-hover:scale-110 group-hover:ring-4"
+            style={{
+              animationDelay: `${idx * 0.8}s`,
+              boxShadow: `0 0 0 2px rgba(${c.color}, 0.25), 0 0 18px rgba(${c.color}, 0.4), 0 10px 28px -6px rgba(0,0,0,0.45)`,
+            }}
+          >
+            <Image
+              src={c.iconSrc}
+              alt={c.label}
+              width={56}
+              height={56}
+              className="h-8 w-8 object-contain sm:h-9 sm:w-9"
+              unoptimized
+            />
+          </span>
+        </a>
+      ))}
+    </div>
   );
 });
