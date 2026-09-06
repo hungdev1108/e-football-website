@@ -12,16 +12,16 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "EFOOTBALL Store - Chuyên bán tài khoản game EFOOTBALL",
+    default: "EFOOTBALL Store - Thu mua bán ảnh eFootball uy tín",
     template: "%s | EFOOTBALL Store",
   },
   
   description:
-    "Chuyên bán tài khoản game EFOOTBALL chất lượng cao, giá tốt nhất thị trường. Giao dịch nhanh chóng, an toàn, uy tín.",
+    "Chuyên thu mua bán ảnh eFootball chất lượng cao, giá tốt nhất thị trường. Giao dịch nhanh chóng, an toàn, uy tín.",
   keywords: [
     "efootball",
-    "tài khoản game",
-    "mua bán tài khoản",
+    "ảnh efootball",
+    "thu mua bán ảnh efootball",
     "game bóng đá",
     "fifa",
     "pes",
@@ -50,16 +50,16 @@ export const metadata: Metadata = {
     type: "website",
     locale: "vi_VN",
     url: "/",
-    title: "EFOOTBALL Store - Chuyên bán tài khoản game EFOOTBALL",
+    title: "EFOOTBALL Store - Thu mua bán ảnh eFootball uy tín",
     description:
-      "Chuyên bán tài khoản game EFOOTBALL chất lượng cao, giá tốt nhất thị trường.",
+      "Chuyên thu mua bán ảnh eFootball chất lượng cao, giá tốt nhất thị trường.",
     siteName: "EFOOTBALL Store",
   },
   twitter: {
     card: "summary_large_image",
-    title: "EFOOTBALL Store - Chuyên bán tài khoản game EFOOTBALL",
+    title: "EFOOTBALL Store - Thu mua bán ảnh eFootball uy tín",
     description:
-      "Chuyên bán tài khoản game EFOOTBALL chất lượng cao, giá tốt nhất thị trường.",
+      "Chuyên thu mua bán ảnh eFootball chất lượng cao, giá tốt nhất thị trường.",
     creator: "@efootballstore",
   },
   robots: {

@@ -18,7 +18,7 @@ const payments = [
 
 const quickLinks = [
   { href: "/", icon: "🏠", label: "Trang chủ" },
-  { href: "/accounts", icon: "🎮", label: "Tài khoản game" },
+  { href: "/accounts", icon: "🎮", label: "Ảnh eFootball" },
   { href: "/news", icon: "📰", label: "Tin tức" },
   { href: "/contact", icon: "📧", label: "Liên hệ" },
 ];
@@ -71,8 +71,8 @@ export const FooterSection = memo(function FooterSection({
               </div>
             </div>
             <p className="mb-5 text-sm leading-relaxed text-muted-foreground">
-              Nền tảng mua bán tài khoản eFootball uy tín và chất lượng nhất Việt
-              Nam. Cam kết mang đến trải nghiệm tốt nhất cho game thủ.
+              Nền tảng thu mua bán ảnh eFootball uy tín và chất lượng nhất Việt
+              Nam. Cam kết mang đến trải nghiệm tốt nhất cho khách hàng.
             </p>
             <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/40 px-3 py-1 backdrop-blur">
               <span className="h-2 w-2 animate-pulse rounded-full bg-[rgb(var(--neon-emerald))]" />

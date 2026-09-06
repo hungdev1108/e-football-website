@@ -87,10 +87,10 @@ export const FeaturedAccountsSection = memo(function FeaturedAccountsSection({
             ⭐ Featured
           </div>
           <h3 className="py-2 text-3xl font-black leading-tight tracking-tight md:text-5xl">
-            <span className="neon-text">Tài khoản nổi bật</span>
+            <span className="neon-text">Ảnh eFootball nổi bật</span>
           </h3>
           <p className="mx-auto mt-2 max-w-2xl text-sm text-muted-foreground md:text-base">
-            Những tài khoản game chất lượng cao được chọn lọc kỹ càng
+            Những ảnh eFootball chất lượng cao được chọn lọc kỹ càng
           </p>
         </ScrollReveal>
 
@@ -113,7 +113,7 @@ export const FeaturedAccountsSection = memo(function FeaturedAccountsSection({
         <ScrollReveal className="mt-10 text-center md:mt-14" delay={0.1}>
           <Button variant="glass" size="lg" asChild>
             <Link href="/accounts">
-              <span className="hidden md:inline">Xem tất cả tài khoản</span>
+              <span className="hidden md:inline">Xem tất cả ảnh eFootball</span>
               <span className="md:hidden">Xem tất cả</span>
               <ArrowRight className="ml-1 h-4 w-4" />
             </Link>

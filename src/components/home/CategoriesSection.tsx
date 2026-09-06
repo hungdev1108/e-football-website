@@ -60,10 +60,10 @@ export const CategoriesSection = memo(function CategoriesSection({
             💰 Categories
           </div>
           <h3 className="py-2 text-3xl font-black leading-tight tracking-tight md:text-5xl">
-            <span className="neon-text-tri">Tài khoản theo khoảng giá</span>
+            <span className="neon-text-tri">Ảnh eFootball theo khoảng giá</span>
           </h3>
           <p className="mx-auto mt-2 max-w-2xl text-sm text-muted-foreground md:text-base">
-            Khám phá các loại tài khoản game đa dạng với mức giá phù hợp cho mọi
+            Khám phá các loại ảnh eFootball đa dạng với mức giá phù hợp cho mọi
             nhu cầu
           </p>
         </ScrollReveal>
@@ -105,7 +105,7 @@ export const CategoriesSection = memo(function CategoriesSection({
                     <div
                       className={`mx-auto inline-flex items-center gap-2 rounded-xl bg-gradient-to-r ${cat.glow} px-5 py-2.5 text-sm font-semibold text-white shadow-[0_10px_30px_-10px_rgb(var(--neon-violet)/0.7)] transition-transform duration-300 group-hover:scale-105`}
                     >
-                      <span>Xem tài khoản</span>
+                      <span>Xem ảnh eFootball</span>
                       <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                     </div>
                   </div>

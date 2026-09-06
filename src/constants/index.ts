@@ -1,10 +1,10 @@
 // App Configuration
 export const APP_CONFIG = {
   name: 'EFOOTBALL Store',
-  description: 'Chuyên bán tài khoản game EFOOTBALL chất lượng cao',
+  description: 'Chuyên thu mua bán ảnh eFootball chất lượng cao',
   version: '1.0.0',
   author: 'EFOOTBALL Store Team',
-  keywords: ['efootball', 'game account', 'fifa', 'football', 'gaming'],
+  keywords: ['efootball', 'ảnh efootball', 'thu mua bán ảnh', 'fifa', 'football', 'gaming'],
 } as const;
 
 // API Configuration

@@ -316,10 +316,10 @@ export default function AccountsPage() {
       <div className="container mx-auto px-4 py-6 md:py-10 lg:px-6">
         <div className="mb-6 md:mb-8">
           <h1 className="text-3xl font-black tracking-tight md:text-4xl">
-            <span className="neon-text-tri">Tài khoản game</span>
+            <span className="neon-text-tri">Ảnh eFootball</span>
           </h1>
           <p className="mt-2 text-sm text-muted-foreground md:text-base">
-            Khám phá và chọn tài khoản eFootball phù hợp với bạn
+            Khám phá và chọn ảnh eFootball phù hợp với bạn
           </p>
         </div>
         <div className="flex flex-col lg:flex-row gap-4 md:gap-8">

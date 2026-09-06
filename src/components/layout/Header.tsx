@@ -17,7 +17,7 @@ interface LogoInfo {
 
 const navigationItems = [
   { name: "Trang chủ", href: "/" },
-  { name: "Tài khoản game", href: "/accounts" },
+  { name: "Ảnh eFootball", href: "/accounts" },
   { name: "Tin tức", href: "/news" },
   { name: "Liên hệ", href: "/contact" },
 ];

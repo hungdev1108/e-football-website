@@ -59,18 +59,18 @@ export const HeroSection = memo(function HeroSection({
           <div className="text-center md:text-left">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/50 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur">
               <Sparkles className="h-3.5 w-3.5 text-purple-500" />
-              <span>Premium eFootball Account Store</span>
+              <span>Dịch vụ eFootball uy tín</span>
             </div>
 
             <h1 className="text-4xl font-black leading-[1.08] tracking-tight md:text-5xl lg:text-6xl">
-              <span className="neon-text-tri">Tài khoản eFootball</span>
+              <span className="neon-text-tri">Thu mua bán ảnh eFootball</span>
               <br />
               <span className="text-foreground">đẳng cấp hàng đầu</span>
             </h1>
 
             <p className="mx-auto mt-4 max-w-xl text-sm text-muted-foreground md:mx-0 md:text-base">
-              Khám phá hàng nghìn tài khoản chất lượng, bảo mật tuyệt đối, giao
-              dịch tức thì. Chọn ngay đội hình mơ ước của bạn.
+              Khám phá dịch vụ thu mua bán ảnh eFootball chất lượng, bảo mật tuyệt đối, giao
+              dịch tức thì. Chọn ngay hình ảnh đẹp nhất của bạn.
             </p>
 
             <div className="mt-6 flex flex-wrap items-center justify-center gap-3 md:justify-start">

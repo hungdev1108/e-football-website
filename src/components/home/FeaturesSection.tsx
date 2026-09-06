@@ -16,14 +16,14 @@ const features = [
   {
     icon: Shield,
     title: "Bảo mật tuyệt đối",
-    desc: "Cam kết bảo mật thông tin khách hàng 100%. Tài khoản được kiểm tra kỹ lưỡng trước khi giao dịch.",
+    desc: "Cam kết bảo mật thông tin khách hàng 100%. Giao dịch được kiểm tra kỹ lưỡng và an toàn tuyệt đối.",
     tone: "text-[rgb(var(--neon-emerald))]",
     glow: "from-[rgb(var(--neon-emerald))] to-[rgb(var(--neon-cyan))]",
   },
   {
     icon: Zap,
     title: "Giao dịch tức thì",
-    desc: "Nhận tài khoản ngay lập tức sau khi thanh toán thành công. Hỗ trợ 24/7 mọi lúc mọi nơi.",
+    desc: "Giao dịch ngay lập tức sau khi thanh toán thành công. Hỗ trợ 24/7 mọi lúc mọi nơi.",
     tone: "text-[rgb(var(--neon-violet))]",
     glow: "from-[rgb(var(--neon-violet))] to-[rgb(var(--neon-pink))]",
   },

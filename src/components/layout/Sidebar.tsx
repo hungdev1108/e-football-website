@@ -31,7 +31,7 @@ interface SidebarProps {
 // Navigation items with icons
 const navigationItems = [
   { name: "Trang chủ", href: "/", icon: Home },
-  { name: "Tài khoản game", href: "/accounts", icon: Gamepad2 },
+  { name: "Ảnh eFootball", href: "/accounts", icon: Gamepad2 },
   { name: "Tin tức", href: "/news", icon: Newspaper },
   { name: "Liên hệ", href: "/contact", icon: Phone },
 ];
@@ -92,7 +92,7 @@ export const Sidebar = memo(function Sidebar({ className }: SidebarProps) {
             </div>
 
             <p className="relative text-sm text-white/85">
-              Nền tảng mua bán tài khoản eFootball uy tín
+              Nền tảng thu mua bán ảnh eFootball uy tín
             </p>
           </div>
 
