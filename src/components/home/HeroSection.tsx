@@ -13,7 +13,7 @@ interface HeroSectionProps {
 
 const bannerImages = [
   { src: "/banner-efootball.jpg", alt: "eFootball Banner" },
-  { src: "/banner-ban-anh.png", alt: "Bán ảnh eFootball Banner" },
+  { src: "/banner-ban-anh-new.jpg", alt: "Bán ảnh eFootball Banner" },
   { src: "/Banner_coin-new.jpg", alt: "Coin Banner" },
 ];
 
