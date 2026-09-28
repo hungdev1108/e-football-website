@@ -113,7 +113,7 @@ export const FeaturedAccountsSection = memo(function FeaturedAccountsSection({
 
         <ScrollReveal className="mt-10 text-center md:mt-14" delay={0.1}>
           <Button variant="glass" size="lg" asChild>
-            <Link href="/accounts">
+            <Link href="/images">
               <span className="hidden md:inline">Xem tất cả ảnh eFootball</span>
               <span className="md:hidden">Xem tất cả</span>
               <ArrowRight className="ml-1 h-4 w-4" />
@@ -131,7 +131,7 @@ const AccountCard = memo(function AccountCard({
   account: ApiGameAccount;
 }) {
   return (
-    <Link href={`/accounts/${account._id}?from=featured`} className="block">
+    <Link href={`/images/${account._id}?from=featured`} className="block">
       <TiltCard className="group relative h-[380px] md:h-[420px] rounded-2xl">
         <div className="relative flex h-full flex-col overflow-hidden rounded-2xl glass transition-all duration-300 group-hover:shadow-[0_20px_60px_-20px_rgb(var(--neon-violet)/0.55)]">
           <div

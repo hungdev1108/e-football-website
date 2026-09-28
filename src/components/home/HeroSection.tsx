@@ -76,7 +76,7 @@ export const HeroSection = memo(function HeroSection({
 
             <div className="mt-6 flex flex-wrap items-center justify-center gap-3 md:justify-start">
               <Button variant="neon" size="lg" asChild>
-                <Link href="/accounts">
+                <Link href="/images">
                   Mua ngay
                   <ArrowRight className="ml-1 h-4 w-4" />
                 </Link>

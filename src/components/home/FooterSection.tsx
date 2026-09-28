@@ -18,7 +18,7 @@ const payments = [
 
 const quickLinks = [
   { href: "/", icon: "🏠", label: "Trang chủ" },
-  { href: "/accounts", icon: "🎮", label: "Ảnh eFootball" },
+  { href: "/images", icon: "🎮", label: "Ảnh eFootball" },
   { href: "/news", icon: "📰", label: "Tin tức" },
   { href: "/contact", icon: "📧", label: "Liên hệ" },
 ];

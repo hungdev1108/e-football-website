@@ -17,7 +17,7 @@ interface LogoInfo {
 
 const navigationItems = [
   { name: "Trang chủ", href: "/" },
-  { name: "Ảnh eFootball", href: "/accounts" },
+  { name: "Ảnh eFootball", href: "/images" },
   { name: "Tin tức", href: "/news" },
   { name: "Liên hệ", href: "/contact" },
 ];
@@ -46,7 +46,7 @@ export const Header = memo(function Header() {
               asChild
               className="hidden md:inline-flex rounded-full border border-border/50 bg-background/40 backdrop-blur"
             >
-              <Link href="/accounts" aria-label="Tìm kiếm">
+              <Link href="/images" aria-label="Tìm kiếm">
                 <Search className="h-[1.05rem] w-[1.05rem]" />
               </Link>
             </Button>

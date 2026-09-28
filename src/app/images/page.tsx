@@ -367,7 +367,7 @@ export default function AccountsPage() {
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
                       type="text"
-                      placeholder="Tìm kiếm tài khoản..."
+                      placeholder="Tìm kiếm ảnh eFootball..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="pl-10 text-sm md:text-base bg-background/40"
@@ -402,10 +402,10 @@ export default function AccountsPage() {
                   <div className="text-xs md:text-sm text-muted-foreground">
                     <span className="hidden md:inline">
                       Hiển thị {accounts.length} trong {pagination.totalItems}{" "}
-                      tài khoản
+                      ảnh
                     </span>
                     <span className="md:hidden text-xs">
-                      {accounts.length}/{pagination.totalItems} tài khoản
+                      {accounts.length}/{pagination.totalItems} ảnh
                     </span>
                   </div>
                 )}
@@ -452,7 +452,7 @@ export default function AccountsPage() {
               <div className="glass mx-auto max-w-md rounded-2xl py-12 px-6 text-center md:py-16">
                 <div className="text-5xl md:text-6xl mb-4">🔍</div>
                 <h3 className="text-lg md:text-xl font-bold text-foreground mb-2">
-                  Không tìm thấy tài khoản nào
+                  Không tìm thấy ảnh eFootball nào
                 </h3>
                 <p className="text-muted-foreground mb-5 text-sm md:text-base">
                   Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm
@@ -473,7 +473,7 @@ export default function AccountsPage() {
                 }
               >
                 {accounts.map((account: ApiGameAccount) => (
-                  <Link key={account._id} href={`/accounts/${account._id}`}>
+                  <Link key={account._id} href={`/images/${account._id}`}>
                     <Card
                       className={`group glass cursor-pointer overflow-hidden border border-border/60 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_-20px_rgb(var(--neon-violet)/0.55)] rounded-2xl flex flex-col p-0 ${
                         viewMode === "grid" ? "h-full" : "h-auto"

@@ -31,7 +31,7 @@ interface SidebarProps {
 // Navigation items with icons
 const navigationItems = [
   { name: "Trang chủ", href: "/", icon: Home },
-  { name: "Ảnh eFootball", href: "/accounts", icon: Gamepad2 },
+  { name: "Ảnh eFootball", href: "/images", icon: Gamepad2 },
   { name: "Tin tức", href: "/news", icon: Newspaper },
   { name: "Liên hệ", href: "/contact", icon: Phone },
 ];

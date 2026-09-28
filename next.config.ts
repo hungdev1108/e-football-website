@@ -58,6 +58,35 @@ const nextConfig: NextConfig = {
   
   // Static generation for better performance
   output: 'standalone',
+
+  // Redirect old /accounts to /images, and support /image rewrite to /images
+  async redirects() {
+    return [
+      {
+        source: '/accounts',
+        destination: '/images',
+        permanent: true,
+      },
+      {
+        source: '/accounts/:id*',
+        destination: '/images/:id*',
+        permanent: true,
+      },
+    ];
+  },
+
+  async rewrites() {
+    return [
+      {
+        source: '/image',
+        destination: '/images',
+      },
+      {
+        source: '/image/:id*',
+        destination: '/images/:id*',
+      },
+    ];
+  },
 };
 
 export default nextConfig;

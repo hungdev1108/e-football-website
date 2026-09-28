@@ -21,7 +21,7 @@ const categories = [
     tags: ["🎯 Phổ biến", "⚡ Nhanh"],
     description:
       "Ảnh chất lượng, giá hợp lý cho người mới bắt đầu hoặc muốn trải nghiệm. Đội hình cơ bản với các cầu thủ ổn định.",
-    href: "/accounts?minPrice=2000000&maxPrice=4000000",
+    href: "/images?minPrice=2000000&maxPrice=4000000",
     glow: "from-[rgb(var(--neon-emerald))] to-[rgb(var(--neon-cyan))]",
     accent: "text-[rgb(var(--neon-emerald))]",
   },
@@ -31,7 +31,7 @@ const categories = [
     tags: ["🔥 Hot", "💎 Chất lượng"],
     description:
       "Ảnh đội hình mạnh, nhiều chỉ số cao, phù hợp cho người chơi muốn nâng cấp trải nghiệm. Đội hình cân bằng với nhiều lựa chọn.",
-    href: "/accounts?minPrice=4000000&maxPrice=6000000",
+    href: "/images?minPrice=4000000&maxPrice=6000000",
     glow: "from-[rgb(var(--neon-violet))] to-[rgb(var(--neon-pink))]",
     accent: "text-[rgb(var(--neon-violet))]",
   },
@@ -41,7 +41,7 @@ const categories = [
     tags: ["👑 VIP", "🚀 Đỉnh cao"],
     description:
       "Ảnh VIP, chỉ số cực cao, đội hình khủng dành cho người chơi đỉnh cao. Sở hữu những cầu thủ huyền thoại.",
-    href: "/accounts?minPrice=6000000&maxPrice=10000000",
+    href: "/images?minPrice=6000000&maxPrice=10000000",
     glow: "from-[rgb(var(--neon-pink))] to-[rgb(var(--neon-violet))]",
     accent: "text-[rgb(var(--neon-pink))]",
   },

@@ -266,7 +266,7 @@ function AccountDetailContent() {
     if (typeof window !== "undefined" && window.history.length > 1) {
       router.back();
     } else {
-      router.push(fromFeatured ? "/#featured" : "/accounts");
+      router.push(fromFeatured ? "/#featured" : "/images");
     }
   };
 
@@ -346,7 +346,7 @@ function AccountDetailContent() {
           <div className="mb-4 text-7xl">😞</div>
           <h2 className="mb-2 text-2xl font-bold text-foreground">Không tìm thấy ảnh eFootball</h2>
           <p className="mb-6 text-muted-foreground">Hình ảnh không tồn tại hoặc đã bị xóa.</p>
-          <Link href={fromFeatured ? "/#featured" : "/accounts"} onClick={handleBack}>
+          <Link href={fromFeatured ? "/#featured" : "/images"} onClick={handleBack}>
             <Button variant="neon" size="lg">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Quay lại
@@ -370,7 +370,7 @@ function AccountDetailContent() {
         }`}
       >
         <div className="container mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-          <Link href={fromFeatured ? "/#featured" : "/accounts"} onClick={handleBack}>
+          <Link href={fromFeatured ? "/#featured" : "/images"} onClick={handleBack}>
             <Button variant="ghost" size="sm" className="gap-2 rounded-xl text-muted-foreground hover:text-foreground">
               <ArrowLeft className="h-4 w-4" />
               <span className="hidden sm:inline">

@@ -18,7 +18,7 @@ import { useTheme } from "next-themes";
 
 const navItems = [
   { label: "Trang chủ", href: "/", icon: Home, hint: "home" },
-  { label: "Ảnh eFootball", href: "/accounts", icon: Gamepad2, hint: "accounts shop" },
+  { label: "Ảnh eFootball", href: "/images", icon: Gamepad2, hint: "images shop" },
   { label: "Tin tức", href: "/news", icon: Newspaper, hint: "news blog" },
   { label: "Liên hệ", href: "/contact", icon: Phone, hint: "contact support" },
   { label: "Đăng nhập", href: "/auth/login", icon: LogIn, hint: "login signin" },
