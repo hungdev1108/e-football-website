@@ -349,13 +349,13 @@ export default function ContactPage() {
                   </h3>
                   <div className="space-y-2 text-muted-foreground text-xs lg:text-sm mb-3">
                     <div className="flex items-center justify-center gap-2">
-                      <span>Tài khoản chính hãng</span>
+                      <span>Ảnh eFootball chuẩn đẹp</span>
                     </div>
                     <div className="flex items-center justify-center gap-2">
                       <span>Hỗ trợ 24/7</span>
                     </div>
                     <div className="flex items-center justify-center gap-2">
-                      <span>Bảo hành trọn đời</span>
+                      <span>Bảo hành uy tín</span>
                     </div>
                   </div>
                   <div className="flex items-center justify-center gap-1">
@@ -387,16 +387,16 @@ export default function ContactPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
                 {[
                   {
-                    q: "Tài khoản có đảm bảo an toàn không?",
-                    a: "Chúng tôi cam kết 100% tài khoản chính hãng và an toàn tuyệt đối.",
+                    q: "Giao dịch có đảm bảo an toàn không?",
+                    a: "Chúng tôi cam kết 100% giao dịch an toàn và uy tín tuyệt đối.",
                   },
                   {
                     q: "Thời gian giao hàng bao lâu?",
-                    a: "Tài khoản được giao trong vòng 5-15 phút sau khi thanh toán.",
+                    a: "Ảnh được gửi trong vòng 5-15 phút sau khi thanh toán.",
                   },
                   {
                     q: "Có hỗ trợ sau bán hàng không?",
-                    a: "Có, chúng tôi hỗ trợ 24/7 và bảo hành trọn đời tài khoản.",
+                    a: "Có, chúng tôi hỗ trợ 24/7 và giải đáp mọi thắc mắc của bạn.",
                   },
                   {
                     q: "Thanh toán như thế nào?",

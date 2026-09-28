@@ -144,7 +144,7 @@ PurchaseModalProps) {
                     Thanh toán & Liên hệ
                   </h2>
                   <p className="text-sm text-white/90">
-                    Quét mã QR hoặc liên hệ trực tiếp để mua tài khoản chất lượng nhé!
+                    Quét mã QR hoặc liên hệ trực tiếp để mua ảnh chất lượng nhé!
                   </p>
                 </div>
               </div>

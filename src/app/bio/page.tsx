@@ -14,11 +14,11 @@ import {
 export const metadata: Metadata = {
   title: "Hiệp Trần — eFootball",
   description:
-    "Cộng đồng eFootball Mobile · Mua bán tài khoản · Cập nhật tin tức · Liên hệ hỗ trợ",
+    "Cộng đồng eFootball Mobile · Mua bán ảnh eFootball · Cập nhật tin tức · Liên hệ hỗ trợ",
   openGraph: {
     title: "Hiệp Trần — eFootball",
     description:
-      "Cộng đồng eFootball Mobile · Mua bán tài khoản · Cập nhật tin tức",
+      "Cộng đồng eFootball Mobile · Mua bán ảnh eFootball · Cập nhật tin tức",
     images: ["/efootball-logo.png"],
   },
   robots: { index: true, follow: true },
@@ -35,7 +35,7 @@ interface BioLink {
 
 const links: BioLink[] = [
   {
-    label: "Shop tài khoản eFootball",
+    label: "Shop ảnh eFootball",
     sub: "hieptranefootball.com",
     href: "https://hieptranefootball.com",
     icon: FaShoppingBag,
@@ -139,7 +139,7 @@ export default function BioPage() {
           eFootball Mobile · Content Creator
         </p>
         <p className="mt-3 max-w-[260px] text-center text-sm text-white/75">
-          Cộng đồng game · Mua bán tài khoản · Cập nhật tin tức eFootball Mobile
+          Cộng đồng game · Thu mua bán ảnh eFootball · Cập nhật tin tức eFootball Mobile
         </p>
 
         {/* Quick stats badges */}
