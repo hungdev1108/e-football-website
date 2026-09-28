@@ -241,7 +241,21 @@ export default function BioPage() {
           >
             ← Vào shop chính
           </Link>
-          <span>© {new Date().getFullYear()} hieptranefootball.com</span>
+          <div className="flex flex-wrap items-center justify-center gap-1.5 pt-1">
+            <span>© {new Date().getFullYear()} hieptranefootball.com</span>
+            <span>•</span>
+            <span>
+              Phát triển bởi{" "}
+              <a
+                href="https://tntcdev.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-bold text-cyan-300 transition-colors hover:text-cyan-200 hover:underline"
+              >
+                tntcdev ↗
+              </a>
+            </span>
+          </div>
         </div>
       </div>
     </main>

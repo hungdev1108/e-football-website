@@ -187,8 +187,28 @@ export const FooterSection = memo(function FooterSection({
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-border/60 pt-6 text-xs text-muted-foreground md:flex-row">
-          <p>&copy; 2025 EFOOTBALL Store. Made with ❤️ in Vietnam</p>
+        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border/60 pt-6 text-xs text-muted-foreground md:flex-row">
+          <div className="flex flex-wrap items-center justify-center gap-2 text-center md:justify-start">
+            <span>&copy; {new Date().getFullYear()} EFOOTBALL Store.</span>
+            <span className="hidden sm:inline text-border/80">•</span>
+            <span className="inline-flex items-center gap-1.5">
+              Thiết kế &amp; phát triển bởi
+              <a
+                href="https://tntcdev.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative inline-flex items-center gap-1 rounded-md border border-cyan-500/30 bg-gradient-to-r from-cyan-500/10 via-violet-500/10 to-pink-500/10 px-2.5 py-0.5 font-bold backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-cyan-400/60 hover:shadow-[0_0_15px_rgba(34,211,238,0.35)]"
+                title="Truy cập tntcdev.com"
+              >
+                <span className="bg-gradient-to-r from-cyan-400 via-violet-400 to-pink-400 bg-clip-text font-black text-transparent">
+                  tntcdev
+                </span>
+                <span className="text-[10px] text-cyan-400 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+                  ↗
+                </span>
+              </a>
+            </span>
+          </div>
           <div className="flex gap-6">
             <span className="cursor-pointer transition-colors hover:text-foreground">
               Chính sách bảo mật
