@@ -200,12 +200,6 @@ export const FooterSection = memo(function FooterSection({
                 className="group relative inline-flex items-center gap-1.5 rounded-lg border border-emerald-500/40 bg-[#050907] px-3 py-1 font-mono text-xs font-semibold text-emerald-400 shadow-[0_0_15px_-3px_rgba(16,185,129,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-400 hover:bg-[#020503] hover:shadow-[0_0_22px_rgba(74,222,128,0.5)]"
                 title="Khám phá tntcdev.com"
               >
-                {/* Radar ping dot xanh lá */}
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
-                </span>
-
                 {/* Ký tự terminal dev >_ */}
                 <span className="font-bold text-emerald-500">&gt;_</span>
 
