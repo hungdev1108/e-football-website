@@ -197,13 +197,25 @@ export const FooterSection = memo(function FooterSection({
                 href="https://tntcdev.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative inline-flex items-center gap-1 rounded-md border border-cyan-500/30 bg-gradient-to-r from-cyan-500/10 via-violet-500/10 to-pink-500/10 px-2.5 py-0.5 font-bold backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-cyan-400/60 hover:shadow-[0_0_15px_rgba(34,211,238,0.35)]"
-                title="Truy cập tntcdev.com"
+                className="group relative inline-flex items-center gap-1.5 rounded-lg border border-emerald-500/40 bg-[#050907] px-3 py-1 font-mono text-xs font-semibold text-emerald-400 shadow-[0_0_15px_-3px_rgba(16,185,129,0.3)] transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-400 hover:bg-[#020503] hover:shadow-[0_0_22px_rgba(74,222,128,0.5)]"
+                title="Khám phá tntcdev.com"
               >
-                <span className="bg-gradient-to-r from-cyan-400 via-violet-400 to-pink-400 bg-clip-text font-black text-transparent">
+                {/* Radar ping dot xanh lá */}
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+                </span>
+
+                {/* Ký tự terminal dev >_ */}
+                <span className="font-bold text-emerald-500">&gt;_</span>
+
+                {/* Brand text tntcdev */}
+                <span className="font-bold tracking-wider text-emerald-300 transition-colors group-hover:text-emerald-200">
                   tntcdev
                 </span>
-                <span className="text-[10px] text-cyan-400 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+
+                {/* Icon điều hướng */}
+                <span className="text-[11px] text-emerald-400 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
                   ↗
                 </span>
               </a>

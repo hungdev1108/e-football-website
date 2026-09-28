@@ -241,18 +241,23 @@ export default function BioPage() {
           >
             ← Vào shop chính
           </Link>
-          <div className="flex flex-wrap items-center justify-center gap-1.5 pt-1">
+          <div className="flex flex-wrap items-center justify-center gap-2 pt-2 text-xs text-white/50">
             <span>© {new Date().getFullYear()} hieptranefootball.com</span>
             <span>•</span>
-            <span>
-              Phát triển bởi{" "}
+            <span className="inline-flex items-center gap-1.5">
+              Made by
               <a
                 href="https://tntcdev.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-bold text-cyan-300 transition-colors hover:text-cyan-200 hover:underline"
+                className="group inline-flex items-center gap-1 rounded-md border border-emerald-500/30 bg-[#050907] px-2 py-0.5 font-mono text-[11px] font-bold text-emerald-400 shadow-[0_0_10px_-2px_rgba(16,185,129,0.3)] transition-all duration-200 hover:border-emerald-400 hover:text-emerald-300 hover:shadow-[0_0_15px_rgba(74,222,128,0.45)]"
+                title="Khám phá tntcdev.com"
               >
-                tntcdev ↗
+                <span className="font-bold text-emerald-500">&gt;_</span>
+                <span>tntcdev</span>
+                <span className="text-[10px] text-emerald-400 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+                  ↗
+                </span>
               </a>
             </span>
           </div>
