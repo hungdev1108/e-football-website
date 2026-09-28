@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   ArrowLeft,
@@ -247,16 +247,28 @@ const StatChip = ({
   );
 };
 
-/* ─── Main Page ─── */
-export default function AccountDetailPage() {
+/* ─── Main Page Content ─── */
+function AccountDetailContent() {
   const [isLiked, setIsLiked] = useState(false);
   const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const params = useParams();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const accountId = params.id as string;
+  const fromFeatured = searchParams?.get("from") === "featured";
 
   const { data: accountData, isLoading } = useAccount(accountId);
   const account = accountData?.data as ApiGameAccount;
+
+  const handleBack = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.back();
+    } else {
+      router.push(fromFeatured ? "/#featured" : "/accounts");
+    }
+  };
 
   useEffect(() => {
     const h = () => setIsScrolled(window.scrollY > 80);
@@ -281,7 +293,7 @@ export default function AccountDetailPage() {
 
   const handlePurchase = () => {
     if (account.status !== "available") {
-      toast.error("Tài khoản này không còn khả dụng!");
+      toast.error("Mục này không còn khả dụng!");
       return;
     }
     setIsPurchaseModalOpen(true);
@@ -332,9 +344,9 @@ export default function AccountDetailPage() {
       <div className="flex min-h-[60vh] items-center justify-center px-4">
         <div className="max-w-sm text-center">
           <div className="mb-4 text-7xl">😞</div>
-          <h2 className="mb-2 text-2xl font-bold text-foreground">Không tìm thấy tài khoản</h2>
-          <p className="mb-6 text-muted-foreground">Tài khoản không tồn tại hoặc đã bị xóa.</p>
-          <Link href="/accounts">
+          <h2 className="mb-2 text-2xl font-bold text-foreground">Không tìm thấy ảnh eFootball</h2>
+          <p className="mb-6 text-muted-foreground">Hình ảnh không tồn tại hoặc đã bị xóa.</p>
+          <Link href={fromFeatured ? "/#featured" : "/accounts"} onClick={handleBack}>
             <Button variant="neon" size="lg">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Quay lại
@@ -358,10 +370,12 @@ export default function AccountDetailPage() {
         }`}
       >
         <div className="container mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-          <Link href="/accounts">
+          <Link href={fromFeatured ? "/#featured" : "/accounts"} onClick={handleBack}>
             <Button variant="ghost" size="sm" className="gap-2 rounded-xl text-muted-foreground hover:text-foreground">
               <ArrowLeft className="h-4 w-4" />
-              <span className="hidden sm:inline">Tài khoản game</span>
+              <span className="hidden sm:inline">
+                {fromFeatured ? "Ảnh nổi bật" : "Ảnh eFootball"}
+              </span>
             </Button>
           </Link>
           {isScrolled && (
@@ -654,3 +668,34 @@ export default function AccountDetailPage() {
     </div>
   );
 }
+
+export default function AccountDetailPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="container mx-auto max-w-6xl px-4 py-10">
+          <Skeleton className="mb-6 h-8 w-32 rounded-xl" />
+          <div className="grid gap-8 lg:grid-cols-[1fr_380px]">
+            <div className="space-y-4">
+              <Skeleton className="h-[440px] w-full rounded-2xl" />
+              <div className="flex gap-2">
+                <Skeleton className="h-20 w-20 rounded-xl" />
+                <Skeleton className="h-20 w-20 rounded-xl" />
+                <Skeleton className="h-20 w-20 rounded-xl" />
+              </div>
+            </div>
+            <div className="space-y-4">
+              <Skeleton className="h-6 w-3/4 rounded" />
+              <Skeleton className="h-10 w-1/2 rounded" />
+              <Skeleton className="h-14 w-full rounded-xl" />
+              <Skeleton className="h-40 w-full rounded-2xl" />
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <AccountDetailContent />
+    </Suspense>
+  );
+}
+

@@ -79,6 +79,7 @@ export const FeaturedAccountsSection = memo(function FeaturedAccountsSection({
 
   return (
     <section
+      id="featured"
       className={`relative overflow-hidden py-10 md:py-16 ${className || ""}`}
     >
       <div className="container mx-auto px-4 lg:px-6">
@@ -130,7 +131,7 @@ const AccountCard = memo(function AccountCard({
   account: ApiGameAccount;
 }) {
   return (
-    <Link href={`/accounts/${account._id}`} className="block">
+    <Link href={`/accounts/${account._id}?from=featured`} className="block">
       <TiltCard className="group relative h-[380px] md:h-[420px] rounded-2xl">
         <div className="relative flex h-full flex-col overflow-hidden rounded-2xl glass transition-all duration-300 group-hover:shadow-[0_20px_60px_-20px_rgb(var(--neon-violet)/0.55)]">
           <div
